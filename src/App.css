@@ -20,7 +20,7 @@ body {
     "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #1a1a2e;
+  background-color: var(--background-color);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -31,6 +31,7 @@ body {
 }
 
 :root {
+  --background-color: #1a1a2e;
   --primary-color: #d4af37;
   --white-color: #fff;
   --gray-color: rgba(86, 28, 28, 0.3);

@@ -10,6 +10,7 @@ import {
 import type { RewardOption } from "../types/reward";
 import { useSaveStore } from "../store";
 import i18n from "../i18n";
+import { scaleManager } from "./ScaleManager";
 
 interface RewardButton {
   container: Phaser.GameObjects.Container;
@@ -58,7 +59,7 @@ export class RewardSelectionUI {
         this.scene.cameras.main.width,
         this.scene.cameras.main.height,
         0x000000,
-        0.85
+        0.85,
       )
       .setScrollFactor(0)
       .setDepth(500);
@@ -71,7 +72,7 @@ export class RewardSelectionUI {
     // Title
     const title = this.scene.add
       .text(centerX, centerY - 220, i18n.t("rewards.title"), {
-        fontSize: "48px",
+        fontSize: scaleManager.getFontSize(48),
         color: "#ffd700",
         fontStyle: "bold",
         stroke: "#000000",
@@ -141,7 +142,7 @@ export class RewardSelectionUI {
         x,
         y,
         buttonWidth,
-        buttonHeight
+        buttonHeight,
       );
       this.buttons.push(button);
       this.container!.add(button.container);
@@ -153,7 +154,7 @@ export class RewardSelectionUI {
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
   ): RewardButton {
     const container = this.scene.add.container(x, y);
 
@@ -173,7 +174,7 @@ export class RewardSelectionUI {
     // Icon (using emoji instead of images)
     const icon = this.scene.add
       .text(0, -50, isWeapon ? "⚔️" : "🧪", {
-        fontSize: "48px",
+        fontSize: scaleManager.getFontSize(48),
       })
       .setOrigin(0.5);
 
@@ -188,7 +189,7 @@ export class RewardSelectionUI {
     // Name
     const nameText = this.scene.add
       .text(0, 0, name, {
-        fontSize: "20px",
+        fontSize: scaleManager.getFontSize(20),
         color: "#ffffff",
         fontStyle: "bold",
         align: "center",
@@ -199,7 +200,7 @@ export class RewardSelectionUI {
     // Description
     const descText = this.scene.add
       .text(0, 35, description, {
-        fontSize: "14px",
+        fontSize: scaleManager.getFontSize(14),
         color: "#cccccc",
         align: "center",
         wordWrap: { width: width - 20 },
@@ -209,7 +210,7 @@ export class RewardSelectionUI {
     // Rarity text
     const rarityText = this.scene.add
       .text(0, 70, i18n.t(`rewards.rarity.${rarity}`), {
-        fontSize: "16px",
+        fontSize: scaleManager.getFontSize(16),
         color: `#${color.toString(16).padStart(6, "0")}`,
         fontStyle: "bold",
       })
@@ -269,7 +270,7 @@ export class RewardSelectionUI {
         buttonY,
         buttonWidth,
         buttonHeight,
-        canRefresh ? 0x4a4a4a : 0x2a2a2a
+        canRefresh ? 0x4a4a4a : 0x2a2a2a,
       )
       .setStrokeStyle(2, canRefresh ? 0xffd700 : 0x666666);
 
@@ -283,10 +284,10 @@ export class RewardSelectionUI {
         buttonY,
         i18n.t("rewards.refreshCost", { cost: this.refreshCost }),
         {
-          fontSize: "18px",
+          fontSize: scaleManager.getFontSize(18),
           color: canRefresh ? "#ffffff" : "#666666",
           fontStyle: "bold",
-        }
+        },
       )
       .setOrigin(0.5);
 
@@ -308,9 +309,9 @@ export class RewardSelectionUI {
   }
 
   private createCraftHint(centerX: number, centerY: number): void {
-    // Check if there are craftable weapons
+    // Check if there are craft able weapons
     const ownedWeapons = useSaveStore.getState().ownedWeapons || [];
-    const availableCrafts = getAvailableCrafts(ownedWeapons as any);
+    const availableCrafts = getAvailableCrafts(ownedWeapons);
 
     if (availableCrafts.length > 0) {
       const hintText = this.scene.add
@@ -319,10 +320,10 @@ export class RewardSelectionUI {
           centerY + 200,
           i18n.t("rewards.craftHint", { count: availableCrafts.length }),
           {
-            fontSize: "16px",
+            fontSize: scaleManager.getFontSize(16),
             color: "#ffd700",
             fontStyle: "italic",
-          }
+          },
         )
         .setOrigin(0.5);
 

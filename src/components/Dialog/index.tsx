@@ -1,6 +1,5 @@
 import React, { FunctionComponent, memo } from "react";
 import { createPortal } from "react-dom";
-import { createRoot, Root } from "react-dom/client";
 import styles from "./index.module.css";
 import { useTranslation } from "react-i18next";
 
@@ -76,54 +75,7 @@ export const Dialog: FunctionComponent<DialogProps> = memo((props) => {
         )}
       </div>
     </div>,
-    getContainer()
+    getContainer(),
   );
 });
 Dialog.displayName = "Dialog";
-
-export function info(props: DialogProps) {
-  const container = document.createDocumentFragment();
-  let root: Root | undefined = undefined;
-  function close() {
-    root?.unmount();
-    root = undefined;
-  }
-
-  function render(modalProps: DialogProps) {
-    root = root || createRoot(container);
-    root.render(
-      <Dialog
-        visible={modalProps.visible}
-        title={modalProps.title}
-        className={modalProps.className}
-        onCancel={(event) => {
-          event.stopPropagation();
-          if (modalProps.onCancel) {
-            modalProps.onCancel(event);
-          }
-          close();
-        }}
-        onOk={(event) => {
-          event.stopPropagation();
-          if (modalProps.onOk) {
-            modalProps.onOk(event);
-          }
-          close();
-        }}
-        testId={modalProps.testId}
-      >
-        {modalProps.children}
-      </Dialog>
-    );
-  }
-  function update(modalProps: DialogProps) {
-    render(modalProps);
-  }
-
-  render(props);
-
-  return {
-    close,
-    update,
-  };
-}

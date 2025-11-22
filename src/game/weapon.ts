@@ -9,19 +9,17 @@ interface WeaponConfig {
   damage: number;
   cooldown: number;
   type: WeaponType;
+  projectiles?: Phaser.Physics.Arcade.Group;
 }
 
-interface ProjectileSprite extends Phaser.Physics.Arcade.Sprite {
+export interface ProjectileSprite extends Phaser.Physics.Arcade.Sprite {
   damage?: number;
-  piercing?: number;
   weaponRef?: Weapon;
 }
 
 interface OrbData {
-  sprite: Phaser.Physics.Arcade.Sprite;
+  sprite: ProjectileSprite;
   offset: number;
-  damage?: number;
-  weaponRef?: any;
 }
 
 // Weapon base class
@@ -34,8 +32,9 @@ export abstract class Weapon {
   public cooldown: number;
   protected lastFired: number;
   public type: WeaponType;
-
   static type: WeaponType;
+  public orbs: OrbData[] = [];
+  public projectiles?: Phaser.Physics.Arcade.Group;
 
   constructor(scene: Phaser.Scene, player: Player, config: WeaponConfig) {
     this.scene = scene;
@@ -47,6 +46,7 @@ export abstract class Weapon {
     this.lastFired = 0;
     Weapon.type = config.type;
     this.type = config.type;
+    this.projectiles = config.projectiles;
   }
 
   public update(time: number, enemies: Enemy[]): void {
@@ -70,7 +70,6 @@ export abstract class Weapon {
 
 // Magic Missile weapon - auto-attack nearest enemy (renamed to Golden Staff)
 export class GoldenStaff extends Weapon {
-  public projectiles: Phaser.Physics.Arcade.Group;
   private projectileSpeed: number;
   private piercing: number;
 
@@ -79,8 +78,8 @@ export class GoldenStaff extends Weapon {
       damage: 15,
       cooldown: 1000,
       type: "golden_staff",
+      projectiles: scene.physics.add.group(),
     });
-    this.projectiles = scene.physics.add.group();
     this.projectileSpeed = 300;
     this.piercing = 1;
   }
@@ -109,11 +108,11 @@ export class GoldenStaff extends Weapon {
 
     // Fire projectile using loaded texture with responsive scaling
     const projectileSize = scaleManager.getSpriteSize(24);
-    const projectile = this.projectiles.create(
+    const projectile = this.projectiles?.create(
       playerPos.x,
       playerPos.y,
-      this.type
-    ) as ProjectileSprite;
+      this.type,
+    );
     projectile.setCircle(projectileSize / 2);
     projectile.setDisplaySize(projectileSize, projectileSize);
 
@@ -125,7 +124,7 @@ export class GoldenStaff extends Weapon {
 
     projectile.setVelocity(
       (dx / distance) * this.projectileSpeed,
-      (dy / distance) * this.projectileSpeed
+      (dy / distance) * this.projectileSpeed,
     );
 
     projectile.damage = this.damage;
@@ -153,7 +152,6 @@ export class GoldenStaff extends Weapon {
 }
 
 export class FireproofCloak extends Weapon {
-  public orbs: OrbData[];
   private orbCount: number;
   private radius: number;
   private rotationSpeed: number;
@@ -165,7 +163,6 @@ export class FireproofCloak extends Weapon {
       cooldown: 100,
       type: "fireproof_cloak",
     });
-    this.orbs = [];
     this.orbCount = 1;
     this.radius = scaleManager.scaleValue(80);
     this.rotationSpeed = 2;
@@ -182,12 +179,16 @@ export class FireproofCloak extends Weapon {
     // Create new orbs using loaded texture with responsive scaling
     const orbSize = scaleManager.getSpriteSize(32);
     for (let i = 0; i < this.orbCount; i++) {
-      const orb = this.scene.physics.add.sprite(0, 0, this.type);
+      const orb = this.scene.physics.add.sprite(
+        0,
+        0,
+        this.type,
+      ) as ProjectileSprite;
       orb.setCircle(orbSize / 2);
       orb.setDisplaySize(orbSize, orbSize);
 
-      (orb as any).damage = this.damage;
-      (orb as any).weaponRef = this;
+      orb.damage = this.damage;
+      orb.weaponRef = this;
 
       this.orbs.push({
         sprite: orb,
@@ -228,15 +229,10 @@ export class FireproofCloak extends Weapon {
       this.rotationSpeed = 3;
     }
   }
-
-  public getOrbs(): Phaser.Physics.Arcade.Sprite[] {
-    return this.orbs.map((orb) => orb.sprite);
-  }
 }
 
 // Ruyi Staff - Ultimate form of Golden Staff with enhanced power
 export class RuyiStaff extends Weapon {
-  public projectiles: Phaser.Physics.Arcade.Group;
   private projectileSpeed: number;
   private piercing: number;
   private projectileCount: number;
@@ -246,8 +242,8 @@ export class RuyiStaff extends Weapon {
       damage: 50,
       cooldown: 800,
       type: "ruyi_staff",
+      projectiles: scene.physics.add.group(),
     });
-    this.projectiles = scene.physics.add.group();
     this.projectileSpeed = 400;
     this.piercing = 3;
     this.projectileCount = 1;
@@ -278,11 +274,11 @@ export class RuyiStaff extends Weapon {
       if (!nearestEnemy) continue;
 
       const projectileSize = scaleManager.getSpriteSize(32);
-      const projectile = this.projectiles.create(
+      const projectile = this.projectiles?.create(
         playerPos.x,
         playerPos.y,
-        this.type
-      ) as ProjectileSprite;
+        this.type,
+      );
       projectile.setCircle(projectileSize / 2);
       projectile.setDisplaySize(projectileSize, projectileSize);
 
@@ -293,7 +289,7 @@ export class RuyiStaff extends Weapon {
 
       projectile.setVelocity(
         (dx / distance) * this.projectileSpeed,
-        (dy / distance) * this.projectileSpeed
+        (dy / distance) * this.projectileSpeed,
       );
 
       projectile.damage = this.damage;
@@ -316,7 +312,6 @@ export class RuyiStaff extends Weapon {
 
 // Fire Lance - Fast piercing spear
 export class FireLance extends Weapon {
-  public projectiles: Phaser.Physics.Arcade.Group;
   private projectileSpeed: number;
   private piercing: number;
 
@@ -325,8 +320,8 @@ export class FireLance extends Weapon {
       damage: 20,
       cooldown: 1200,
       type: "fire_lance",
+      projectiles: scene.physics.add.group(),
     });
-    this.projectiles = scene.physics.add.group();
     this.projectileSpeed = 500;
     this.piercing = 2;
   }
@@ -344,7 +339,7 @@ export class FireLance extends Weapon {
         playerPos.x,
         playerPos.y,
         enemy.sprite.x,
-        enemy.sprite.y
+        enemy.sprite.y,
       );
       if (distance < nearestDistance) {
         nearestDistance = distance;
@@ -355,11 +350,11 @@ export class FireLance extends Weapon {
     if (!nearestEnemy) return;
 
     const projectileSize = scaleManager.getSpriteSize(28);
-    const projectile = this.projectiles.create(
+    const projectile = this.projectiles?.create(
       playerPos.x,
       playerPos.y,
-      this.type
-    ) as ProjectileSprite;
+      this.type,
+    );
     projectile.setCircle(projectileSize / 2);
     projectile.setDisplaySize(projectileSize, projectileSize);
 
@@ -368,12 +363,12 @@ export class FireLance extends Weapon {
       playerPos.x,
       playerPos.y,
       targetEnemy.sprite.x,
-      targetEnemy.sprite.y
+      targetEnemy.sprite.y,
     );
 
     projectile.setVelocity(
       Math.cos(angle) * this.projectileSpeed,
-      Math.sin(angle) * this.projectileSpeed
+      Math.sin(angle) * this.projectileSpeed,
     );
     projectile.setRotation(angle);
 
@@ -396,7 +391,6 @@ export class FireLance extends Weapon {
 
 // Wind Tamer - Area damage pearl
 export class WindTamer extends Weapon {
-  public orbs: OrbData[];
   private orbCount: number;
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -409,7 +403,6 @@ export class WindTamer extends Weapon {
       cooldown: 2000,
       type: "wind_tamer",
     });
-    this.orbs = [];
     this.orbCount = 1;
     this.radius = scaleManager.scaleValue(60);
     this.damageRadius = 100;
@@ -422,11 +415,15 @@ export class WindTamer extends Weapon {
 
     const orbSize = scaleManager.getSpriteSize(28);
     for (let i = 0; i < this.orbCount; i++) {
-      const orb = this.scene.physics.add.sprite(0, 0, this.type);
+      const orb = this.scene.physics.add.sprite(
+        0,
+        0,
+        this.type,
+      ) as ProjectileSprite;
       orb.setCircle(orbSize / 2);
       orb.setDisplaySize(orbSize, orbSize);
-      (orb as any).damage = this.damage;
-      (orb as any).weaponRef = this;
+      orb.damage = this.damage;
+      orb.weaponRef = this;
 
       this.orbs.push({
         sprite: orb,
@@ -453,7 +450,7 @@ export class WindTamer extends Weapon {
         playerPos.x,
         playerPos.y,
         enemy.sprite.x,
-        enemy.sprite.y
+        enemy.sprite.y,
       );
       if (distance < this.damageRadius) {
         enemy.takeDamage(this.damage);
@@ -467,10 +464,6 @@ export class WindTamer extends Weapon {
     if (this.level >= 3) this.cooldown = 1500;
     if (this.level >= 4) this.damageRadius = 150;
     if (this.level >= 5) this.orbCount = 2;
-  }
-
-  public getOrbs(): Phaser.Physics.Arcade.Sprite[] {
-    return this.orbs.map((orb) => orb.sprite);
   }
 }
 
@@ -501,7 +494,7 @@ export class VioletBell extends Weapon {
         playerPos.y,
         20,
         0x9370db,
-        0.3
+        0.3,
       );
 
       this.scene.tweens.add({
@@ -517,7 +510,7 @@ export class VioletBell extends Weapon {
               wave.x,
               wave.y,
               enemy.sprite.x,
-              enemy.sprite.y
+              enemy.sprite.y,
             );
             if (dist <= wave.radius && dist >= wave.radius - 20) {
               enemy.takeDamage(this.damage);
@@ -540,7 +533,6 @@ export class VioletBell extends Weapon {
 
 // Twin Blades - Fast dual strike
 export class TwinBlades extends Weapon {
-  public projectiles: Phaser.Physics.Arcade.Group;
   private projectileSpeed: number;
 
   constructor(scene: Phaser.Scene, player: Player) {
@@ -548,8 +540,8 @@ export class TwinBlades extends Weapon {
       damage: 18,
       cooldown: 800,
       type: "twin_blades",
+      projectiles: scene.physics.add.group(),
     });
-    this.projectiles = scene.physics.add.group();
     this.projectileSpeed = 450;
   }
 
@@ -561,11 +553,11 @@ export class TwinBlades extends Weapon {
 
     targets.forEach((target, index) => {
       const projectileSize = scaleManager.getSpriteSize(24);
-      const projectile = this.projectiles.create(
+      const projectile = this.projectiles?.create(
         playerPos.x + (index === 0 ? -10 : 10),
         playerPos.y,
-        this.type
-      ) as ProjectileSprite;
+        this.type,
+      );
       projectile.setCircle(projectileSize / 2);
       projectile.setDisplaySize(projectileSize, projectileSize);
 
@@ -573,12 +565,12 @@ export class TwinBlades extends Weapon {
         playerPos.x,
         playerPos.y,
         target.sprite.x,
-        target.sprite.y
+        target.sprite.y,
       );
 
       projectile.setVelocity(
         Math.cos(angle) * this.projectileSpeed,
-        Math.sin(angle) * this.projectileSpeed
+        Math.sin(angle) * this.projectileSpeed,
       );
       projectile.setRotation(angle);
 
@@ -601,7 +593,6 @@ export class TwinBlades extends Weapon {
 
 // Mace - Heavy damage weapon
 export class Mace extends Weapon {
-  public projectiles: Phaser.Physics.Arcade.Group;
   private projectileSpeed: number;
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -612,8 +603,8 @@ export class Mace extends Weapon {
       damage: 35,
       cooldown: 1800,
       type: "mace",
+      projectiles: scene.physics.add.group(),
     });
-    this.projectiles = scene.physics.add.group();
     this.projectileSpeed = 250;
     this.stunChance = 0.3;
   }
@@ -631,7 +622,7 @@ export class Mace extends Weapon {
         playerPos.x,
         playerPos.y,
         enemy.sprite.x,
-        enemy.sprite.y
+        enemy.sprite.y,
       );
       if (distance < nearestDistance) {
         nearestDistance = distance;
@@ -642,11 +633,11 @@ export class Mace extends Weapon {
     if (!nearestEnemy) return;
 
     const projectileSize = scaleManager.getSpriteSize(32);
-    const projectile = this.projectiles.create(
+    const projectile = this.projectiles?.create(
       playerPos.x,
       playerPos.y,
-      this.type
-    ) as ProjectileSprite;
+      this.type,
+    );
     projectile.setCircle(projectileSize / 2);
     projectile.setDisplaySize(projectileSize, projectileSize);
 
@@ -655,12 +646,12 @@ export class Mace extends Weapon {
       playerPos.x,
       playerPos.y,
       targetEnemy.sprite.x,
-      targetEnemy.sprite.y
+      targetEnemy.sprite.y,
     );
 
     projectile.setVelocity(
       Math.cos(angle) * this.projectileSpeed,
-      Math.sin(angle) * this.projectileSpeed
+      Math.sin(angle) * this.projectileSpeed,
     );
 
     projectile.damage = this.damage;
@@ -703,7 +694,7 @@ export class BullHorns extends Weapon {
       playerPos.y,
       this.chargeRadius,
       0x8b0000,
-      0.3
+      0.3,
     );
 
     enemies.forEach((enemy) => {
@@ -712,7 +703,7 @@ export class BullHorns extends Weapon {
         playerPos.x,
         playerPos.y,
         enemy.sprite.x,
-        enemy.sprite.y
+        enemy.sprite.y,
       );
       if (distance < this.chargeRadius) {
         enemy.takeDamage(this.damage);
@@ -721,11 +712,11 @@ export class BullHorns extends Weapon {
           playerPos.x,
           playerPos.y,
           enemy.sprite.x,
-          enemy.sprite.y
+          enemy.sprite.y,
         );
         (enemy.sprite.body as Phaser.Physics.Arcade.Body).setVelocity(
           Math.cos(angle) * 300,
-          Math.sin(angle) * 300
+          Math.sin(angle) * 300,
         );
       }
     });
@@ -776,7 +767,7 @@ export class ThunderDrum extends Weapon {
         10,
         100,
         0xffd700,
-        0.8
+        0.8,
       );
 
       this.scene.tweens.add({
@@ -802,7 +793,6 @@ export class ThunderDrum extends Weapon {
 
 // Ice Needle - Slowing projectiles
 export class IceNeedle extends Weapon {
-  public projectiles: Phaser.Physics.Arcade.Group;
   private projectileSpeed: number;
   private projectileCount: number;
 
@@ -811,8 +801,8 @@ export class IceNeedle extends Weapon {
       damage: 16,
       cooldown: 900,
       type: "ice_needle",
+      projectiles: scene.physics.add.group(),
     });
-    this.projectiles = scene.physics.add.group();
     this.projectileSpeed = 550;
     this.projectileCount = 3;
   }
@@ -826,17 +816,17 @@ export class IceNeedle extends Weapon {
     for (let i = 0; i < this.projectileCount; i++) {
       const angle = angleStep * i;
       const projectileSize = scaleManager.getSpriteSize(20);
-      const projectile = this.projectiles.create(
+      const projectile = this.projectiles?.create(
         playerPos.x,
         playerPos.y,
-        this.type
-      ) as ProjectileSprite;
+        this.type,
+      );
       projectile.setCircle(projectileSize / 2);
       projectile.setDisplaySize(projectileSize, projectileSize);
 
       projectile.setVelocity(
         Math.cos(angle) * this.projectileSpeed,
-        Math.sin(angle) * this.projectileSpeed
+        Math.sin(angle) * this.projectileSpeed,
       );
       projectile.setRotation(angle);
 
@@ -861,7 +851,6 @@ export class IceNeedle extends Weapon {
 
 // Wind Fire Wheels - Dual spinning wheels
 export class WindFireWheels extends Weapon {
-  public orbs: OrbData[];
   private orbCount: number;
   private radius: number;
   private rotationSpeed: number;
@@ -873,7 +862,6 @@ export class WindFireWheels extends Weapon {
       cooldown: 100,
       type: "wind_fire_wheels",
     });
-    this.orbs = [];
     this.orbCount = 2;
     this.radius = scaleManager.scaleValue(70);
     this.rotationSpeed = 4;
@@ -887,11 +875,15 @@ export class WindFireWheels extends Weapon {
 
     const orbSize = scaleManager.getSpriteSize(32);
     for (let i = 0; i < this.orbCount; i++) {
-      const orb = this.scene.physics.add.sprite(0, 0, this.type);
+      const orb = this.scene.physics.add.sprite(
+        0,
+        0,
+        this.type,
+      ) as ProjectileSprite;
       orb.setCircle(orbSize / 2);
       orb.setDisplaySize(orbSize, orbSize);
-      (orb as any).damage = this.damage;
-      (orb as any).weaponRef = this;
+      orb.damage = this.damage;
+      orb.weaponRef = this;
 
       this.orbs.push({
         sprite: orb,
@@ -925,10 +917,6 @@ export class WindFireWheels extends Weapon {
     if (this.level >= 4) this.rotationSpeed = 6;
     if (this.level >= 5) this.orbCount = 3;
   }
-
-  public getOrbs(): Phaser.Physics.Arcade.Sprite[] {
-    return this.orbs.map((orb) => orb.sprite);
-  }
 }
 
 // Jade Purity Bottle - Suction and damage
@@ -955,7 +943,7 @@ export class JadePurityBottle extends Weapon {
       playerPos.y,
       30,
       0x7fffd4,
-      0.6
+      0.6,
     );
 
     enemies.forEach((enemy) => {
@@ -964,7 +952,7 @@ export class JadePurityBottle extends Weapon {
         playerPos.x,
         playerPos.y,
         enemy.sprite.x,
-        enemy.sprite.y
+        enemy.sprite.y,
       );
 
       if (distance < this.pullRadius) {
@@ -973,11 +961,11 @@ export class JadePurityBottle extends Weapon {
           enemy.sprite.x,
           enemy.sprite.y,
           playerPos.x,
-          playerPos.y
+          playerPos.y,
         );
         (enemy.sprite.body as Phaser.Physics.Arcade.Body).setVelocity(
           Math.cos(angle) * this.pullStrength,
-          Math.sin(angle) * this.pullStrength
+          Math.sin(angle) * this.pullStrength,
         );
 
         if (distance < 80) {
@@ -1031,14 +1019,14 @@ export class GoldenRope extends Weapon {
             playerPos.x,
             playerPos.y,
             a.sprite.x,
-            a.sprite.y
+            a.sprite.y,
           ) -
           Phaser.Math.Distance.Between(
             playerPos.x,
             playerPos.y,
             b.sprite.x,
-            b.sprite.y
-          )
+            b.sprite.y,
+          ),
       )
       .slice(0, this.maxTargets);
 
@@ -1052,7 +1040,7 @@ export class GoldenRope extends Weapon {
         target.sprite.x,
         target.sprite.y,
         0xffd700,
-        0.8
+        0.8,
       );
       rope.setLineWidth(3);
 
@@ -1112,21 +1100,21 @@ export class PlantainFan extends Weapon {
               playerPos.x,
               playerPos.y,
               a.sprite.x,
-              a.sprite.y
+              a.sprite.y,
             ) -
             Phaser.Math.Distance.Between(
               playerPos.x,
               playerPos.y,
               b.sprite.x,
-              b.sprite.y
-            )
+              b.sprite.y,
+            ),
         )[0];
       if (nearest) {
         targetAngle = Phaser.Math.Angle.Between(
           playerPos.x,
           playerPos.y,
           nearest.sprite.x,
-          nearest.sprite.y
+          nearest.sprite.y,
         );
       }
     }
@@ -1140,7 +1128,7 @@ export class PlantainFan extends Weapon {
       this.fanRange,
       targetAngle - this.fanAngle / 2,
       targetAngle + this.fanAngle / 2,
-      false
+      false,
     );
     graphics.fillPath();
 
@@ -1151,13 +1139,13 @@ export class PlantainFan extends Weapon {
         playerPos.x,
         playerPos.y,
         enemy.sprite.x,
-        enemy.sprite.y
+        enemy.sprite.y,
       );
       const angle = Phaser.Math.Angle.Between(
         playerPos.x,
         playerPos.y,
         enemy.sprite.x,
-        enemy.sprite.y
+        enemy.sprite.y,
       );
 
       const angleDiff = Math.abs(Phaser.Math.Angle.Wrap(angle - targetAngle));
@@ -1167,7 +1155,7 @@ export class PlantainFan extends Weapon {
         // Knockback
         (enemy.sprite.body as Phaser.Physics.Arcade.Body).setVelocity(
           Math.cos(angle) * 400,
-          Math.sin(angle) * 400
+          Math.sin(angle) * 400,
         );
       }
     });
@@ -1325,12 +1313,9 @@ export class WeaponManager {
 
   public clear(): void {
     this.weapons.forEach((weapon) => {
-      if ((weapon as any).projectiles) {
-        (weapon as any).projectiles.clear(true, true);
-      }
-      if ((weapon as any).orbs) {
-        (weapon as any).orbs.forEach((orb: OrbData) => orb.sprite.destroy());
-      }
+      weapon.projectiles?.clear(true, true);
+
+      weapon.orbs.forEach((orb: OrbData) => orb.sprite.destroy());
     });
     this.weapons = [];
   }

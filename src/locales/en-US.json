@@ -5,13 +5,17 @@
         "restart": "Restart",
         "backToHome": "Back to Home",
         "gameOver": "Game Over",
+        "victory": "Victory!",
+        "chapterComplete": "Chapter Complete!",
+        "continueGame": "Continue",
         "levelUp": "Level Up!",
         "paused": "Paused",
         "level": "Lv.{level}",
         "specialWeapon": "Special Weapon",
         "resetSave": "Reset Save",
         "endGame": "End Game",
-        "endGameTitle": "Do you want to end the game?"
+        "endGameTitle": "Do you want to end the game?",
+        "completeChapters": "Complete Chapters"
     },
     "settings": {
         "title": "Settings",

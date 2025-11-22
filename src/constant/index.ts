@@ -193,13 +193,18 @@ export const getMapImagePath = (id: MapType): string => {
 };
 
 export const EVENT_MAP = {
-  UPGRADE_LEVEL: "upgradeLevel",
-  GAME_OVER: "gameOver",
-} as const;
-
-export type EventTypes = (typeof EVENT_MAP)[keyof typeof EVENT_MAP];
+  BACK_TO_HOME: "BACK_TO_HOME",
+  SHOW_END_GAME_MODAL: "SHOW_END_GAME_MODAL",
+};
 
 export const GAME_SCENE_KEY = "GameScene";
+
+export const DEFAULT_GAME_TIME = 1800; // 30 minutes in seconds
+
+export const SCREEN_SIZE = {
+  width: window.innerWidth,
+  height: window.innerHeight,
+};
 
 export * from "./characters";
 export * from "./enemies";

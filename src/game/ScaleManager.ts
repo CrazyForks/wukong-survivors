@@ -3,6 +3,8 @@
  * Following game development best practices for mobile and desktop support
  */
 
+import { SCREEN_SIZE } from "../constant";
+
 export interface ScaleConfig {
   // Base design dimensions (reference screen size)
   baseWidth: number;
@@ -25,62 +27,19 @@ class ScaleManagerClass {
   private config: ScaleConfig = {
     baseWidth: 1920,
     baseHeight: 1080,
-    screenWidth: window.innerWidth,
-    screenHeight: window.innerHeight,
+    screenWidth: SCREEN_SIZE.width,
+    screenHeight: SCREEN_SIZE.height,
     scaleX: 1,
     scaleY: 1,
     scale: 1,
     uiScale: 1,
   };
 
-  private minScale = 0.5;
+  private minScale = 1;
   private maxScale = 2.0;
-  private resizeCallbacks: (() => void)[] = [];
 
   constructor() {
     this.updateScale();
-    this.setupResizeListener();
-  }
-
-  /**
-   * Setup window resize listener
-   */
-  private setupResizeListener(): void {
-    let resizeTimeout: NodeJS.Timeout;
-
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        this.updateScale();
-        this.notifyResizeCallbacks();
-      }, 100);
-    };
-
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("orientationchange", () => {
-      setTimeout(handleResize, 100);
-    });
-  }
-
-  /**
-   * Register a callback to be called when screen is resized
-   */
-  public onResize(callback: () => void): () => void {
-    this.resizeCallbacks.push(callback);
-    // Return unsubscribe function
-    return () => {
-      const index = this.resizeCallbacks.indexOf(callback);
-      if (index > -1) {
-        this.resizeCallbacks.splice(index, 1);
-      }
-    };
-  }
-
-  /**
-   * Notify all resize callbacks
-   */
-  private notifyResizeCallbacks(): void {
-    this.resizeCallbacks.forEach((callback) => callback());
   }
 
   /**
@@ -125,38 +84,10 @@ class ScaleManagerClass {
   }
 
   /**
-   * Get the uniform scale factor
-   */
-  public getScale(): number {
-    return this.config.scale;
-  }
-
-  /**
-   * Get UI-specific scale factor
-   */
-  public getUIScale(): number {
-    return this.config.uiScale;
-  }
-
-  /**
-   * Get full scale configuration
-   */
-  public getConfig(): ScaleConfig {
-    return { ...this.config };
-  }
-
-  /**
    * Scale a value based on the uniform scale
    */
   public scaleValue(value: number): number {
     return value * this.config.scale;
-  }
-
-  /**
-   * Scale a UI value
-   */
-  public scaleUIValue(value: number): number {
-    return value * this.config.uiScale;
   }
 
   /**

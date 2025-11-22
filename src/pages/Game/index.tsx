@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import styles from "./index.module.css";
-import { useTranslation } from "react-i18next";
 import { GameScene } from "../../game/GameScene";
-import { EVENT_MAP, type EventTypes } from "../../constant";
-import Modal from "./Modal";
+import { EVENT_MAP, SCREEN_SIZE } from "../../constant";
 import Phaser from "phaser";
+import EventBus from "../../game/eventBus";
 
 interface GameWrapperProps {
   onBack: () => void;
@@ -12,10 +11,9 @@ interface GameWrapperProps {
 
 const getConfig = (parent: HTMLElement) => {
   const config: Phaser.Types.Core.GameConfig = {
+    ...SCREEN_SIZE,
     type: Phaser.AUTO,
-    parent: parent,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    parent,
     physics: {
       default: "arcade",
       arcade: {
@@ -40,17 +38,14 @@ const getConfig = (parent: HTMLElement) => {
 };
 
 const GameWrapper: React.FC<GameWrapperProps> = ({ onBack }) => {
-  const [t] = useTranslation();
   const gameRef = useRef<Phaser.Game | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [modalType, setModalType] = useState<EventTypes | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || gameRef.current) return;
 
     gameRef.current = new Phaser.Game(getConfig(containerRef.current));
 
-    // Cleanup
     return () => {
       if (gameRef.current) {
         gameRef.current.destroy(true);
@@ -62,7 +57,7 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ onBack }) => {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setModalType(EVENT_MAP.GAME_OVER);
+        EventBus.emit(EVENT_MAP.SHOW_END_GAME_MODAL);
       }
 
       return false;
@@ -74,23 +69,14 @@ const GameWrapper: React.FC<GameWrapperProps> = ({ onBack }) => {
     };
   }, []);
 
-  return (
-    <>
-      <div className={styles.gameContainer} ref={containerRef} />
-      <button
-        className={styles.endGameButton}
-        onClick={() => setModalType(EVENT_MAP.GAME_OVER)}
-      >
-        {t("game.endGame")}
-      </button>
-      <Modal
-        modalType={modalType}
-        setModalType={setModalType}
-        onBack={onBack}
-        gameRef={gameRef}
-      />
-    </>
-  );
+  useEffect(() => {
+    EventBus.on(EVENT_MAP.BACK_TO_HOME, onBack);
+    return () => {
+      EventBus.off(EVENT_MAP.BACK_TO_HOME, onBack);
+    };
+  }, []);
+
+  return <div className={styles.gameContainer} ref={containerRef} />;
 };
 
 export default GameWrapper;

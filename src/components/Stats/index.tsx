@@ -5,8 +5,9 @@ import {
   useTotalKills,
   useBestSurvivalTime,
   useTotalPlayTime,
+  useCompletedChapters,
 } from "../../store";
-import { CHARACTERS_DATA } from "../../constant";
+import { CHARACTERS_DATA, MAPS } from "../../constant";
 import styles from "./index.module.css";
 
 const chatterList = Object.keys(CHARACTERS_DATA);
@@ -14,6 +15,7 @@ const chatterList = Object.keys(CHARACTERS_DATA);
 const Stats = () => {
   const [t] = useTranslation();
   const unlockedCharacters = useUnlockedCharacters();
+  const completedChapters = useCompletedChapters();
   const totalGold = useTotalGold();
   const totalKills = useTotalKills();
   const bestSurvivalTime = useBestSurvivalTime();
@@ -51,6 +53,12 @@ const Stats = () => {
         </span>
         <span className={styles.statValue}>
           {unlockedCharacters.length}/{chatterList.length}
+        </span>
+      </div>
+      <div className={styles.stat}>
+        <span className={styles.statLabel}>{t("game.completeChapters")}:</span>
+        <span className={styles.statValue}>
+          {completedChapters.length}/{MAPS.length}
         </span>
       </div>
     </div>

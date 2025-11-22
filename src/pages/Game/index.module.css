@@ -63,3 +63,19 @@
   padding: 10px;
   color: var(--white-color);
 }
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px;
+  color: var(--white-color);
+}
+
+.killsContainer {
+  flex: 1;
+}
+
+.healthContainer {
+  flex: 1;
+}

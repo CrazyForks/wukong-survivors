@@ -79,7 +79,7 @@ export class Enemy {
     if (distance > 0) {
       this.sprite.setVelocity(
         (dx / distance) * this.speed,
-        (dy / distance) * this.speed
+        (dy / distance) * this.speed,
       );
     }
   }
@@ -187,7 +187,7 @@ export class EnemySpawner {
 
     // Randomly select enemy type from available enemies
     const randomIndex = Math.floor(
-      Math.random() * this.availableEnemies.length
+      Math.random() * this.availableEnemies.length,
     );
     const enemyType = this.availableEnemies[randomIndex];
 

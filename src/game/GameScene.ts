@@ -1,9 +1,9 @@
-import Phaser from 'phaser';
-import { Player } from './player';
-import { EnemySpawner } from './enemy';
-import { WeaponManager, WeaponClass } from './weapon';
-import { ExperienceManager } from './experience';
-import { useSaveStore, useAppStore } from '../store';
+import Phaser from "phaser";
+import { Player } from "./player";
+import { EnemySpawner } from "./enemy";
+import { WeaponManager, WeaponClass } from "./weapon";
+import { ExperienceManager } from "./experience";
+import { useSaveStore, useAppStore } from "../store";
 import {
   PERMANENT_UPGRADES,
   getCharacterImagePath,
@@ -14,18 +14,20 @@ import {
   getMapImagePath,
   GAME_SCENE_KEY,
   EVENT_MAP,
-} from '../constant';
-import i18n from '../i18n';
-import { scaleManager } from './ScaleManager';
-import { RewardSelectionUI } from './RewardSelectionUI';
+  DEFAULT_GAME_TIME,
+  SCREEN_SIZE,
+} from "../constant";
+import i18n from "../i18n";
+import { scaleManager } from "./ScaleManager";
+import { RewardSelectionUI } from "./RewardSelectionUI";
 import type {
   RewardOption,
   ElixirData,
   CharacterRankType,
   EnemyRank,
   WeaponData,
-} from '../types';
-import eventBus from './eventBus';
+} from "../types";
+import eventBus from "./eventBus";
 
 interface WASDKeys {
   w: Phaser.Input.Keyboard.Key;
@@ -35,7 +37,7 @@ interface WASDKeys {
 }
 
 interface UpgradeOption {
-  type: 'upgrade' | 'new';
+  type: "upgrade" | "new";
   weapon?: any;
   weaponClass?: WeaponClass;
   name: string;
@@ -65,13 +67,11 @@ export class GameScene extends Phaser.Scene {
   private levelText!: Phaser.GameObjects.Text;
   private timeText!: Phaser.GameObjects.Text;
   private killText!: Phaser.GameObjects.Text;
-  private killCount: number = 0;
   private killsSinceLastReward: number = 0;
   private killsRequiredForReward: number = 10; // Pop reward every 10 kills
-  private gameTime: number = 0;
   private isPaused: boolean = false;
   private isGameOver: boolean = false;
-  private playerDamageCooldown: number = 0;
+  private playerDamageCoolDown: number = 0;
 
   constructor() {
     super({ key: GAME_SCENE_KEY });
@@ -79,15 +79,15 @@ export class GameScene extends Phaser.Scene {
 
   preload(): void {
     // Load experience gem textures - Buddhist beads and spirit essence
-    this.load.svg('gem-low', 'assets/gem-low.svg', {
+    this.load.svg("gem-low", "assets/gem-low.svg", {
       width: 32,
       height: 32,
     });
-    this.load.svg('gem-medium', 'assets/gem-medium.svg', {
+    this.load.svg("gem-medium", "assets/gem-medium.svg", {
       width: 32,
       height: 32,
     });
-    this.load.svg('gem-high', 'assets/gem-high.svg', {
+    this.load.svg("gem-high", "assets/gem-high.svg", {
       width: 32,
       height: 32,
     });
@@ -124,22 +124,19 @@ export class GameScene extends Phaser.Scene {
       });
     });
 
-    this.load.svg(selectMap.id, getMapImagePath(selectMap.id), {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
+    this.load.svg(selectMap.id, getMapImagePath(selectMap.id), SCREEN_SIZE);
   }
 
   // 获取角色尺寸
   private getCharacterSize(rank: CharacterRankType): number {
     switch (rank) {
-      case 'hero':
+      case "hero":
         return 48;
-      case 'king':
+      case "king":
         return 56;
-      case 'lord':
+      case "lord":
         return 44;
-      case 'boss':
+      case "boss":
         return 64;
       default:
         return 48;
@@ -149,9 +146,9 @@ export class GameScene extends Phaser.Scene {
   // 获取敌人尺寸
   private getEnemySize(rank: EnemyRank): number {
     switch (rank) {
-      case 'minion':
+      case "minion":
         return 32;
-      case 'elite':
+      case "elite":
         return 40;
       default:
         return 32;
@@ -159,6 +156,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   public create(): void {
+    eventBus.on(EVENT_MAP.SHOW_END_GAME_MODAL, () => {
+      this.endGame();
+    });
+
     // Set world bounds
     this.physics.world.setBounds(-2000, -2000, 4000, 4000);
 
@@ -183,20 +184,20 @@ export class GameScene extends Phaser.Scene {
       if (level > 0) {
         const effect = upgrade.effect(level);
         switch (upgrade.id) {
-          case 'attack':
+          case "attack":
             // Weapon damage will be applied when weapon is created
             break;
-          case 'health':
+          case "health":
             this.player.maxHealth += effect;
             this.player.health += effect;
             break;
-          case 'armor':
+          case "armor":
             // Armor will be calculated when taking damage
             break;
-          case 'luck':
+          case "luck":
             // Luck will affect drops
             break;
-          case 'speed':
+          case "speed":
             this.player.speed += effect;
             break;
         }
@@ -206,10 +207,10 @@ export class GameScene extends Phaser.Scene {
     // Input controls
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.wasd = {
-      w: this.input.keyboard!.addKey('W'),
-      a: this.input.keyboard!.addKey('A'),
-      s: this.input.keyboard!.addKey('S'),
-      d: this.input.keyboard!.addKey('D'),
+      w: this.input.keyboard!.addKey("W"),
+      a: this.input.keyboard!.addKey("A"),
+      s: this.input.keyboard!.addKey("S"),
+      d: this.input.keyboard!.addKey("D"),
     };
 
     // Get selected map and its available enemies
@@ -244,15 +245,15 @@ export class GameScene extends Phaser.Scene {
     this.createUI();
 
     // Game state
-    this.gameTime = 0;
+    useAppStore.getState().setGameTime(DEFAULT_GAME_TIME);
     this.isPaused = false;
     this.isGameOver = false;
 
     // Player damage cooldown
-    this.playerDamageCooldown = 0;
+    this.playerDamageCoolDown = 0;
 
     // Handle window resize
-    this.scale.on('resize', this.handleResize, this);
+    this.scale.on("resize", this.handleResize, this);
   }
 
   private handleResize(gameSize: Phaser.Structs.Size): void {
@@ -394,23 +395,23 @@ export class GameScene extends Phaser.Scene {
     this.levelText = this.add.text(
       padding + barWidth + 10,
       padding,
-      i18n.t('game.level', { level: 1 }),
+      i18n.t("game.level", { level: 1 }),
       {
         fontSize: scaleManager.getFontSize(24),
-        color: '#ffffff',
-        fontStyle: 'bold',
-        stroke: '#000000',
+        color: "#ffffff",
+        fontStyle: "bold",
+        stroke: "#000000",
         strokeThickness: 3,
       },
     );
 
-    // Time text (centered at top)
+    // Time text (centered at top) - Countdown from 30 minutes
     const centerX = this.cameras.main.width / 2;
-    this.timeText = this.add.text(centerX, padding, '00:00', {
+    this.timeText = this.add.text(centerX, padding, "00:00", {
       fontSize: scaleManager.getFontSize(24),
-      color: '#ffffff',
-      fontStyle: 'bold',
-      stroke: '#000000',
+      color: "#ffffff",
+      fontStyle: "bold",
+      stroke: "#000000",
       strokeThickness: 3,
     });
     this.timeText.setOrigin(0.5, 0);
@@ -419,16 +420,52 @@ export class GameScene extends Phaser.Scene {
     this.killText = this.add.text(
       centerX,
       padding + barHeight + 10,
-      `${i18n.t('stats.kills')}: 0`,
+      `${i18n.t("stats.kills")}: 0`,
       {
         fontSize: scaleManager.getFontSize(18),
-        color: '#ffffff',
-        stroke: '#000000',
+        color: "#ffffff",
+        stroke: "#000000",
         strokeThickness: 2,
       },
     );
     this.killText.setOrigin(0.5, 0);
-    this.killCount = 0;
+    useAppStore.getState().setKillCount(0);
+
+    const buttonHeight = scaleManager.getUIElementSize(40);
+    const buttonWidth = scaleManager.getUIElementSize(60);
+
+    const x = this.cameras.main.width - padding - buttonWidth / 2;
+    const y = padding + buttonHeight / 2;
+
+    // Back to menu button
+    const menuButton = this.add
+      .rectangle(x, y, buttonWidth, buttonHeight, 0x333333, 0.7)
+      .setStrokeStyle(3, 0xffffff)
+      .setInteractive({ useHandCursor: true })
+      .setScrollFactor(0)
+      .setDepth(101);
+
+    this.add
+      .text(x, y, "X", {
+        fontSize: scaleManager.getFontSize(24),
+        color: "#ffffff",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(102);
+
+    menuButton.on("pointerover", () => {
+      menuButton.setFillStyle(0x555555);
+    });
+
+    menuButton.on("pointerout", () => {
+      menuButton.setFillStyle(0x333333);
+    });
+
+    menuButton.on("pointerdown", () => {
+      this.endGame();
+    });
 
     this.uiContainer.add([
       this.healthBarBg,
@@ -438,7 +475,31 @@ export class GameScene extends Phaser.Scene {
       this.levelText,
       this.timeText,
       this.killText,
+      menuButton,
     ]);
+  }
+
+  private endGame(): void {
+    const gameTime = useAppStore.getState().gameTime;
+
+    // Save game data
+    useSaveStore.getState().addKills(useAppStore.getState().killCount);
+    useSaveStore.getState().updatePlayTime(DEFAULT_GAME_TIME - gameTime);
+
+    this.showModal({
+      title: i18n.t("game.endGame"),
+      titleColor: "#ff0000",
+      description: i18n.t("game.endGameTitle"),
+      cancelText: i18n.t("shop.cancel"),
+      onCancel: () => {
+        this.isPaused = false;
+        this.physics.resume();
+      },
+      okText: i18n.t("game.endGame"),
+      onOk: () => {
+        eventBus.emit(EVENT_MAP.BACK_TO_HOME);
+      },
+    });
   }
 
   private updateUI(): void {
@@ -453,26 +514,49 @@ export class GameScene extends Phaser.Scene {
     this.expBar.width = barWidth * expPercent;
 
     // Update level
-    this.levelText.setText(i18n.t('game.level', { level: this.player.level }));
+    this.levelText.setText(i18n.t("game.level", { level: this.player.level }));
 
     // Update time
-    const minutes = Math.floor(this.gameTime / 60);
-    const seconds = Math.floor(this.gameTime % 60);
+
+    const gameTime = useAppStore.getState().gameTime;
+
+    const minutes = Math.floor(gameTime / 60);
+    const seconds = Math.floor(gameTime % 60);
     this.timeText.setText(
-      `${minutes.toString().padStart(2, '0')}:${seconds
+      `${minutes.toString().padStart(2, "0")}:${seconds
         .toString()
-        .padStart(2, '0')}`,
+        .padStart(2, "0")}`,
     );
 
+    // Change color based on remaining time
+    if (gameTime < 60) {
+      this.timeText.setColor("#ff0000"); // Red when less than 1 minute
+    } else if (gameTime < 300) {
+      this.timeText.setColor("#ffff00"); // Yellow when less than 5 minutes
+    } else {
+      this.timeText.setColor("#ffffff"); // White otherwise
+    }
+
     // Update kill count
-    this.killText.setText(`${i18n.t('stats.kills')}: ${this.killCount}`);
+    this.killText.setText(
+      `${i18n.t("stats.kills")}: ${useAppStore.getState().killCount}`,
+    );
   }
 
   public update(time: number, delta: number): void {
     if (this.isPaused || this.isGameOver) return;
 
-    // Update game time
-    this.gameTime += delta / 1000;
+    // Update game time (countdown)
+
+    const gameTime = useAppStore.getState().gameTime - delta / 1000;
+
+    useAppStore.getState().setGameTime(gameTime);
+
+    // Check for victory when time runs out
+    if (gameTime <= 0) {
+      this.showVictory();
+      return;
+    }
 
     // Update player
     this.player.update(this.cursors, this.wasd);
@@ -499,7 +583,7 @@ export class GameScene extends Phaser.Scene {
     const enemies = this.enemySpawner.getEnemies();
 
     // Player and enemy collision
-    this.playerDamageCooldown = Math.max(0, this.playerDamageCooldown - delta);
+    this.playerDamageCoolDown = Math.max(0, this.playerDamageCoolDown - delta);
 
     enemies.forEach((enemy) => {
       if (enemy.isDead) return;
@@ -511,80 +595,80 @@ export class GameScene extends Phaser.Scene {
         enemy.sprite.y,
       );
 
-      if (distance < 30 && this.playerDamageCooldown <= 0) {
+      if (distance < 30 && this.playerDamageCoolDown <= 0) {
         this.player.takeDamage(enemy.damage);
-        this.playerDamageCooldown = 500; // 0.5 seconds of invincibility
+        this.playerDamageCoolDown = 500; // 0.5 seconds of invincibility
       }
     });
 
     // Weapon and enemy collision
     this.weaponManager.weapons.forEach((weapon) => {
       // Magic missile collision
-      if ((weapon as any).projectiles) {
-        (weapon as any).projectiles.children.entries.forEach(
-          (projectile: any) => {
-            if (!projectile.active) return;
 
-            enemies.forEach((enemy) => {
-              if (enemy.isDead) return;
+      weapon.projectiles?.children.entries.forEach((projectile: any) => {
+        if (!projectile.active) return;
 
-              const distance = Phaser.Math.Distance.Between(
-                projectile.x,
-                projectile.y,
-                enemy.sprite.x,
-                enemy.sprite.y,
-              );
+        enemies.forEach((enemy) => {
+          if (enemy.isDead) return;
 
-              if (distance < 20) {
-                const killed = enemy.takeDamage(projectile.damage);
-                if (killed) {
-                  this.killCount++;
-                  this.killsSinceLastReward++;
-                  this.checkRewardTrigger();
-                  // Drop gold coin (10% chance)
-                  if (Math.random() < 0.1) {
-                    this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
-                  }
-                }
+          const distance = Phaser.Math.Distance.Between(
+            projectile.x,
+            projectile.y,
+            enemy.sprite.x,
+            enemy.sprite.y,
+          );
 
-                projectile.piercing--;
-                if (projectile.piercing <= 0) {
-                  projectile.destroy();
-                }
-              }
-            });
-          },
-        );
-      }
-
-      // Holy Aura collision
-      if ((weapon as any).orbs) {
-        (weapon as any).getOrbs().forEach((orb: any) => {
-          enemies.forEach((enemy) => {
-            if (enemy.isDead) return;
-
-            const distance = Phaser.Math.Distance.Between(
-              orb.x,
-              orb.y,
-              enemy.sprite.x,
-              enemy.sprite.y,
-            );
-
-            if (distance < 25) {
-              const killed = enemy.takeDamage((orb as any).damage);
-              if (killed) {
-                this.killCount++;
-                this.killsSinceLastReward++;
-                this.checkRewardTrigger();
-                // Drop gold coin (10% chance)
-                if (Math.random() < 0.1) {
-                  this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
-                }
+          if (distance < 20) {
+            const killed = enemy.takeDamage(projectile.damage);
+            if (killed) {
+              useAppStore
+                .getState()
+                .setKillCount(useAppStore.getState().killCount + 1);
+              this.killsSinceLastReward++;
+              this.checkRewardTrigger();
+              // Drop gold coin (10% chance)
+              if (Math.random() < 0.1) {
+                this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
               }
             }
-          });
+
+            projectile.piercing--;
+            if (projectile.piercing <= 0) {
+              projectile.destroy();
+            }
+          }
         });
-      }
+      });
+
+      // Holy Aura collision
+
+      weapon.orbs.forEach(({ sprite: orb }) => {
+        enemies.forEach((enemy) => {
+          if (enemy.isDead) return;
+
+          const distance = Phaser.Math.Distance.Between(
+            orb.x,
+            orb.y,
+            enemy.sprite.x,
+            enemy.sprite.y,
+          );
+
+          if (distance < 25 && typeof orb.damage === "number") {
+            const killed = enemy.takeDamage(orb.damage);
+            if (killed) {
+              useAppStore
+                .getState()
+                .setKillCount(useAppStore.getState().killCount + 1);
+              this.killsSinceLastReward++;
+              this.checkRewardTrigger();
+              // Drop gold coin (10% chance)
+              if (Math.random() < 0.1) {
+                this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
+              }
+            }
+          }
+        });
+      });
     });
   }
 
@@ -641,7 +725,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleRewardSelection(option: RewardOption): void {
-    if (option.type === 'weapon') {
+    if (option.type === "weapon") {
       const weaponData = option.data as WeaponData;
 
       const WeaponClass = this.weaponManager.getWeaponById(weaponData.id);
@@ -663,13 +747,13 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    if (option.type === 'elixir') {
+    if (option.type === "elixir") {
       // Apply elixir effects
       const elixir = option.data as ElixirData;
 
       switch (elixir.effect.type) {
-        case 'health':
-          if (elixir.id === 'jade_dew') {
+        case "health":
+          if (elixir.id === "jade_dew") {
             // Jade Dew: Restore health
             this.player.health = Math.min(
               this.player.maxHealth,
@@ -681,29 +765,29 @@ export class GameScene extends Phaser.Scene {
             this.player.health += elixir.effect.value;
           }
           break;
-        case 'damage':
+        case "damage":
           // Golden Elixir: Increase attack power
           this.weaponManager.weapons.forEach((weapon) => {
             weapon.damage *= 1 + elixir.effect.value;
           });
           break;
-        case 'armor':
+        case "armor":
           // Tiger Bone Wine/Dragon Scale: Increase armor
           this.player.armor += elixir.effect.value;
           break;
-        case 'speed':
+        case "speed":
           // Phoenix Feather: Increase movement speed
           this.player.speed += elixir.effect.value;
           break;
-        case 'exp':
+        case "exp":
           // Spirit Mushroom: Increase experience gain
           this.player.expBonus += elixir.effect.value;
           break;
-        case 'crit':
+        case "crit":
           // Soul Bead: Increase critical rate
           this.player.critRate += elixir.effect.value;
           break;
-        case 'all':
+        case "all":
           // Inner Elixir: Increase all stats
           this.player.maxHealth += this.player.maxHealth * elixir.effect.value;
           this.player.health += this.player.maxHealth * elixir.effect.value;
@@ -712,7 +796,7 @@ export class GameScene extends Phaser.Scene {
             weapon.damage *= 1 + elixir.effect.value;
           });
           break;
-        case 'revive':
+        case "revive":
           // Resurrection Pill: Revive upon death
           this.player.hasRevive = true;
           break;
@@ -747,11 +831,11 @@ export class GameScene extends Phaser.Scene {
 
     // Title
     const title = this.add
-      .text(centerX, centerY - 150, i18n.t('game.levelUp'), {
-        fontSize: '48px',
-        color: '#ffff00',
-        fontStyle: 'bold',
-        stroke: '#000000',
+      .text(centerX, centerY - 150, i18n.t("game.levelUp"), {
+        fontSize: scaleManager.getFontSize(48),
+        color: "#ffff00",
+        fontStyle: "bold",
+        stroke: "#000000",
         strokeThickness: 4,
       })
       .setOrigin(0.5)
@@ -760,8 +844,6 @@ export class GameScene extends Phaser.Scene {
 
     // Get upgrade options
     const options = this.weaponManager.getUpgradeOptions();
-
-    // EventBus.emit(EVENT_MAP.UPGRADE_LEVEL, options);
 
     // Create option buttons
     const buttons: ButtonElement[] = [];
@@ -777,9 +859,9 @@ export class GameScene extends Phaser.Scene {
 
       const nameText = this.add
         .text(centerX, y - 15, option.name, {
-          fontSize: '24px',
-          color: '#ffffff',
-          fontStyle: 'bold',
+          fontSize: scaleManager.getFontSize(24),
+          color: "#ffffff",
+          fontStyle: "bold",
         })
         .setOrigin(0.5)
         .setScrollFactor(0)
@@ -787,22 +869,22 @@ export class GameScene extends Phaser.Scene {
 
       const descText = this.add
         .text(centerX, y + 15, option.description, {
-          fontSize: '16px',
-          color: '#cccccc',
+          fontSize: scaleManager.getFontSize(16),
+          color: "#cccccc",
         })
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(202);
 
-      button.on('pointerover', () => {
+      button.on("pointerover", () => {
         button.setFillStyle(0x555555);
       });
 
-      button.on('pointerout', () => {
+      button.on("pointerout", () => {
         button.setFillStyle(0x333333);
       });
 
-      button.on('pointerdown', () => {
+      button.on("pointerdown", () => {
         this.selectUpgrade(option);
         // Clear menu
         overlay.destroy();
@@ -819,9 +901,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   public selectUpgrade(option: UpgradeOption): void {
-    if (option.type === 'upgrade' && option.weapon) {
+    if (option.type === "upgrade" && option.weapon) {
       option.weapon.upgrade();
-    } else if (option.type === 'new' && option.weaponClass) {
+    } else if (option.type === "new" && option.weaponClass) {
       this.weaponManager.addWeapon(option.weaponClass);
     }
 
@@ -830,22 +912,39 @@ export class GameScene extends Phaser.Scene {
     this.physics.resume();
   }
 
-  public gameOver(): void {
-    if (this.isGameOver) return;
-    this.isGameOver = true;
+  private showModal({
+    title,
+    titleColor,
+    description,
+    cancelText,
+    onCancel,
+    okText,
+    onOk,
+  }: {
+    title: string;
+    titleColor: string;
+    description?: string;
+    cancelText: string;
+    onCancel: () => void;
+    okText: string;
+    onOk: () => void;
+  }) {
+    const result: Array<
+      Phaser.GameObjects.Text | Phaser.GameObjects.Rectangle
+    > = [];
 
-    // Save game data
-    useSaveStore.getState().addKills(this.killCount);
-    useSaveStore.getState().updatePlayTime(this.gameTime);
+    if (this.isPaused) {
+      return result;
+    }
 
     // Stop physics
+    this.isPaused = true;
     this.physics.pause();
 
-    // Show game over screen
     const centerX = this.cameras.main.width / 2;
     const centerY = this.cameras.main.height / 2;
 
-    this.add
+    const container = this.add
       .rectangle(
         centerX,
         centerY,
@@ -857,101 +956,177 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(300);
 
-    this.add
-      .text(centerX, centerY - 100, i18n.t('game.gameOver'), {
-        fontSize: '64px',
-        color: '#ff0000',
-        fontStyle: 'bold',
-        stroke: '#000000',
+    result.push(container);
+
+    const titleText = this.add
+      .text(centerX, centerY - 100, title, {
+        fontSize: scaleManager.getFontSize(64),
+        color: titleColor,
+        fontStyle: "bold",
+        stroke: "#000000",
         strokeThickness: 6,
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(301);
 
-    const minutes = Math.floor(this.gameTime / 60);
-    const seconds = Math.floor(this.gameTime % 60);
-    const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds
-      .toString()
-      .padStart(2, '0')}`;
+    result.push(titleText);
 
-    this.add
-      .text(
-        centerX,
-        centerY,
-        `${i18n.t('stats.survivalTime')}: ${timeStr}\n${i18n.t(
-          'stats.kills',
-        )}: ${this.killCount}\n${i18n.t('stats.level')}: ${this.player.level}`,
-        {
-          fontSize: '32px',
-          color: '#ffffff',
-          align: 'center',
-          stroke: '#000000',
+    if (description) {
+      const descText = this.add
+        .text(centerX, centerY, description, {
+          fontSize: scaleManager.getFontSize(28),
+          color: "#ffffff",
+          align: "center",
+          stroke: "#000000",
           strokeThickness: 3,
-        },
-      )
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(301);
+        })
+        .setOrigin(0.5)
+        .setScrollFactor(0)
+        .setDepth(301);
+      result.push(descText);
+    }
 
-    // Back to menu button
-    const menuButton = this.add
+    const okButton = this.add
       .rectangle(centerX - 110, centerY + 120, 180, 60, 0x333333)
       .setStrokeStyle(3, 0xffffff)
       .setInteractive({ useHandCursor: true })
       .setScrollFactor(0)
       .setDepth(301);
 
-    this.add
-      .text(centerX - 110, centerY + 120, i18n.t('game.backToHome'), {
-        fontSize: '24px',
-        color: '#ffffff',
-        fontStyle: 'bold',
+    result.push(okButton);
+
+    const okObj = this.add
+      .text(centerX - 110, centerY + 120, okText, {
+        fontSize: scaleManager.getFontSize(24),
+        color: "#ffffff",
+        fontStyle: "bold",
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(302);
 
-    menuButton.on('pointerover', () => {
-      menuButton.setFillStyle(0x555555);
+    result.push(okObj);
+
+    okButton.on("pointerover", () => {
+      okButton.setFillStyle(0x555555);
     });
 
-    menuButton.on('pointerout', () => {
-      menuButton.setFillStyle(0x333333);
+    okButton.on("pointerout", () => {
+      okButton.setFillStyle(0x333333);
     });
 
-    menuButton.on('pointerdown', () => {
-      eventBus.emit(EVENT_MAP.GAME_OVER);
+    okButton.on("pointerdown", () => {
+      onOk();
     });
 
-    // Restart button
-    const restartButton = this.add
+    const cancelButton = this.add
       .rectangle(centerX + 110, centerY + 120, 180, 60, 0x333333)
       .setStrokeStyle(3, 0xffffff)
       .setInteractive({ useHandCursor: true })
       .setScrollFactor(0)
       .setDepth(301);
 
-    this.add
-      .text(centerX + 110, centerY + 120, i18n.t('game.restart'), {
-        fontSize: '24px',
-        color: '#ffffff',
-        fontStyle: 'bold',
+    result.push(cancelButton);
+
+    const cancelTextObj = this.add
+      .text(centerX + 110, centerY + 120, cancelText, {
+        fontSize: scaleManager.getFontSize(24),
+        color: "#ffffff",
+        fontStyle: "bold",
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(302);
 
-    restartButton.on('pointerover', () => {
-      restartButton.setFillStyle(0x555555);
+    result.push(cancelTextObj);
+
+    cancelButton.on("pointerover", () => {
+      cancelButton.setFillStyle(0x555555);
     });
 
-    restartButton.on('pointerout', () => {
-      restartButton.setFillStyle(0x333333);
+    cancelButton.on("pointerout", () => {
+      cancelButton.setFillStyle(0x333333);
     });
 
-    restartButton.on('pointerdown', () => {
-      this.scene.restart();
+    cancelButton.on("pointerdown", () => {
+      result.forEach((item) => {
+        item.destroy();
+      });
+      onCancel();
+    });
+
+    return result;
+  }
+
+  public showVictory(): void {
+    if (this.isGameOver) return;
+    this.isGameOver = true;
+
+    // Save game data
+    useSaveStore.getState().addKills(useAppStore.getState().killCount);
+    useSaveStore
+      .getState()
+      .updatePlayTime(DEFAULT_GAME_TIME - useAppStore.getState().gameTime);
+
+    // Complete the chapter and unlock characters
+    const selectedMap = useAppStore.getState().getSelectMap();
+    useSaveStore.getState().completeChapter(selectedMap.id);
+
+    // Stop physics
+    this.isPaused = true;
+    this.physics.pause();
+
+    const desc = `${i18n.t("stats.kills")}: ${useAppStore.getState().killCount}\n${i18n.t(
+      "stats.level",
+    )}: ${this.player.level}`;
+
+    this.showModal({
+      title: i18n.t("game.chapterComplete"),
+      titleColor: "#00ff00",
+      description: desc,
+      cancelText: i18n.t("game.backToHome"),
+      onCancel: () => {
+        eventBus.emit(EVENT_MAP.BACK_TO_HOME);
+      },
+      okText: i18n.t("game.restart"),
+      onOk: () => {
+        this.scene.restart();
+      },
+    });
+  }
+
+  public gameOver(): void {
+    if (this.isGameOver) return;
+    this.isGameOver = true;
+    const gameTime = useAppStore.getState().gameTime;
+
+    // Save game data
+    useSaveStore.getState().addKills(useAppStore.getState().killCount);
+    useSaveStore.getState().updatePlayTime(DEFAULT_GAME_TIME - gameTime);
+
+    const minutes = Math.floor(gameTime / 60);
+    const seconds = Math.floor(gameTime % 60);
+    const timeStr = `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+
+    const desc = `${i18n.t("stats.survivalTime")}: ${timeStr}\n${i18n.t(
+      "stats.kills",
+    )}: ${useAppStore.getState().killCount}\n${i18n.t("stats.level")}: ${this.player.level}`;
+
+    this.showModal({
+      title: i18n.t("game.gameOver"),
+      titleColor: "#ff0000",
+      description: desc,
+      cancelText: i18n.t("game.backToHome"),
+      onCancel: () => {
+        eventBus.emit(EVENT_MAP.BACK_TO_HOME);
+      },
+      okText: i18n.t("game.restart"),
+      onOk: () => {
+        this.scene.restart();
+      },
     });
   }
 }

@@ -1,10 +1,10 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 const venderConfig = {
-  'react-vendor': ['react', 'react-dom'],
-  'i18next-vendor': ['i18next', 'react-i18next'],
-  'phaser-vendor': ['phaser'],
+  "react-vendor": ["react", "react-dom"],
+  "i18next-vendor": ["i18next", "react-i18next"],
+  "phaser-vendor": ["phaser"],
 };
 
 // https://vitejs.dev/config/
@@ -16,12 +16,12 @@ export default defineConfig({
     open: false,
   },
   build: {
-    outDir: 'dist',
+    outDir: "dist",
     sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (!id.includes('node_modules')) {
+          if (!id.includes("node_modules")) {
             return;
           }
 

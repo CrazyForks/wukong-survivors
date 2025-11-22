@@ -34,7 +34,7 @@ export class Player {
     scene: GameScene,
     x: number,
     y: number,
-    textureKey: CharacterType
+    textureKey: CharacterType,
   ) {
     this.scene = scene;
 
@@ -66,7 +66,7 @@ export class Player {
 
   public update(
     cursors: Phaser.Types.Input.Keyboard.CursorKeys,
-    wasd: WASDKeys
+    wasd: WASDKeys,
   ): void {
     // Reset velocity
     this.sprite.setVelocity(0);

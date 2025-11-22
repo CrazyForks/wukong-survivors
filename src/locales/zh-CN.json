@@ -5,11 +5,15 @@
         "restart": "重新开始",
         "backToHome": "返回主菜单",
         "gameOver": "游戏结束",
+        "victory": "胜利！",
+        "chapterComplete": "章节完成！",
+        "continueGame": "继续",
         "levelUp": "升级！",
         "paused": "已暂停",
         "level": "等级{level}",
         "specialWeapon": "专属武器",
-        "resetSave": "重置存档"
+        "resetSave": "重置存档",
+        "completeChapters": "完成的章节"
     },
     "settings": {
         "title": "设置",

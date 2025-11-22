@@ -85,6 +85,7 @@ interface SaveStore extends GameSave {
   checkUnlocks: () => void;
   addWeapon: (weaponId: WeaponType) => void;
   getOwnedWeapons: () => string[];
+  completeChapter: (map: MapType) => void;
 }
 
 // Create Zustand Store with persist middleware
@@ -244,8 +245,8 @@ export const useSaveStore = create<SaveStore>()(
     {
       name: SAVE_KEY,
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 );
 
 const getTotalGold = (state: GameSave) => state.totalGold;
@@ -255,6 +256,7 @@ const getTotalPlayTime = (state: GameSave) => state.totalPlayTime;
 
 const getUnlockedCharacters = (state: GameSave) => state.unlockedCharacters;
 const getUnlockedMaps = (state: GameSave) => state.unlockedMaps;
+const getCompletedChapters = (state: GameSave) => state.completedChapters;
 const getLanguage = (state: GameSave) => state.language;
 
 const getShopLevel = (state: GameSave) => ({
@@ -275,6 +277,8 @@ export const useTotalPlayTime = () =>
 export const useUnlockedCharacters = () =>
   useSaveStore(useShallow(getUnlockedCharacters));
 export const useUnlockedMaps = () => useSaveStore(useShallow(getUnlockedMaps));
+export const useCompletedChapters = () =>
+  useSaveStore(useShallow(getCompletedChapters));
 export const useLanguage = () => useSaveStore(useShallow(getLanguage));
 
 export const useShopLevel = () => useSaveStore(useShallow(getShopLevel));
