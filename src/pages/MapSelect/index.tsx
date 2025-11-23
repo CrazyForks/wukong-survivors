@@ -98,9 +98,9 @@ const MapSelect: React.FC<MapSelectProps> = ({ onSelect, onBack }) => {
 
       {selectedMap && (
         <div className={styles.mapDetail}>
-          <h2>{t(`maps.chapter${selectedMap.chapter}.name`)}</h2>
+          <h2>{t(`maps.${selectedMap.id}.name`)}</h2>
           <p className={styles.description}>
-            {t(`maps.chapter${selectedMap.chapter}.description`)}
+            {t(`maps.${selectedMap.id}.description`)}
           </p>
           <div className={styles.difficultyInfo}>
             <strong>{t("maps.difficulty")}:</strong>{" "}

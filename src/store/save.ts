@@ -19,7 +19,12 @@ const SAVE_KEY = "wukong_survivors_save_1";
 
 // Helper function to check unlock conditions
 const checkUnlocks = (state: GameSave): Partial<GameSave> => {
-  const { unlockedCharacters, unlockedMaps } = state;
+  const { unlockedCharacters, unlockedMaps, completedChapters } = state;
+
+  const chapters = completedChapters.map((c) => {
+    const item = MAPS.find((m) => m.id === c);
+    return item?.chapter ?? 0;
+  });
 
   // Check character unlock
   Object.values(CHARACTERS_DATA).forEach((char) => {
@@ -36,6 +41,10 @@ const checkUnlocks = (state: GameSave): Partial<GameSave> => {
         case "gold":
           unlocked = state.totalGold >= char.unlockCondition.value;
           break;
+        case "chapter": {
+          unlocked = chapters.includes(char.unlockCondition.value);
+          break;
+        }
       }
 
       if (unlocked) {
@@ -81,10 +90,8 @@ interface SaveStore extends GameSave {
   resetPermanentUpgrades: () => void;
   setLanguage: (language: string) => void;
   resetAll: () => void;
-  updateSave: (newSave: Partial<GameSave>) => void;
   checkUnlocks: () => void;
   addWeapon: (weaponId: WeaponType) => void;
-  getOwnedWeapons: () => string[];
   completeChapter: (map: MapType) => void;
 }
 
@@ -147,78 +154,69 @@ export const useSaveStore = create<SaveStore>()(
 
         const cost = upgrade.cost(currentLevel);
         if (state.totalGold >= cost) {
-          set((state) => ({
+          set({
             totalGold: state.totalGold - cost,
             [upgradeId]: currentLevel + 1,
-          }));
+          });
           return true;
         }
         return false;
       },
 
-      resetPermanentUpgrades: () =>
-        set((state) => {
-          // Calculate refund (70%)
-          let refund = 0;
+      resetPermanentUpgrades: () => {
+        const state = get();
+        // Calculate refund (70%)
+        let refund = 0;
 
-          PERMANENT_UPGRADES.forEach((item) => {
-            const level = state[item.id] || 0;
-            for (let i = 0; i < level; i++) {
-              refund += item.cost(i);
-            }
-          });
+        PERMANENT_UPGRADES.forEach((item) => {
+          const level = state[item.id] || 0;
+          for (let i = 0; i < level; i++) {
+            refund += item.cost(i);
+          }
+        });
 
-          refund = Math.floor(refund * 0.7);
+        refund = Math.floor(refund * 0.7);
 
-          // Reset all levels
-          const resetUpgrades: Partial<Record<PermanentUpgradeType, number>> =
-            {};
-          PERMANENT_UPGRADES.forEach((item) => {
-            resetUpgrades[item.id] = 0;
-          });
+        // Reset all levels
+        const resetUpgrades: Partial<Record<PermanentUpgradeType, number>> = {};
+        PERMANENT_UPGRADES.forEach((item) => {
+          resetUpgrades[item.id] = 0;
+        });
 
-          return {
-            ...resetUpgrades,
-            totalGold: state.totalGold + refund,
-          };
-        }),
+        set({
+          ...resetUpgrades,
+          totalGold: state.totalGold + refund,
+        });
+      },
 
       setLanguage: (language) => set({ language }),
 
       resetAll: () => set({ ...DEFAULT_SAVE }),
 
-      updateSave: (newSave) => set(newSave),
       checkUnlocks: () => {
         set(checkUnlocks(get()));
       },
 
       // Complete chapter and unlock corresponding characters
       completeChapter: (chapter: MapType) => {
-        const { completedChapters = [], unlockedCharacters = [] } = get();
+        const { completedChapters = [], unlockedMaps = [] } = get();
 
         if (completedChapters.includes(chapter)) {
           return;
         }
 
         completedChapters.push(chapter);
-        // Unlock characters for this chapter
-        const map = MAPS.find((m) => m.id === chapter);
-        if (map && map.unlockedCharacters) {
-          const newUnlockedCharacters = [...unlockedCharacters];
-          map.unlockedCharacters.forEach((charId) => {
-            if (!newUnlockedCharacters.includes(charId)) {
-              newUnlockedCharacters.push(charId);
-            }
-          });
+        const index = MAPS.findIndex((m) => m.id === chapter);
 
+        if (index >= 0 && index < MAPS.length - 1) {
           set({
             completedChapters: [...completedChapters],
-            unlockedCharacters: newUnlockedCharacters,
+            unlockedMaps: [...unlockedMaps, MAPS[index + 1].id],
           });
-          return;
+        } else {
+          set({ completedChapters: [...completedChapters] });
         }
-
-        set({ completedChapters: [...completedChapters] });
+        set(checkUnlocks(get()));
       },
 
       // Manually unlock character
@@ -237,11 +235,6 @@ export const useSaveStore = create<SaveStore>()(
         if (!ownedWeapons.includes(weaponId)) {
           set({ ownedWeapons: [...ownedWeapons, weaponId] });
         }
-      },
-
-      // Get owned weapons
-      getOwnedWeapons: () => {
-        return get().ownedWeapons;
       },
     }),
     {
