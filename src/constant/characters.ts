@@ -362,7 +362,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 12,
       baseLuck: 8,
     },
-    startingWeapon: "thunder_drum",
+    startingWeapon: "twin_blades",
     color: "#4169E1",
   },
 

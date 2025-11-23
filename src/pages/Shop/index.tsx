@@ -85,12 +85,12 @@ const Shop: React.FC<ShopProps> = ({ onBack }) => {
                 <span className={styles.effectValue}>+{currentEffect}</span>
               </div>
 
-              {!isMaxLevel && (
-                <div className={styles.upgradeNext}>
-                  <span className={styles.nextLabel}>{t("game.levelUp")}:</span>
-                  <span className={styles.nextValue}>+{nextEffect}</span>
-                </div>
-              )}
+              <div className={styles.upgradeNext}>
+                <span className={styles.nextLabel}>{t("game.levelUp")}:</span>
+                <span className={styles.nextValue}>
+                  {isMaxLevel ? t("shop.maxLevel") : `+${nextEffect}`}
+                </span>
+              </div>
 
               <button
                 className="confirmButton"

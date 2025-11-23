@@ -60,12 +60,6 @@ const MapSelect: React.FC<MapSelectProps> = ({ onSelect, onBack }) => {
               key={map.id}
               className={`${styles.mapCard} ${isUnlocked ? styles.unlocked : styles.locked} ${isSelected ? styles.selected : ""}`}
               onClick={() => handleMapClick(map)}
-              style={{
-                borderColor: isSelected ? chapterColor : undefined,
-                boxShadow: isSelected
-                  ? `0 0 25px ${chapterColor}80`
-                  : undefined,
-              }}
             >
               <div
                 className={styles.chapterBadge}
