@@ -302,6 +302,78 @@
             "name": "Espada Escama de Dragón",
             "description": "Hoja del Dragón Blanco con escamas de dragón, lanza proyectiles rastreadores"
         },
+        "three_pointed_blade": {
+            "name": "Hoja de Tres Puntas",
+            "description": "Arma divina del Cazador de Demonios, tres puntas afiladas cortan como rayos"
+        },
+        "nine_ring_staff": {
+            "name": "Bastón de Nueve Anillos",
+            "description": "Bastón budista de Tang Seng, nueve anillos tintinean y espantan a los demonios"
+        },
+        "crescent_blade": {
+            "name": "Hoja Media Luna",
+            "description": "Bastón contra demonios de Sha Seng, hoja en forma de media luna que perfora armaduras"
+        },
+        "iron_cudgel": {
+            "name": "Porra de Hierro",
+            "description": "Gran porra del Rey Toro, fuerza suficiente para mover montañas"
+        },
+        "seven_star_sword": {
+            "name": "Espada de las Siete Estrellas",
+            "description": "Espada Xian de la Doctrina Dao, siete estrellas se conectan en un espíritu de espada infinito"
+        },
+        "ginseng_fruit": {
+            "name": "Fruta de Ginseng",
+            "description": "Fruta Xian del Gran Patriarca Zhenyuan, si la hueles, vives 360 años, si la comes, vives 47.000 años"
+        },
+        "heaven_earth_circle": {
+            "name": "Círculo del Cielo y la Tierra",
+            "description": "Artefacto de Nezha, emite luz dorada, ataca a los enemigos y regresa automáticamente"
+        },
+        "red_armillary_sash": {
+            "name": "Cinta Armilar Roja",
+            "description": "Artefacto de Nezha, 7 pies 2 pulgadas de largo, ata y azota a los enemigos"
+        },
+        "purple_gold_gourd": {
+            "name": "Calabaza Púrpura Dorada",
+            "description": "Artefacto de Goldhorn y Silverhorn, absorbe a los enemigos que respondan a su nombre"
+        },
+        "golden_rope_immortal": {
+            "name": "Cuerda Dorada de los Immortales",
+            "description": "Artefacto de Taishang Laojun, cuerda Xian con mayor poder de sujeción"
+        },
+        "demon_revealing_mirror": {
+            "name": "Espejo Revelador de Demonios",
+            "description": "Descubre las debilidades de los enemigos, aumenta drásticamente la probabilidad de crítico y el daño"
+        },
+        "sea_calming_needle": {
+            "name": "Aguja Calmante del Mar",
+            "description": "Otra forma del Bastón Dorado, tesoro calmante del Mar del Cielo, más poderoso en áreas amplias"
+        },
+        "eight_trigrams_furnace": {
+            "name": "Horno de los Ocho Trigramas",
+            "description": "Horno alquímico de Taishang Laojun, llamas de los Ocho Trigramas queman a los enemigos continuamente"
+        },
+        "dragon_staff": {
+            "name": "Bastón de Dragón",
+            "description": "Arma de Guanyin, convoca tornadoes para eliminar grupos de enemigos"
+        },
+        "seven_treasure_tree": {
+            "name": "Árbol de los Siete Tesoros",
+            "description": "Artefacto de Zhunti, renueva todo y purifica el mal"
+        },
+        "immortal_slaying_blade": {
+            "name": "Hoja Asesina de Immortales",
+            "description": "Hoja voladora de Lu Pressure, rastrea a los enemigos y golpea mortalmente"
+        },
+        "diamond_snare": {
+            "name": "Trampa de Diamante",
+            "description": "Artefacto de Taishang Laojun, arma que perfora armaduras, indestructible"
+        },
+        "exquisite_pagoda": {
+            "name": "Pagoda Exquisita",
+            "description": "Pagoda del Rey Guardián del Templo Li Jing, combate millones de demonios y confina el mal"
+        },
         "golden_staff": {
             "name": "Bastón Dorado",
             "description": "Bastón mágico del Destinado, crece y se encoge a voluntad"

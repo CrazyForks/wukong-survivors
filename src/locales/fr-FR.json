@@ -302,6 +302,78 @@
             "name": "Épée Écaille de Dragon",
             "description": "Lame du Dragon Blanc couverte d'écailles, lance des projectiles guidés"
         },
+        "three_pointed_blade": {
+            "name": "Lame à Trois Pointes",
+            "description": "Arme divine du Chasseur de Démons, trois pointes tranchantes coupent comme des éclairs"
+        },
+        "nine_ring_staff": {
+            "name": "Bâton à Neuf Anneaux",
+            "description": "Bâton bouddhiste de Tang Seng, neuf anneaux tintent et effraient les démons"
+        },
+        "crescent_blade": {
+            "name": "Lame en Croissant",
+            "description": "Bâton anti-démons de Sha Seng, lame en forme de croissant qui perce les armures"
+        },
+        "iron_cudgel": {
+            "name": "Gourdin de Fer",
+            "description": "Gourdin géant du Roi Taureau, force suffisante pour déplacer des montagnes"
+        },
+        "seven_star_sword": {
+            "name": "Épée des Sept Étoiles",
+            "description": "Épée Xian de la Doctrine Dao, sept étoiles se connectent en un esprit d'épée infini"
+        },
+        "ginseng_fruit": {
+            "name": "Fruit de Ginseng",
+            "description": "Fruit Xian du Grand Patriarche Zhenyuan, si vous le sentez, vous vivez 360 ans, si vous le mangez, vous vivez 47.000 ans"
+        },
+        "heaven_earth_circle": {
+            "name": "Cercle Ciel-Terre",
+            "description": "Artéfact de Nezha, émet une lumière dorée, attaque les ennemis et revient automatiquement"
+        },
+        "red_armillary_sash": {
+            "name": "Cinte Armillaire Rouge",
+            "description": "Artéfact de Nezha, 7 pieds 2 pouces de long, lie et fouette les ennemis"
+        },
+        "purple_gold_gourd": {
+            "name": "Courge Pourpre Dorée",
+            "description": "Artéfact de Goldhorn et Silverhorn, absorbe les ennemis qui répondent à leur nom"
+        },
+        "golden_rope_immortal": {
+            "name": "Corde Dorée des Immortels",
+            "description": "Artéfact de Taishang Laojun, corde Xian avec plus de force de contrainte"
+        },
+        "demon_revealing_mirror": {
+            "name": "Miroir Révélateur de Démons",
+            "description": "Découvre les faiblesses des ennemis, augmente considérablement le taux de coup critique et les dégâts"
+        },
+        "sea_calming_needle": {
+            "name": "Aiguille Calmant la Mer",
+            "description": "Autre forme du Bâton Doré, trésor calmant la Mer du Ciel, plus puissant dans de grandes zones"
+        },
+        "eight_trigrams_furnace": {
+            "name": "Four à Huit Trigrammes",
+            "description": "Four alchimique de Taishang Laojun, flammes des Huit Trigrammes brûlent les ennemis en continu"
+        },
+        "dragon_staff": {
+            "name": "Bâton de Dragon",
+            "description": "Arme de Guanyin, invoque des tornades pour éliminer des groupes d'ennemis"
+        },
+        "seven_treasure_tree": {
+            "name": "Arbre aux Sept Trésors",
+            "description": "Artéfact de Zhunti, renouvelle tout et purifie le mal"
+        },
+        "immortal_slaying_blade": {
+            "name": "Lame Tuant les Immortels",
+            "description": "Lame volante de Lu Pressure, suit les ennemis et frappe mortellement"
+        },
+        "diamond_snare": {
+            "name": "Piège de Diamant",
+            "description": "Artéfact de Taishang Laojun, arme perçant les armures, indestructible"
+        },
+        "exquisite_pagoda": {
+            "name": "Pagode Exquise",
+            "description": "Pagode du Roi Gardien du Temple Li Jing, combat des millions de démons et confine le mal"
+        },
         "golden_staff": {
             "name": "Bâton Doré",
             "description": "Bâton magique de l'Élu, grandit et rétrécit à volonté"

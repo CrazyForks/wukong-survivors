@@ -302,6 +302,78 @@
       "name": "龍鱗剣",
       "description": "龍の鱗を纏う白龍の剣、追尾弾を発射"
     },
+    "three_pointed_blade": {
+      "name": "三尖两刃刀",
+      "description": "二郎神の神兵、三つの鋭い刃先で電光の如く敵を切り裂く"
+    },
+    "nine_ring_staff": {
+      "name": "九環錫杖",
+      "description": "唐僧の禅杖、九つの環が鳴り響き妖魔を震懾"
+    },
+    "crescent_blade": {
+      "name": "月牙鏟",
+      "description": "沙僧の降妖宝杖、三日月のような刃で敵の装甲を貫く"
+    },
+    "iron_cudgel": {
+      "name": "混鉄棍",
+      "description": "牛魔王の巨棍、千斤の重みで山をも動かす力"
+    },
+    "seven_star_sword": {
+      "name": "七星剣",
+      "description": "道家の仙剣、七星が連なり剣気が縦横無尽に飛び交う"
+    },
+    "ginseng_fruit": {
+      "name": "人参果",
+      "description": "鎮元大仙の仙果、匂いを嗅ぐだけで360年生き、食べると4万7千年生きられる"
+    },
+    "heaven_earth_circle": {
+      "name": "乾坤圈",
+      "description": "哪吒の神器、金色の光を放ち敵に攻撃した後自動的に戻ってくる"
+    },
+    "red_armillary_sash": {
+      "name": "混天綾",
+      "description": "哪吒の法寶、7尺2寸の長さで敵を束縛し鞭打つ"
+    },
+    "purple_gold_gourd": {
+      "name": "紫金葫蘆",
+      "description": "金角銀角の法寶、名前を呼び応えた敵を吸い込む"
+    },
+    "golden_rope_immortal": {
+      "name": "幌金繩",
+      "description": "太上老君の法寶、より強力な束縛力を持つ仙縛りの縄"
+    },
+    "demon_revealing_mirror": {
+      "name": "照妖鏡",
+      "description": "敵の弱点を見破り、クリティカル率とダメージを大幅に増加"
+    },
+    "sea_calming_needle": {
+      "name": "定海神針",
+      "description": "金箍棒の別形態、天河の鎮海の宝、より広範囲で強力な威力"
+    },
+    "eight_trigrams_furnace": {
+      "name": "八卦炉",
+      "description": "太上老君の錬丹炉、八卦の烈焰で敵を持続的に灼熱"
+    },
+    "dragon_staff": {
+      "name": "盤龍杖",
+      "description": "観音の神兵、竜巻の嵐を召喚し群れの敵を一掃"
+    },
+    "seven_treasure_tree": {
+      "name": "七寶妙樹",
+      "description": "準提道人の法寶、万物を刷新し邪悪を浄化"
+    },
+    "immortal_slaying_blade": {
+      "name": "斬仙飛刀",
+      "description": "陸圧道人的飛刀、敵をロックオンし必殺の一撃"
+    },
+    "diamond_snare": {
+      "name": "金剛琢",
+      "description": "太上老君の法寶、装甲を貫く神器、無堅不摧"
+    },
+    "exquisite_pagoda": {
+      "name": "玲瓏寶塔",
+      "description": "托塔天王李靖の宝塔、万魔を鎮圧し邪悪を禁錮"
+    },
     "golden_staff": {
       "name": "金箍棒",
       "description": "天命人の如意神兵、自在に伸縮"

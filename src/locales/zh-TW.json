@@ -302,6 +302,78 @@
             "name": "龍鱗劍",
             "description": "白龍之劍佈滿龍鱗，發射追蹤彈幕"
         },
+        "three_pointed_blade": {
+            "name": "三尖兩刃刀",
+            "description": "二郎神的神兵，三尖鋒利，刀刃如電"
+        },
+        "nine_ring_staff": {
+            "name": "九環錫杖",
+            "description": "唐僧的禪杖，九環鳴響，震懾妖魔"
+        },
+        "crescent_blade": {
+            "name": "月牙鏟",
+            "description": "沙僧的降妖寶杖，月牙如鉤，破甲無雙"
+        },
+        "iron_cudgel": {
+            "name": "混鐵棍",
+            "description": "牛魔王的巨棍，重逾千斤，力拔山兮"
+        },
+        "seven_star_sword": {
+            "name": "七星劍",
+            "description": "道家仙劍，七星連珠，劍氣縱橫"
+        },
+        "ginseng_fruit": {
+            "name": "人參果",
+            "description": "鎮元大仙的仙果，聞一聞活三百六十歲，吃一個活四萬七千年"
+        },
+        "heaven_earth_circle": {
+            "name": "乾坤圈",
+            "description": "哪吒的神器，金光萬丈，飛出攻擊後自動返回"
+        },
+        "red_armillary_sash": {
+            "name": "混天綾",
+            "description": "哪吒的法寶，長達七尺二寸，束縛和鞭打攻擊"
+        },
+        "purple_gold_gourd": {
+            "name": "紫金葫蘆",
+            "description": "金角銀角的法寶，呼名答應，吸收敵人"
+        },
+        "golden_rope_immortal": {
+            "name": "幌金繩",
+            "description": "太上老君的法寶，束縛更強版本，捆仙索"
+        },
+        "demon_revealing_mirror": {
+            "name": "照妖鏡",
+            "description": "識破敵人弱點，大幅增加暴擊率和暴擊傷害"
+        },
+        "sea_calming_needle": {
+            "name": "定海神針",
+            "description": "金箍棒的另一形態，天河鎮海之寶，範圍更大威力更強"
+        },
+        "eight_trigrams_furnace": {
+            "name": "八卦爐",
+            "description": "太上老君的煉丹爐，八卦烈焰，持續灼燒敵人"
+        },
+        "dragon_staff": {
+            "name": "盤龍杖",
+            "description": "觀音座下的神兵，召喚龍卷風暴，席捲群敵"
+        },
+        "seven_treasure_tree": {
+            "name": "七寶妙樹",
+            "description": "準提道人的法寶，刷新萬物，淨化邪祟"
+        },
+        "immortal_slaying_blade": {
+            "name": "斬仙飛刀",
+            "description": "陸壓道人的飛刀，鎖定必殺，請寶貝轉身"
+        },
+        "diamond_snare": {
+            "name": "金剛琢",
+            "description": "太上老君的法寶，破防神器，無堅不摧"
+        },
+        "exquisite_pagoda": {
+            "name": "玲瓏寶塔",
+            "description": "托塔天王李靖的寶塔，鎮壓萬魔，禁錮邪祟"
+        },
         "golden_staff": {
             "name": "金箍棒",
             "description": "天命人的神奇棍棒，能隨意伸縮"

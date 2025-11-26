@@ -310,6 +310,78 @@
       "name": "龙鳞剑",
       "description": "白龙之剑布满龙鳞，发射追踪弹幕"
     },
+    "three_pointed_blade": {
+      "name": "三尖两刃刀",
+      "description": "二郎神的神兵，三尖锋利，刀刃如电"
+    },
+    "nine_ring_staff": {
+      "name": "九环锡杖",
+      "description": "唐僧的禅杖，九环鸣响，震慑妖魔"
+    },
+    "crescent_blade": {
+      "name": "月牙铲",
+      "description": "沙僧的降妖宝杖，月牙如钩，破甲无双"
+    },
+    "iron_cudgel": {
+      "name": "混铁棍",
+      "description": "牛魔王的巨棍，重逾千斤，力拔山兮"
+    },
+    "seven_star_sword": {
+      "name": "七星剑",
+      "description": "道家仙剑，七星连珠，剑气纵横"
+    },
+    "ginseng_fruit": {
+      "name": "人参果",
+      "description": "镇元大仙的仙果，闻一闻活三百六十岁，吃一个活四万七千年"
+    },
+    "heaven_earth_circle": {
+      "name": "乾坤圈",
+      "description": "哪吒的神器，金光万丈，飞出攻击后自动返回"
+    },
+    "red_armillary_sash": {
+      "name": "混天绫",
+      "description": "哪吒的法宝，长达七尺二寸，束缚和鞭打攻击"
+    },
+    "purple_gold_gourd": {
+      "name": "紫金葫芦",
+      "description": "金角银角的法宝，呼名答应，吸收敌人"
+    },
+    "golden_rope_immortal": {
+      "name": "幌金绳",
+      "description": "太上老君的法宝，束缚更强版本，捆仙索"
+    },
+    "demon_revealing_mirror": {
+      "name": "照妖镜",
+      "description": "识破敌人弱点，大幅增加暴击率和暴击伤害"
+    },
+    "sea_calming_needle": {
+      "name": "定海神针",
+      "description": "金箍棒的另一形态，天河镇海之宝，范围更大威力更强"
+    },
+    "eight_trigrams_furnace": {
+      "name": "八卦炉",
+      "description": "太上老君的炼丹炉，八卦烈焰，持续灼烧敌人"
+    },
+    "dragon_staff": {
+      "name": "盘龙杖",
+      "description": "观音座下的神兵，召唤龙卷风暴，席卷群敌"
+    },
+    "seven_treasure_tree": {
+      "name": "七宝妙树",
+      "description": "准提道人的法宝，刷新万物，净化邪祟"
+    },
+    "immortal_slaying_blade": {
+      "name": "斩仙飞刀",
+      "description": "陆压道人的飞刀，锁定必杀，请宝贝转身"
+    },
+    "diamond_snare": {
+      "name": "金刚琢",
+      "description": "太上老君的法宝，破防神器，无坚不摧"
+    },
+    "exquisite_pagoda": {
+      "name": "玲珑宝塔",
+      "description": "托塔天王李靖的宝塔，镇压万魔，禁锢邪祟"
+    },
     "fireLance": {
       "name": "火尖枪",
       "description": "烈焰缠绕的长枪，灼烧敌人"

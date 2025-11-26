@@ -302,6 +302,78 @@
             "name": "용린검",
             "description": "용의 비늘로 덮인 백룡의 검, 추적 탄환 발사"
         },
+        "three_pointed_blade": {
+            "name": "삼지량인도",
+            "description": "이선생의 신병, 세 개의 날이 번개처럼 찢어듦"
+        },
+        "nine_ring_staff": {
+            "name": "구환석장",
+            "description": "당승의 선봉, 아홉 개의 고리가 울려 악마를 두려워하게 함"
+        },
+        "crescent_blade": {
+            "name": "월야찬",
+            "description": "사승의 악마 정복봉, 초승달 모양의 칼날이 갑옷을 관통함"
+        },
+        "iron_cudgel": {
+            "name": "혼철봉",
+            "description": "소마왕의 거대한 봉, 산을 움직일 만큼의 힘"
+        },
+        "seven_star_sword": {
+            "name": "칠성검",
+            "description": "도교의 선검, 일곱 별이 연결되어 무한한 검기"
+        },
+        "ginseng_fruit": {
+            "name": "인삼과일",
+            "description": "진원대현의 선과일, 맡기만 해도 360년 살고, 먹으면 47,000년 산다"
+        },
+        "heaven_earth_circle": {
+            "name": "건坤권",
+            "description": "나자의 신기, 금색 빛을 내며 적을 공격하고 자동으로 돌아옴"
+        },
+        "red_armillary_sash": {
+            "name": "혼천령",
+            "description": "나자의 법보, 7척 2치 길이로 적을 묶고 채찍질함"
+        },
+        "purple_gold_gourd": {
+            "name": "자금호루",
+            "description": "금각과 은각의 법보, 이름에 응하는 적을 빨아들임"
+        },
+        "golden_rope_immortal": {
+            "name": "황금로프",
+            "description": "태상로군의 법보, 강력한 구속력을 가진 선령의 밧줄"
+        },
+        "demon_revealing_mirror": {
+            "name": "조요경",
+            "description": "적의 약점을 밝혀 치명타율과 대미지를 크게 증가시킴"
+        },
+        "sea_calming_needle": {
+            "name": "정해침",
+            "description": "금골봉의 다른 형태, 천하의 바다를 가라앉히는 보물, 더 넓은 범위에서 강력한 위력"
+        },
+        "eight_trigrams_furnace": {
+            "name": "팔괘로",
+            "description": "태상로군의 연금로, 팔괘의 염불로 적을 지속적으로 불태움"
+        },
+        "dragon_staff": {
+            "name": "반용장",
+            "description": "관음의 신병, 토네이도를 소환하여 적 무리를 한꺼번에 없앰"
+        },
+        "seven_treasure_tree": {
+            "name": "칠보묘수",
+            "description": "준제도인의 법보, 모든 것을 새롭게 하고 악을 정화함"
+        },
+        "immortal_slaying_blade": {
+            "name": "찬선비도",
+            "description": "육압도인의 날개칼, 적을 추적하고 필살적인 일격"
+        },
+        "diamond_snare": {
+            "name": "금剛琢",
+            "description": "태상로군의 법보, 갑옷을 관통하는 신병, 파괴 불가"
+        },
+        "exquisite_pagoda": {
+            "name": "영롱보탑",
+            "description": "탑수왕 이경의 보탑, 수백만 악마를 물리치고 악을 가두어둠"
+        },
         "golden_staff": {
             "name": "금골봉",
             "description": "운명의 자의 마법봉, 마음대로 자라거나 줄어듦"

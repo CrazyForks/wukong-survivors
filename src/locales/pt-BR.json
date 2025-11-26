@@ -302,6 +302,78 @@
             "name": "Espada Escama de Dragão",
             "description": "Lâmina do Dragão Branco com escamas de dragão, dispara projéteis rastreadores"
         },
+        "three_pointed_blade": {
+            "name": "Lâmina de Três Pontas",
+            "description": "Arma divina do Caçador de Demônios, três pontas afiadas cortam como raios"
+        },
+        "nine_ring_staff": {
+            "name": "Cajado de Nove Anéis",
+            "description": "Cajado budista de Tang Seng, nove anéis tinguem e intimidam demônios"
+        },
+        "crescent_blade": {
+            "name": "Lâmina Crescente",
+            "description": "Cajado contra demônios de Sha Seng, lâmina em forma de lua crescente que perfura armaduras"
+        },
+        "iron_cudgel": {
+            "name": "Porra de Ferro",
+            "description": "Porra gigante do Rei Touro, força suficiente para mover montanhas"
+        },
+        "seven_star_sword": {
+            "name": "Espada das Sete Estrelas",
+            "description": "Espada Xian da Doutrina Dao, sete estrelas se conectam em um espírito de espada infinito"
+        },
+        "ginseng_fruit": {
+            "name": "Fruta de Ginseng",
+            "description": "Fruta Xian do Grande Patriarca Zhenyuan, se você cheira, vive 360 anos, se você come, vive 47.000 anos"
+        },
+        "heaven_earth_circle": {
+            "name": "Círculo do Céu e Terra",
+            "description": "Artefato de Nezha, emite luz dourada, ataca inimigos e retorna automaticamente"
+        },
+        "red_armillary_sash": {
+            "name": "Faixa Armilar Vermelha",
+            "description": "Artefato de Nezha, 7 pés 2 polegadas de comprimento, amarra e chicoteia inimigos"
+        },
+        "purple_gold_gourd": {
+            "name": "Abóbora Roxa Dourada",
+            "description": "Artefato de Goldhorn e Silverhorn, absorve inimigos que respondem ao seu nome"
+        },
+        "golden_rope_immortal": {
+            "name": "Corda Dourada dos Imortais",
+            "description": "Artefato de Taishang Laojun, corda Xian com maior força de restrição"
+        },
+        "demon_revealing_mirror": {
+            "name": "Espelho Revelador de Demônios",
+            "description": "Descobre fraquezas de inimigos, aumenta significativamente a taxa de crítico e dano"
+        },
+        "sea_calming_needle": {
+            "name": "Aguja Calmante do Mar",
+            "description": "Outra forma do Cajado Dourado, tesouro calmante do Mar Celestial, mais poderoso em grandes áreas"
+        },
+        "eight_trigrams_furnace": {
+            "name": "Forno dos Oito Trigramas",
+            "description": "Forno alquímico de Taishang Laojun, chamas dos Oito Trigramas queimam inimigos continuamente"
+        },
+        "dragon_staff": {
+            "name": "Cajado de Dragão",
+            "description": "Arma de Guanyin, convoca tornados para eliminar grupos de inimigos"
+        },
+        "seven_treasure_tree": {
+            "name": "Árvore dos Sete Tesouros",
+            "description": "Artefato de Zhunti, renova tudo e purifica o mal"
+        },
+        "immortal_slaying_blade": {
+            "name": "Lâmina Matadora de Imortais",
+            "description": "Lâmina voadora de Lu Pressure, rastreia inimigos e atinge mortalmente"
+        },
+        "diamond_snare": {
+            "name": "Armadilha de Diamante",
+            "description": "Artefato de Taishang Laojun, arma perfurante de armaduras, indestrutível"
+        },
+        "exquisite_pagoda": {
+            "name": "Pagode Exquisita",
+            "description": "Pagode do Rei Guardião do Templo Li Jing, combate milhões de demônios e confina o mal"
+        },
         "golden_staff": {
             "name": "Cajado Dourado",
             "description": "Cajado mágico do Destinado, cresce e encolhe a vontade"

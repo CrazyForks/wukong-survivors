@@ -302,6 +302,78 @@
             "name": "Dragon Scale Sword",
             "description": "White Dragon's blade with dragon scales, launches tracking projectiles"
         },
+        "three_pointed_blade": {
+            "name": "Three-Pointed Blade",
+            "description": "Erlang Shen's divine weapon, sharp triple points, blade like lightning"
+        },
+        "nine_ring_staff": {
+            "name": "Nine-Ring Staff",
+            "description": "Tang Sanzang's Buddhist staff, nine rings chime to intimidate demons"
+        },
+        "crescent_blade": {
+            "name": "Crescent Moon Blade",
+            "description": "Sha Wujing's demon-subduing staff, crescent hook pierces armor"
+        },
+        "iron_cudgel": {
+            "name": "Iron Cudgel",
+            "description": "Bull Demon King's massive staff, weighing thousands of jin, immense strength"
+        },
+        "seven_star_sword": {
+            "name": "Seven Star Sword",
+            "description": "Taoist immortal sword, seven stars aligned, sword qi crisscrosses"
+        },
+        "ginseng_fruit": {
+            "name": "Ginseng Fruit",
+            "description": "Zhen Yuan Daxian's immortal fruit, smell it live 360 years, eat it live 47,000 years"
+        },
+        "heaven_earth_circle": {
+            "name": "Heaven-Earth Circle",
+            "description": "Nezha's divine weapon, golden light, flies out to attack and returns automatically"
+        },
+        "red_armillary_sash": {
+            "name": "Red Armillary Sash",
+            "description": "Nezha's treasure, 7.2 feet long, binds and whips enemies"
+        },
+        "purple_gold_gourd": {
+            "name": "Purple Gold Gourd",
+            "description": "Golden Horn and Silver Horn's treasure, calls name, absorbs enemies"
+        },
+        "golden_rope_immortal": {
+            "name": "Golden Rope",
+            "description": "Laojun's treasure, stronger binding version, immortal-binding rope"
+        },
+        "demon_revealing_mirror": {
+            "name": "Demon Revealing Mirror",
+            "description": "Sees enemy weaknesses, greatly increases crit rate and crit damage"
+        },
+        "sea_calming_needle": {
+            "name": "Sea-Calming Needle",
+            "description": "Another form of Golden Staff, Tianhe Sea-Suppressing treasure, larger range and stronger power"
+        },
+        "eight_trigrams_furnace": {
+            "name": "Eight Trigrams Furnace",
+            "description": "Laojun's alchemy furnace, eight trigrams flames, continuous burning damage"
+        },
+        "dragon_staff": {
+            "name": "Dragon Staff",
+            "description": "Guanyin's divine weapon, summons tornado storms to sweep enemies"
+        },
+        "seven_treasure_tree": {
+            "name": "Seven Treasure Tree",
+            "description": "Zhunti Daoren's treasure, refreshes all things, purifies evil"
+        },
+        "immortal_slaying_blade": {
+            "name": "Immortal-Slaying Blade",
+            "description": "Lu Ya Daoren's flying blade, locks onto targets, sure kill"
+        },
+        "diamond_snare": {
+            "name": "Diamond Snare",
+            "description": "Laojun's treasure, armor-piercing artifact, invincible"
+        },
+        "exquisite_pagoda": {
+            "name": "Exquisite Pagoda",
+            "description": "Li Jing's pagoda, suppresses all demons, imprisons evil"
+        },
         "upgrade": "Upgrade {name}",
         "addWeapon": "Add {name}",
         "upgradeToLevel": "{name} Lv.{level}"

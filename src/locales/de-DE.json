@@ -302,6 +302,78 @@
             "name": "Drachenschuppen-Schwert",
             "description": "Klinge des Weißen Drachen mit Drachenschuppen, feuert verfolgende Geschosse"
         },
+        "three_pointed_blade": {
+            "name": "Dreispitziges Schwert",
+            "description": "Dämonenjägers Gewehr, dreispitzige Klingen schneiden wie Blitze"
+        },
+        "nine_ring_staff": {
+            "name": "Neunringe-Stab",
+            "description": "Mönchstab von Tang Seng, neun Ringe klingen und schrecken Dämonen"
+        },
+        "crescent_blade": {
+            "name": "Mondsichel-Messer",
+            "description": "Teufelsbekämpfungsstab von Sha Seng, mondsichelförmige Klinge durchbricht Rüstungen"
+        },
+        "iron_cudgel": {
+            "name": "Eiserner Knüppel",
+            "description": "Riesenknüppel des Bullenkonigs, Kraft genug, um Berge zu bewegen"
+        },
+        "seven_star_sword": {
+            "name": "Siebener-Sterne-Schwert",
+            "description": "Xian-Schwert der Dao-Lehre, sieben Sterne verbinden sich zu endlosen Schwertgeist"
+        },
+        "ginseng_fruit": {
+            "name": "Ginseng-Frucht",
+            "description": "Xian-Frucht des Großen Zhenyuan-Patriarchen, riecht man sie, lebt man 360 Jahre, isst man sie, lebt man 47.000 Jahre"
+        },
+        "heaven_earth_circle": {
+            "name": "Himmel-Erde-Ring",
+            "description": "Magisches Werkzeug von Nezha, strahlt goldenes Licht aus, trifft Feinde und kehrt automatisch zurück"
+        },
+        "red_armillary_sash": {
+            "name": "Rot-Goldene Gürtelschnur",
+            "description": "Dämonenfessel von Nezha, 7 Fuß 2 Zoll lang, bindet Feinde und peitscht sie"
+        },
+        "purple_gold_gourd": {
+            "name": "Lila-Goldene Kürbis",
+            "description": "Magisches Werkzeug von Goldhorn und Silberhorn, saugt Feinde ein, die auf ihren Namen antworten"
+        },
+        "golden_rope_immortal": {
+            "name": "Goldene Fessel der Xian",
+            "description": "Magisches Werkzeug von Taishang Laojun, Xian-Fessel mit stärkerer Bindekraft"
+        },
+        "demon_revealing_mirror": {
+            "name": "Dämonen-Entdeckungsspiegel",
+            "description": "Entdeckt Schwachstellen der Feinde, erhöht Kritischer Treffer-Rate und Schaden erheblich"
+        },
+        "sea_calming_needle": {
+            "name": "Meer-Beruhigungsnadel",
+            "description": "Andere Form des Goldenen Stabes, Himmelsfluss Meer-Beruhigungsschatz, stärker in weiten Bereichen"
+        },
+        "eight_trigrams_furnace": {
+            "name": "Acht-Trigramme-Ofen",
+            "description": "Alchemistenofen von Taishang Laojun, Acht-Trigramme-Flammen brennen Feinde kontinuierlich"
+        },
+        "dragon_staff": {
+            "name": "Drachen-Stab",
+            "description": "Gewehr von Guanyin, ruft Tornados herbei, um Gruppen von Feinden zu beseitigen"
+        },
+        "seven_treasure_tree": {
+            "name": "Siebener-Schätze-Baum",
+            "description": "Magisches Werkzeug von Zhunti, erneuert alles und reinigt Böses"
+        },
+        "immortal_slaying_blade": {
+            "name": "Xian-Töten-Schwert",
+            "description": "Fliegendes Schwert von Lu Pressure, verfolgt Feinde und trifft tödlich"
+        },
+        "diamond_snare": {
+            "name": "Diamant-Fessel",
+            "description": "Magisches Werkzeug von Taishang Laojun, Rüstungsdurchbrechendes Gewehr, unzerstörbar"
+        },
+        "exquisite_pagoda": {
+            "name": "Prächtiger Pagode",
+            "description": "Pagode des Tempelhalter-Königs Li Jing, bekämpft Millionen von Dämonen und verbrennt Böses"
+        },
         "upgrade": "{name} verbessern",
         "addWeapon": "{name} hinzufügen",
         "upgradeToLevel": "{name} Stufe {level}"
