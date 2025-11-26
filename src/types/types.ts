@@ -1,4 +1,4 @@
-import type { CharacterType, EnemyType, UnlockType } from "./characters";
+import type { EnemyType } from "./characters";
 import type { WeaponType } from "./reward";
 
 export type MapType =
@@ -13,14 +13,13 @@ export type MapType =
 export interface GameMap {
   id: MapType;
   chapter: number;
-  unlocked: boolean;
   unlockCondition: {
-    type: UnlockType;
+    type: "default" | "chapter";
     value: number;
   };
   difficulty: number; // 1-6 corresponding to chapters
   availableEnemies: EnemyType[]; // 该章节出现的敌人
-  unlockedCharacters: CharacterType[]; // 通关后解锁的角色
+  gameTime: number; // 该章节的游戏时长（秒），默认为30分钟
 }
 
 export type PermanentUpgradeType =
@@ -45,8 +44,6 @@ export type GameSave = {
   totalKills: number;
   totalPlayTime: number;
   bestSurvivalTime: number;
-  unlockedCharacters: CharacterType[];
-  unlockedMaps: MapType[];
   completedChapters: MapType[]; // 已通关的章节
   ownedWeapons: WeaponType[]; // 已拥有的武器
   language: string;

@@ -8,7 +8,9 @@
       "DOM.Iterable"
     ],
     "types": [
-      "@types/node"
+      "@types/node",
+      "vitest/globals",
+      "@testing-library/jest-dom"
     ],
     "module": "ESNext",
     "skipLibCheck": true,
@@ -35,7 +37,9 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src"
+    "src",
+    "vitest.config.ts",
+    "vitest.setup.ts"
   ],
   "references": [
     {

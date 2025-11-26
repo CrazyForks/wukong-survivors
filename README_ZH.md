@@ -1,0 +1,124 @@
+# 悟空幸存者
+
+[English](./README.md) | [中文](./README_ZH.md)
+
+## 🎮 悟空幸存者
+
+一款受《黑神话：悟空》和《吸血鬼幸存者》启发的肉鸽幸存者游戏，使用 Phaser.js、React 和 Vite 构建。穿越西游记的传奇章节，解锁强大角色，在无尽的敌人浪潮中生存下来。
+
+### ✨ 特性
+
+- 🐵 **24个可玩角色** - 解锁西游记中的标志性角色，包括天命人、黑熊精、牛魔王、二郎神等
+- 🗺️ **6个独特章节** - 探索从黑风山到须弥山的多样化地图
+- ⚔️ **15种传奇武器** - 收集并升级强大的武器，如金箍棒、火尖枪、芭蕉扇等
+- 🎯 **肉鸽式进程** - 每次游戏都提供不同的升级和丹药，创造独特的构建
+- 💪 **永久升级** - 消耗金币永久增强攻击、生命、护甲、幸运和速度
+- 🌍 **多语言支持** - 支持10种语言：English、中文、日本語、한국어、Français、Deutsch、Español、Português、Русский、繁體中文
+
+### 🚀 快速开始
+
+#### 环境要求
+
+- Node.js 16+ 和 npm/yarn/pnpm
+
+#### 安装
+
+```bash
+# 克隆仓库
+git clone https://github.com/nusr/survivor-game.git
+cd survivor-game
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm start
+```
+
+游戏将在 `http://localhost:5173` 打开
+
+#### 生产构建
+
+```bash
+npm run build
+```
+
+#### 运行测试
+
+```bash
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests once
+npm test
+
+# Run tests with UI
+npm run test:ui
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+构建文件将输出到 `dist/` 目录。
+
+### 🎯 游戏玩法
+
+1. **选择角色** - 在主界面选择你的角色。每个角色都有独特的属性和起始武器
+2. **选择地图** - 选择一个章节/地图开始你的旅程
+3. **生存** - 使用 WASD 或方向键移动，自动攻击附近的敌人
+4. **升级** - 从击败的敌人那里获得经验，升级后选择新武器或升级
+5. **收集奖励** - 每击杀10个敌人，从强大的丹药或新武器中选择
+6. **永久进度** - 在商店使用收集的金币购买永久升级
+
+### 🏗️ 技术栈
+
+- **游戏引擎**: [Phaser.js 3.90](https://phaser.io/) - HTML5 游戏框架
+- **前端框架**: [React 19](https://react.dev/) - UI 组件
+- **构建工具**: [Vite 7](https://vitejs.dev/) - 快速开发和构建
+- **状态管理**: [Zustand 5](https://github.com/pmndrs/zustand) - 轻量级状态管理
+- **开发语言**: TypeScript - 类型安全开发
+- **国际化**: [react-i18next](https://react.i18next.com/) - 多语言支持
+
+### 🎨 游戏系统
+
+#### 角色系统
+
+- 6个章节中24个可解锁角色
+- 每个角色都有独特的基础属性：生命、速度、伤害、护甲、幸运
+- 通过完成特定章节解锁角色
+
+#### 武器系统
+
+- 15种不同机制的武器
+- 武器可升级至5级
+- 每次升级提升伤害、弹幕数量或特殊效果
+
+#### 丹药系统
+
+- 10种不同效果的丹药
+- 生命恢复、属性提升和特殊能力
+- 复活丹提供一次复活机会
+
+#### 进度系统
+
+- 临时进度：游戏中升级获得力量
+- 永久进度：游戏间使用金币购买持久升级
+- 通过完成章节解锁新角色和武器
+
+### 🤝 贡献
+
+欢迎贡献！您可以：
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+### 📝 许可证
+
+本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
+
+### 🙏 致谢
+
+- 灵感来自《黑神话：悟空》、《吸血鬼幸存者》

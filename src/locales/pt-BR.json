@@ -136,7 +136,23 @@
         },
         "stone_monkey": {
             "name": "Macaco de Pedra",
-            "description": "Chefe da Montanha Sumeru, forma original do Grande Sábio"
+            "description": "Chefe do Monte Sumeru, forma original do Grande Sábio"
+        },
+        "tang_monk": {
+            "name": "Monge Tang",
+            "description": "Mestre budista da Jornada ao Oeste, abençoado com sorte extraordinária"
+        },
+        "sha_monk": {
+            "name": "Monge Sha",
+            "description": "Ex-General das Cortinas, guerreiro equilibrado das areias do rio"
+        },
+        "zhu_bajie": {
+            "name": "Zhu Bajie",
+            "description": "Marechal Tianpeng reencarnado, tanque resistente com ancinho poderoso"
+        },
+        "white_dragon_horse": {
+            "name": "Cavalo Dragão Branco",
+            "description": "Príncipe Dragão em forma de cavalo, corcel celestial veloz"
         },
         "unlockCharacter": "Desbloquear personagem",
         "locked": "Bloqueado",
@@ -168,7 +184,7 @@
             "name": "Capítulo 6 - Paraíso Ocidental",
             "description": "O desafio final, o caminho da iluminação"
         },
-        "selectMap": "Selecionar mapa",
+        "selectMap": "Selecionar capítulo",
         "difficulty": "Dificuldade"
     },
     "unlockConditions": {
@@ -176,16 +192,16 @@
         "kills": "Derrote {value} inimigos",
         "time": "Sobreviva {value} segundos",
         "gold": "Coletar {value} ouro",
-        "chapter": "Desbloquear capítulo {value}"
+        "chapter": "Completar capítulo {value} "
     },
     "shop": {
         "title": "Melhorias permanentes",
         "hint": "Melhore as características permanentes para se tornar mais forte!",
-        "infoText": "* Reset devolve 70% do ouro gasto",
-        "resetMessage": "Devolve {refund} ouro\n(70% do ouro gasto)",
+        "infoText": "* Reset devolve 100% do ouro gasto",
+        "resetMessage": "Devolve {refund} ouro",
         "purchaseUpgrade": "Comprar melhoria",
         "resetUpgrades": "Redefinir todas as melhorias",
-        "resetConfirm": "Redefinir todas as melhorias? Você receberá 70% do ouro gasto de volta.",
+        "resetConfirm": "Redefinir todas as melhorias? Você receberá 100% do ouro gasto de volta.",
         "confirm": "Confirmar",
         "cancel": "Cancelar",
         "maxLevel": "Nível máximo",
@@ -278,7 +294,15 @@
             "name": "Abanico de Folha",
             "description": "Jóia da Princesa do Abanico de Ferro, ventos rugentes"
         },
-        "goldenStaff": {
+        "nine_tooth_rake": {
+            "name": "Ancinho de Nove Dentes",
+            "description": "Arma celestial de Zhu Bajie, ataque em leque que puxa inimigos"
+        },
+        "dragon_scale_sword": {
+            "name": "Espada Escama de Dragão",
+            "description": "Lâmina do Dragão Branco com escamas de dragão, dispara projéteis rastreadores"
+        },
+        "golden_staff": {
             "name": "Cajado Dourado",
             "description": "Cajado mágico do Destinado, cresce e encolhe a vontade"
         },

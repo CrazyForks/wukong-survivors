@@ -38,7 +38,13 @@ export type CharacterType =
   | "erlang_shen" // 二郎神（妖王）
   | "great_sage_heaven" // 齐天大圣（妖王）
   | "golden_cicada" // 金蝉子（大王）
-  | "stone_monkey"; // 石猴（首领）
+  | "stone_monkey" // 石猴（首领）
+
+  // 西游记师徒
+  | "tang_monk" // 唐僧（师父）
+  | "sha_monk" // 沙僧（沙悟净）
+  | "zhu_bajie" // 猪八戒（猪悟能）
+  | "white_dragon_horse"; // 白龙马（敖烈）
 
 // 敌人类型（小怪、头目）
 export type EnemyType =
@@ -88,7 +94,6 @@ export interface CharacterData {
   id: CharacterType;
   name: string;
   rank: CharacterRankType;
-  unlocked: boolean;
   unlockCondition: {
     type: UnlockType;
     value: number;

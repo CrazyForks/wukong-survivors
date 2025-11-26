@@ -5,12 +5,13 @@ import type {
   MapType,
 } from "../types/types";
 
+export const DEFAULT_GAME_TIME = 30 * 60; // 30 minutes in seconds
+
 // Map data - Wukong chapters
 export const MAPS: GameMap[] = [
   {
     id: "chapter1",
     chapter: 1,
-    unlocked: true,
     unlockCondition: {
       type: "default",
       value: 0,
@@ -22,15 +23,14 @@ export const MAPS: GameMap[] = [
       "bear_elite",
       "snake_elite",
     ],
-    unlockedCharacters: ["black_bear_guai", "lingxuzi", "wandering_wight"],
+    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter2",
     chapter: 2,
-    unlocked: false,
     unlockCondition: {
-      type: "kills",
-      value: 50,
+      type: "chapter",
+      value: 1,
     },
     difficulty: 2,
     availableEnemies: [
@@ -39,20 +39,14 @@ export const MAPS: GameMap[] = [
       "tiger_elite",
       "wind_elite",
     ],
-    unlockedCharacters: [
-      "yellow_wind_sage",
-      "tiger_vanguard",
-      "stone_vanguard",
-      "king_of_flowing_sand",
-    ],
+    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter3",
     chapter: 3,
-    unlocked: false,
     unlockCondition: {
-      type: "kills",
-      value: 150,
+      type: "chapter",
+      value: 2,
     },
     difficulty: 3,
     availableEnemies: [
@@ -61,20 +55,14 @@ export const MAPS: GameMap[] = [
       "centipede_elite",
       "scorpion_elite",
     ],
-    unlockedCharacters: [
-      "yellow_brow_king",
-      "hundred_eyed",
-      "mad_tiger",
-      "kang_jin_loong",
-    ],
+    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter4",
     chapter: 4,
-    unlocked: false,
     unlockCondition: {
-      type: "time",
-      value: 300,
+      type: "chapter",
+      value: 3,
     },
     difficulty: 4,
     availableEnemies: [
@@ -83,20 +71,14 @@ export const MAPS: GameMap[] = [
       "violet_spider_elite",
       "poison_centipede_elite",
     ],
-    unlockedCharacters: [
-      "spider_celestial",
-      "hundred_eyed_daoist",
-      "elder_jinchi",
-      "hundred_eyed_daoist_master",
-    ],
+    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter5",
     chapter: 5,
-    unlocked: false,
     unlockCondition: {
-      type: "kills",
-      value: 400,
+      type: "chapter",
+      value: 4,
     },
     difficulty: 5,
     availableEnemies: [
@@ -105,15 +87,14 @@ export const MAPS: GameMap[] = [
       "fire_general_elite",
       "bull_captain_elite",
     ],
-    unlockedCharacters: ["bull_king", "red_boy", "rakshasa", "yaksha_king"],
+    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter6",
     chapter: 6,
-    unlocked: false,
     unlockCondition: {
-      type: "kills",
-      value: 800,
+      type: "chapter",
+      value: 5,
     },
     difficulty: 6,
     availableEnemies: [
@@ -122,12 +103,7 @@ export const MAPS: GameMap[] = [
       "celestial_general_elite",
       "dragon_guardian_elite",
     ],
-    unlockedCharacters: [
-      "erlang_shen",
-      "great_sage_heaven",
-      "golden_cicada",
-      "stone_monkey",
-    ],
+    gameTime: DEFAULT_GAME_TIME,
   },
 ];
 
@@ -176,8 +152,6 @@ export const DEFAULT_SAVE: GameSave = {
   totalKills: 0,
   bestSurvivalTime: 0,
   totalPlayTime: 0,
-  unlockedCharacters: ["destined_one"],
-  unlockedMaps: ["chapter1"],
   completedChapters: [],
   ownedWeapons: ["golden_staff"],
   language: "en-US",
@@ -195,11 +169,10 @@ export const getMapImagePath = (id: MapType): string => {
 export const EVENT_MAP = {
   BACK_TO_HOME: "BACK_TO_HOME",
   SHOW_END_GAME_MODAL: "SHOW_END_GAME_MODAL",
+  EXP_COLLECTED: "EXP_COLLECTED",
 };
 
 export const GAME_SCENE_KEY = "GameScene";
-
-export const DEFAULT_GAME_TIME = 30 * 60; // 30 minutes in seconds
 
 export const SCREEN_SIZE = {
   width: window.innerWidth,

@@ -16,7 +16,27 @@ export type WeaponType =
   | "wind_fire_wheels" // 风火轮
   | "jade_purity_bottle" // 玉净瓶
   | "golden_rope" // 金绳索
-  | "plantain_fan"; // 芭蕉扇
+  | "plantain_fan" // 芭蕉扇
+  | "three_pointed_blade" // 三尖两刃刀
+  | "nine_ring_staff" // 九环锡杖
+  | "crescent_blade" // 月牙铲
+  | "iron_cudgel" // 混铁棍
+  | "seven_star_sword" // 七星剑
+  | "ginseng_fruit" // 人参果
+  | "heaven_earth_circle" // 乾坤圈
+  | "red_armillary_sash" // 混天绫
+  | "purple_gold_gourd" // 紫金葫芦
+  | "golden_rope_immortal" // 幌金绳
+  | "demon_revealing_mirror" // 照妖镜
+  | "sea_calming_needle" // 定海神针
+  | "eight_trigrams_furnace" // 八卦炉
+  | "dragon_staff" // 盘龙杖
+  | "seven_treasure_tree" // 七宝妙树
+  | "immortal_slaying_blade" // 斩仙飞刀
+  | "diamond_snare" // 金刚琢
+  | "exquisite_pagoda" // 玲珑宝塔
+  | "nine_tooth_rake" // 九齿钉耙
+  | "dragon_scale_sword"; // 龙鳞剑
 
 // 丹药类型（黑神话悟空）
 export type ElixirType =
@@ -44,11 +64,6 @@ export interface WeaponData {
   attackSpeed: number; // 攻击间隔（毫秒）
   level: number;
   maxLevel: number;
-  // 合成配方（可选）
-  recipe?: {
-    materials: WeaponType[];
-    result: WeaponType;
-  };
 }
 
 // 丹药接口

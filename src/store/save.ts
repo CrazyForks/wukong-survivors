@@ -1,83 +1,16 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import {
-  DEFAULT_SAVE,
-  CHARACTERS_DATA,
-  PERMANENT_UPGRADES,
-  MAPS,
-} from "../constant";
+import { DEFAULT_SAVE, PERMANENT_UPGRADES } from "../constant";
 import type {
   GameSave,
   WeaponType,
   PermanentUpgradeType,
   MapType,
-  CharacterType,
 } from "../types";
 import { useShallow } from "zustand/react/shallow";
+import { useAppStore } from "./app";
 
-const SAVE_KEY = "wukong_survivors_save_1";
-
-// Helper function to check unlock conditions
-const checkUnlocks = (state: GameSave): Partial<GameSave> => {
-  const { unlockedCharacters, unlockedMaps } = state;
-
-  // Check map unlock
-  MAPS.forEach((map) => {
-    if (!unlockedMaps.includes(map.id)) {
-      let unlocked = false;
-
-      switch (map.unlockCondition.type) {
-        case "kills":
-          unlocked = state.totalKills >= map.unlockCondition.value;
-          break;
-        case "time":
-          unlocked = state.bestSurvivalTime >= map.unlockCondition.value;
-          break;
-        case "gold":
-          unlocked = state.totalGold >= map.unlockCondition.value;
-          break;
-      }
-
-      if (unlocked) {
-        unlockedMaps.push(map.id);
-      }
-    }
-  });
-
-  const chapters = unlockedMaps.map((c) => {
-    const item = MAPS.find((m) => m.id === c);
-    return item?.chapter ?? 0;
-  });
-
-  // Check character unlock
-  Object.values(CHARACTERS_DATA).forEach((char) => {
-    if (!unlockedCharacters.includes(char.id)) {
-      let unlocked = false;
-
-      switch (char.unlockCondition.type) {
-        case "kills":
-          unlocked = state.totalKills >= char.unlockCondition.value;
-          break;
-        case "time":
-          unlocked = state.bestSurvivalTime >= char.unlockCondition.value;
-          break;
-        case "gold":
-          unlocked = state.totalGold >= char.unlockCondition.value;
-          break;
-        case "chapter": {
-          unlocked = chapters.includes(char.unlockCondition.value);
-          break;
-        }
-      }
-
-      if (unlocked) {
-        unlockedCharacters.push(char.id);
-      }
-    }
-  });
-
-  return { unlockedCharacters, unlockedMaps };
-};
+const SAVE_KEY = "wu_kong_survivors_save_1";
 
 // Zustand Store interface
 interface SaveStore extends GameSave {
@@ -90,7 +23,6 @@ interface SaveStore extends GameSave {
   resetPermanentUpgrades: () => void;
   setLanguage: (language: string) => void;
   resetAll: () => void;
-  checkUnlocks: () => void;
   addWeapon: (weaponId: WeaponType) => void;
   completeChapter: (map: MapType) => void;
 }
@@ -105,7 +37,7 @@ export const useSaveStore = create<SaveStore>()(
       // Actions
       addGold: (amount: number) => {
         set({ totalGold: get().totalGold + amount });
-        get().checkUnlocks();
+        useAppStore.getState().checkUnlocks();
       },
 
       spendGold: (amount: number) => {
@@ -121,7 +53,7 @@ export const useSaveStore = create<SaveStore>()(
         set({
           totalKills: get().totalKills + amount,
         });
-        get().checkUnlocks();
+        useAppStore.getState().checkUnlocks();
       },
 
       updatePlayTime: (seconds: number) => {
@@ -136,7 +68,7 @@ export const useSaveStore = create<SaveStore>()(
           totalPlayTime: newPlayTime,
           bestSurvivalTime: newBestTime,
         });
-        get().checkUnlocks();
+        useAppStore.getState().checkUnlocks();
       },
 
       upgradePermanent: (upgradeId: PermanentUpgradeType) => {
@@ -160,7 +92,6 @@ export const useSaveStore = create<SaveStore>()(
 
       resetPermanentUpgrades: () => {
         const state = get();
-        // Calculate refund (70%)
         let refund = 0;
 
         PERMANENT_UPGRADES.forEach((item) => {
@@ -170,7 +101,7 @@ export const useSaveStore = create<SaveStore>()(
           }
         });
 
-        refund = Math.floor(refund * 0.7);
+        refund = Math.floor(refund);
 
         // Reset all levels
         const resetUpgrades: Partial<Record<PermanentUpgradeType, number>> = {};
@@ -188,10 +119,6 @@ export const useSaveStore = create<SaveStore>()(
 
       resetAll: () => set({ ...DEFAULT_SAVE }),
 
-      checkUnlocks: () => {
-        set(checkUnlocks(get()));
-      },
-
       // Complete chapter and unlock corresponding characters
       completeChapter: (chapter: MapType) => {
         const { completedChapters = [] } = get();
@@ -201,15 +128,8 @@ export const useSaveStore = create<SaveStore>()(
         }
 
         set({ completedChapters: [...completedChapters, chapter] });
-      },
 
-      // Manually unlock character
-      unlockCharacter: (characterId: CharacterType) => {
-        const { unlockedCharacters } = get();
-
-        if (!unlockedCharacters.includes(characterId)) {
-          set({ unlockedCharacters: [...unlockedCharacters, characterId] });
-        }
+        useAppStore.getState().checkUnlocks();
       },
 
       // Add weapon to owned weapons
@@ -223,6 +143,11 @@ export const useSaveStore = create<SaveStore>()(
     }),
     {
       name: SAVE_KEY,
+      merge: (persistedState, currentState) => ({
+        ...DEFAULT_SAVE,
+        ...currentState,
+        ...(persistedState as Partial<GameSave>),
+      }),
       storage: createJSONStorage(() => localStorage),
     },
   ),
@@ -233,8 +158,6 @@ const getTotalKills = (state: GameSave) => state.totalKills;
 const getBestSurvivalTime = (state: GameSave) => state.bestSurvivalTime;
 const getTotalPlayTime = (state: GameSave) => state.totalPlayTime;
 
-const getUnlockedCharacters = (state: GameSave) => state.unlockedCharacters;
-const getUnlockedMaps = (state: GameSave) => state.unlockedMaps;
 const getCompletedChapters = (state: GameSave) => state.completedChapters;
 const getLanguage = (state: GameSave) => state.language;
 
@@ -253,9 +176,6 @@ export const useBestSurvivalTime = () =>
 export const useTotalPlayTime = () =>
   useSaveStore(useShallow(getTotalPlayTime));
 
-export const useUnlockedCharacters = () =>
-  useSaveStore(useShallow(getUnlockedCharacters));
-export const useUnlockedMaps = () => useSaveStore(useShallow(getUnlockedMaps));
 export const useCompletedChapters = () =>
   useSaveStore(useShallow(getCompletedChapters));
 export const useLanguage = () => useSaveStore(useShallow(getLanguage));

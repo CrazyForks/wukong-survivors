@@ -138,6 +138,22 @@
             "name": "Stone Monkey",
             "description": "Mount Sumeru boss, original form of Great Sage"
         },
+        "tang_monk": {
+            "name": "Tang Monk",
+            "description": "Buddhist master on Journey to the West, blessed with extraordinary luck"
+        },
+        "sha_monk": {
+            "name": "Sha Monk",
+            "description": "Former Curtain-Lifting General, balanced warrior of the river sands"
+        },
+        "zhu_bajie": {
+            "name": "Zhu Bajie",
+            "description": "Marshal Tianpeng reborn, high endurance tank with mighty rake"
+        },
+        "white_dragon_horse": {
+            "name": "White Dragon Horse",
+            "description": "Dragon Prince in horse form, swift celestial steed"
+        },
         "unlockCharacter": "Unlock Character",
         "locked": "Locked",
         "unlockCondition": "Unlock Condition",
@@ -168,7 +184,7 @@
             "name": "Chapter 6 - Western Paradise",
             "description": "Ultimate challenge, path to enlightenment"
         },
-        "selectMap": "Select Map",
+        "selectMap": "Select Chapter",
         "difficulty": "Difficulty"
     },
     "unlockConditions": {
@@ -176,16 +192,16 @@
         "kills": "Defeat {value} enemies",
         "time": "Survive for {value} seconds",
         "gold": "Collect {value} gold",
-        "chapter": "Unlock Chapter {value} "
+        "chapter": "Complete Chapter {value}"
     },
     "shop": {
         "title": "Permanent Upgrades",
         "hint": "Upgrade permanent stats to become stronger!",
-        "infoText": "* Reset refunds 70% of spent gold",
-        "resetMessage": "Will refund {refund} gold\n(70% of spent)",
+        "infoText": "* Reset refunds 100% of spent gold",
+        "resetMessage": "Will refund {refund} gold",
         "purchaseUpgrade": "Purchase Upgrade",
         "resetUpgrades": "Reset All Upgrades",
-        "resetConfirm": "Reset all upgrades? You will get back 70% of spent gold.",
+        "resetConfirm": "Reset all upgrades? You will get back 100% of spent gold.",
         "confirm": "Confirm",
         "cancel": "Cancel",
         "maxLevel": "Max Level",
@@ -278,33 +294,13 @@
             "name": "Plantain Fan",
             "description": "Iron Fan Princess's treasure, howling winds"
         },
-        "goldenStaff": {
-            "name": "Golden Staff",
-            "description": "Destined One's magical staff, grows and shrinks at will"
+        "nine_tooth_rake": {
+            "name": "Nine-Tooth Rake",
+            "description": "Zhu Bajie's celestial weapon, fan-shaped attack pulls enemies close"
         },
-        "fireLance": {
-            "name": "Fire-Tipped Spear",
-            "description": "Flame-wreathed lance that burns enemies"
-        },
-        "windTamer": {
-            "name": "Wind Tamer Bead",
-            "description": "Divine pearl that controls storms"
-        },
-        "violetBell": {
-            "name": "Violet Bell",
-            "description": "Magical treasure that emits deadly sound waves"
-        },
-        "fireproofCloak": {
-            "name": "Fireproof Mantle",
-            "description": "Protective divine light that resists damage"
-        },
-        "twinBlades": {
-            "name": "Twin Blades",
-            "description": "Tiger Vanguard's dual swords for rapid strikes"
-        },
-        "bullHorns": {
-            "name": "Bull Demon Horns",
-            "description": "Bull King's mighty horns, unstoppable charge"
+        "dragon_scale_sword": {
+            "name": "Dragon Scale Sword",
+            "description": "White Dragon's blade with dragon scales, launches tracking projectiles"
         },
         "upgrade": "Upgrade {name}",
         "addWeapon": "Add {name}",

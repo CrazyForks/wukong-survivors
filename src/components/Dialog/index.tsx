@@ -58,7 +58,7 @@ export const Dialog: FunctionComponent<DialogProps> = memo((props) => {
           <div className={styles["dialog-button"]}>
             <button
               onClick={onCancel}
-              data-testId={cancelTestId}
+              data-testid={cancelTestId}
               className="backButton"
             >
               {cancelText || t("cancel")}
@@ -66,7 +66,7 @@ export const Dialog: FunctionComponent<DialogProps> = memo((props) => {
 
             <button
               onClick={onOk}
-              data-testId={confirmTestId}
+              data-testid={confirmTestId}
               className="confirmButton"
             >
               {confirmText || t("confirm")}

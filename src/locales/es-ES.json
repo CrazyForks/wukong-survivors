@@ -138,7 +138,23 @@
             "name": "Mono de Piedra",
             "description": "Jefe del Monte Sumeru, forma original del Gran Sabio"
         },
-        "unlockCharacter": "Desbloquear Personaje",
+        "tang_monk": {
+            "name": "Monje Tang",
+            "description": "Maestro budista del Viaje al Oeste, bendecido con suerte extraordinaria"
+        },
+        "sha_monk": {
+            "name": "Monje Sha",
+            "description": "Antiguo General de Cortinas, guerrero equilibrado de las arenas del río"
+        },
+        "zhu_bajie": {
+            "name": "Zhu Bajie",
+            "description": "Mariscal Tianpeng reencarnado, tanque de alta resistencia con rastrillo poderoso"
+        },
+        "white_dragon_horse": {
+            "name": "Caballo Dragón Blanco",
+            "description": "Príncipe Dragón en forma de caballo, corcel celestial veloz"
+        },
+        "unlockCharacter": "Desbloquear personaje",
         "locked": "Bloqueado",
         "unlockCondition": "Condición de Desbloqueo",
         "specialWeapon": "Arma Especial"
@@ -168,7 +184,7 @@
             "name": "Capítulo 6 - Paraíso Occidental",
             "description": "Desafío final, camino a la iluminación"
         },
-        "selectMap": "Seleccionar Mapa",
+        "selectMap": "Seleccionar Capítulo",
         "difficulty": "Dificultad"
     },
     "unlockConditions": {
@@ -176,16 +192,16 @@
         "kills": "Derrota a {value} enemigos",
         "time": "Sobrevive durante {value} segundos",
         "gold": "Colecciona {value} de oro",
-        "chapter": "Desbloquea el Capítulo {value}"
+        "chapter": "Completa el Capítulo {value} "
     },
     "shop": {
         "title": "Mejoras Permanentes",
         "hint": "¡Mejora las estadísticas permanentes para ser más fuerte!",
-        "infoText": "* Restablecer reembolsa el 70% del oro gastado",
-        "resetMessage": "Reembolsará {refund} de oro\n(70% del gastado)",
+        "infoText": "* Restablecer reembolsa el 100% del oro gastado",
+        "resetMessage": "Reembolsará {refund} de oro",
         "purchaseUpgrade": "Comprar Mejora",
         "resetUpgrades": "Restablecer Todas las Mejoras",
-        "resetConfirm": "¿Restablecer todas las mejoras? Recibirás de vuelta el 70% del oro gastado.",
+        "resetConfirm": "¿Restablecer todas las mejoras? Recibirás de vuelta el 100% del oro gastado.",
         "confirm": "Confirmar",
         "cancel": "Cancelar",
         "maxLevel": "Nivel Máximo",
@@ -276,9 +292,17 @@
         },
         "plantain_fan": {
             "name": "Abanico de Plátano",
-            "description": "Tesoro de la Princesa del Abanico de Hierro, vientos furiosos"
+            "description": "Tesoro de la Princesa Abanico de Hierro, vientos aullantes"
         },
-        "goldenStaff": {
+        "nine_tooth_rake": {
+            "name": "Rastrillo de Nueve Dientes",
+            "description": "Arma celestial de Zhu Bajie, ataque en abanico que atrae enemigos"
+        },
+        "dragon_scale_sword": {
+            "name": "Espada Escama de Dragón",
+            "description": "Hoja del Dragón Blanco con escamas de dragón, lanza proyectiles rastreadores"
+        },
+        "golden_staff": {
             "name": "Bastón Dorado",
             "description": "Bastón mágico del Destinado, crece y se encoge a voluntad"
         },

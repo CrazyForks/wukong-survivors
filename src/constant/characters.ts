@@ -7,7 +7,6 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "destined_one",
     name: "天命人",
     rank: "hero",
-    unlocked: true,
     unlockCondition: { type: "default", value: 0 },
     stats: {
       baseHealth: 100,
@@ -20,12 +19,81 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     color: "#FFD700",
   },
 
+  // ===== 西游记师徒 =====
+  tang_monk: {
+    id: "tang_monk",
+    name: "唐僧",
+    rank: "hero",
+
+    unlockCondition: { type: "default", value: 0 },
+    stats: {
+      baseHealth: 80,
+      baseSpeed: 130,
+      baseDamage: 8,
+      baseArmor: 3,
+      baseLuck: 20,
+    },
+    startingWeapon: "nine_ring_staff",
+    color: "#FFA500",
+  },
+
+  sha_monk: {
+    id: "sha_monk",
+    name: "沙僧",
+    rank: "hero",
+
+    unlockCondition: { type: "default", value: 0 },
+    stats: {
+      baseHealth: 140,
+      baseSpeed: 135,
+      baseDamage: 14,
+      baseArmor: 10,
+      baseLuck: 8,
+    },
+    startingWeapon: "crescent_blade",
+    color: "#8B4513",
+  },
+
+  zhu_bajie: {
+    id: "zhu_bajie",
+    name: "猪八戒",
+    rank: "hero",
+
+    unlockCondition: { type: "default", value: 0 },
+    stats: {
+      baseHealth: 160,
+      baseSpeed: 125,
+      baseDamage: 16,
+      baseArmor: 12,
+      baseLuck: 6,
+    },
+    startingWeapon: "nine_tooth_rake",
+    color: "#FF69B4",
+  },
+
+  white_dragon_horse: {
+    id: "white_dragon_horse",
+    name: "白龙马",
+    rank: "hero",
+
+    unlockCondition: { type: "default", value: 0 },
+    stats: {
+      baseHealth: 110,
+      baseSpeed: 180,
+      baseDamage: 12,
+      baseArmor: 6,
+      baseLuck: 12,
+    },
+    startingWeapon: "dragon_scale_sword",
+    color: "#FFFFFF",
+  },
+
   // ===== Chapter 1 - Black Wind Mountain =====
   black_bear_guai: {
     id: "black_bear_guai",
     name: "黑熊精",
     rank: "king",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 1 },
     stats: {
       baseHealth: 150,
@@ -34,7 +102,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 12,
       baseLuck: 3,
     },
-    startingWeapon: "fireproof_cloak",
+    startingWeapon: "mace",
     color: "#1a1a1a",
   },
 
@@ -42,7 +110,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "lingxuzi",
     name: "灵虚子",
     rank: "lord",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 1 },
     stats: {
       baseHealth: 110,
@@ -51,7 +119,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 7,
       baseLuck: 8,
     },
-    startingWeapon: "jade_purity_bottle",
+    startingWeapon: "golden_rope",
     color: "#87CEEB",
   },
 
@@ -59,7 +127,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "wandering_wight",
     name: "赤发鬼",
     rank: "boss",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 1 },
     stats: {
       baseHealth: 200,
@@ -77,7 +145,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "yellow_wind_sage",
     name: "黄风大王",
     rank: "king",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 2 },
     stats: {
       baseHealth: 90,
@@ -94,7 +162,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "tiger_vanguard",
     name: "虎先锋",
     rank: "lord",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 2 },
     stats: {
       baseHealth: 120,
@@ -111,7 +179,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "stone_vanguard",
     name: "石先锋",
     rank: "lord",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 2 },
     stats: {
       baseHealth: 140,
@@ -120,7 +188,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 15,
       baseLuck: 2,
     },
-    startingWeapon: "golden_rope",
+    startingWeapon: "thunder_drum",
     color: "#808080",
   },
 
@@ -128,7 +196,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "king_of_flowing_sand",
     name: "沙大王",
     rank: "boss",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 2 },
     stats: {
       baseHealth: 220,
@@ -137,7 +205,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 12,
       baseLuck: 6,
     },
-    startingWeapon: "golden_rope",
+    startingWeapon: "mace",
     color: "#CD853F",
   },
 
@@ -146,7 +214,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "yellow_brow_king",
     name: "黄眉大王",
     rank: "king",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 3 },
     stats: {
       baseHealth: 110,
@@ -155,7 +223,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 10,
       baseLuck: 12,
     },
-    startingWeapon: "mace",
+    startingWeapon: "violet_bell",
     color: "#F4A460",
   },
 
@@ -163,7 +231,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "hundred_eyed",
     name: "百眼魔君",
     rank: "king",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 3 },
     stats: {
       baseHealth: 80,
@@ -172,7 +240,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 3,
       baseLuck: 20,
     },
-    startingWeapon: "violet_bell",
+    startingWeapon: "ice_needle",
     color: "#9370DB",
   },
 
@@ -180,7 +248,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "mad_tiger",
     name: "疯虎",
     rank: "lord",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 3 },
     stats: {
       baseHealth: 130,
@@ -197,7 +265,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "kang_jin_loong",
     name: "亢金星君",
     rank: "boss",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 3 },
     stats: {
       baseHealth: 250,
@@ -206,7 +274,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 14,
       baseLuck: 8,
     },
-    startingWeapon: "violet_bell",
+    startingWeapon: "golden_staff",
     color: "#FFD700",
   },
 
@@ -215,7 +283,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "spider_celestial",
     name: "紫蛛",
     rank: "king",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 4 },
     stats: {
       baseHealth: 95,
@@ -232,7 +300,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "hundred_eyed_daoist",
     name: "百眼道人",
     rank: "king",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 4 },
     stats: {
       baseHealth: 85,
@@ -241,7 +309,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 4,
       baseLuck: 18,
     },
-    startingWeapon: "golden_rope",
+    startingWeapon: "ice_needle",
     color: "#4B0082",
   },
 
@@ -249,7 +317,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "elder_jinchi",
     name: "金池长老",
     rank: "lord",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 4 },
     stats: {
       baseHealth: 100,
@@ -258,7 +326,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 9,
       baseLuck: 10,
     },
-    startingWeapon: "fire_lance",
+    startingWeapon: "mace",
     color: "#FFD700",
   },
 
@@ -266,7 +334,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "hundred_eyed_daoist_master",
     name: "多目金蜈蚣",
     rank: "boss",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 4 },
     stats: {
       baseHealth: 280,
@@ -275,7 +343,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 15,
       baseLuck: 10,
     },
-    startingWeapon: "golden_rope",
+    startingWeapon: "ice_needle",
     color: "#FFD700",
   },
 
@@ -284,7 +352,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "bull_king",
     name: "牛魔王",
     rank: "king",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 5 },
     stats: {
       baseHealth: 180,
@@ -301,7 +369,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "red_boy",
     name: "红孩儿",
     rank: "lord",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 5 },
     stats: {
       baseHealth: 90,
@@ -310,7 +378,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 6,
       baseLuck: 8,
     },
-    startingWeapon: "fire_lance",
+    startingWeapon: "wind_fire_wheels",
     color: "#DC143C",
   },
 
@@ -318,7 +386,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "rakshasa",
     name: "罗刹女",
     rank: "lord",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 5 },
     stats: {
       baseHealth: 85,
@@ -335,7 +403,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "yaksha_king",
     name: "夜叉王",
     rank: "boss",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 5 },
     stats: {
       baseHealth: 310,
@@ -344,7 +412,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 16,
       baseLuck: 7,
     },
-    startingWeapon: "fire_lance",
+    startingWeapon: "thunder_drum",
     color: "#8B0000",
   },
 
@@ -353,7 +421,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "erlang_shen",
     name: "二郎神",
     rank: "king",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 6 },
     stats: {
       baseHealth: 160,
@@ -370,7 +438,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "great_sage_heaven",
     name: "齐天大圣",
     rank: "king",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 6 },
     stats: {
       baseHealth: 200,
@@ -387,7 +455,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "golden_cicada",
     name: "金蝉子",
     rank: "lord",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 6 },
     stats: {
       baseHealth: 120,
@@ -396,7 +464,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
       baseArmor: 8,
       baseLuck: 25,
     },
-    startingWeapon: "jade_purity_bottle",
+    startingWeapon: "mace",
     color: "#FFD700",
   },
 
@@ -404,7 +472,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     id: "stone_monkey",
     name: "石猴",
     rank: "boss",
-    unlocked: false,
+
     unlockCondition: { type: "chapter", value: 6 },
     stats: {
       baseHealth: 350,

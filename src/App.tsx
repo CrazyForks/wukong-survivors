@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useSaveStore } from "./store";
+import { useAppStore } from "./store";
 import Home from "./pages/Home";
 import MapSelect from "./pages/MapSelect";
 import Shop from "./pages/Shop";
@@ -12,7 +12,7 @@ const App: React.FC = () => {
   const [gameKey, setGameKey] = useState(0); // used to force a remount / restart of the game
 
   useEffect(() => {
-    useSaveStore.getState().checkUnlocks();
+    useAppStore.getState().checkUnlocks();
   }, [currentScreen]);
 
   const handleMapSelected = useCallback(() => {

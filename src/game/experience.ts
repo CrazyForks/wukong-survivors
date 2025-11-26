@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { Player } from "./player";
 import { scaleManager } from "./ScaleManager";
+import eventBus from "./eventBus";
+import { EVENT_MAP } from "../constant";
 
 interface Position {
   x: number;
@@ -110,6 +112,8 @@ export class ExperienceManager {
       if (shouldCollect) {
         this.player.addExperience(gem.value);
         gem.collect();
+        // Emit event for audio manager to play sound
+        eventBus.emit(EVENT_MAP.EXP_COLLECTED, gem.value);
         return false; // Remove from array
       }
 

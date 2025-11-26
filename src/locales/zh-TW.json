@@ -136,9 +136,25 @@
         },
         "stone_monkey": {
             "name": "石猴",
-            "description": "須彌山首領，大聖原身"
+            "description": "須彌山首領，齊天大聖原身"
         },
-        "unlockCharacter": "解鎖角色",
+        "tang_monk": {
+            "name": "唐僧",
+            "description": "西天取經的佛門高僧，氣運加身福澤深厚"
+        },
+        "sha_monk": {
+            "name": "沙僧",
+            "description": "前捲簾大將，流沙河中的平衡戰士"
+        },
+        "zhu_bajie": {
+            "name": "豬八戒",
+            "description": "天蓬元帥轉世，高耐久坦克手持九齒釘耙"
+        },
+        "white_dragon_horse": {
+            "name": "白龍馬",
+            "description": "龍王三太子化身，迅捷的天界神駒"
+        },
+        "unlockCharacter": "選擇角色",
         "locked": "已鎖定",
         "unlockCondition": "解鎖條件",
         "specialWeapon": "專屬武器"
@@ -168,7 +184,7 @@
             "name": "第6章 - 西方極樂",
             "description": "最終挑戰，成佛之路"
         },
-        "selectMap": "選擇地圖",
+        "selectMap": "選擇章節",
         "difficulty": "難度"
     },
     "unlockConditions": {
@@ -176,16 +192,16 @@
         "kills": "擊敗{value}個敵人",
         "time": "存活{value}秒",
         "gold": "收集{value}金幣",
-        "chapter": "解鎖第{value}章"
+        "chapter": "通關第{value}章 "
     },
     "shop": {
         "title": "永久升級",
         "hint": "升級永久屬性變得更強！",
-        "infoText": "* 重置返還70%花費的金幣",
-        "resetMessage": "將返還{refund}金幣\n(花費的70%)",
+        "infoText": "* 重置返還100%花費的金幣",
+        "resetMessage": "將返還{refund}金幣",
         "purchaseUpgrade": "購買升級",
         "resetUpgrades": "重置所有升級",
-        "resetConfirm": "重置所有升級？你將獲得花費金幣的70%返還。",
+        "resetConfirm": "重置所有升級？你將獲得花費金幣的100%返還。",
         "confirm": "確認",
         "cancel": "取消",
         "maxLevel": "最高等級",
@@ -276,9 +292,17 @@
         },
         "plantain_fan": {
             "name": "芭蕉扇",
-            "description": "鐵扇公主的寶物，呼嘯狂風"
+            "description": "鐵扇公主的法寶，狂風呼嘯"
         },
-        "goldenStaff": {
+        "nine_tooth_rake": {
+            "name": "九齒釘耙",
+            "description": "豬八戒的天界神兵，扇形攻擊並拉拽敵人"
+        },
+        "dragon_scale_sword": {
+            "name": "龍鱗劍",
+            "description": "白龍之劍佈滿龍鱗，發射追蹤彈幕"
+        },
+        "golden_staff": {
             "name": "金箍棒",
             "description": "天命人的神奇棍棒，能隨意伸縮"
         },

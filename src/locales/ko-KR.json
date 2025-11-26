@@ -138,6 +138,22 @@
             "name": "돌원숭이",
             "description": "수미산 보스, 대성의 원형"
         },
+        "tang_monk": {
+            "name": "당삼장",
+            "description": "서천취경의 불문고승, 행운으로 축복받은 성자"
+        },
+        "sha_monk": {
+            "name": "사오정",
+            "description": "전 권렴대장, 유사하의 균형잡힌 전사"
+        },
+        "zhu_bajie": {
+            "name": "저팔계",
+            "description": "천봉원수 환생, 구치정파를 든 고내구 탱커"
+        },
+        "white_dragon_horse": {
+            "name": "백룡마",
+            "description": "용왕 삼태자의 화신, 신속한 천계의 신마"
+        },
         "unlockCharacter": "캐릭터 해금",
         "locked": "잠금",
         "unlockCondition": "해금 조건",
@@ -168,7 +184,7 @@
             "name": "챕터 6 - 서방극락",
             "description": "최종 도전, 깨달음의 길"
         },
-        "selectMap": "맵 선택",
+        "selectMap": "챕터 선택",
         "difficulty": "난이도"
     },
     "unlockConditions": {
@@ -176,16 +192,16 @@
         "kills": "{value}마리의 적 처치",
         "time": "{value}초 동안 생존",
         "gold": "{value}골드 수집",
-        "chapter": "{value}챕터 해금"
+        "chapter": "{value}챕터 클리어 "
     },
     "shop": {
         "title": "영구 강화",
         "hint": "영구 스탯을 강화하여 더 강해지세요!",
-        "infoText": "* 초기화 시 사용한 골드의 70% 환급",
-        "resetMessage": "{refund}골드 환급\n(사용한 70%)",
+        "infoText": "* 초기화 시 사용한 골드의 100% 환급",
+        "resetMessage": "{refund}골드 환급",
         "purchaseUpgrade": "강화 구매",
         "resetUpgrades": "모든 강화 초기화",
-        "resetConfirm": "모든 강화를 초기화하시겠습니까? 사용한 골드의 70%를 돌려받습니다.",
+        "resetConfirm": "모든 강화를 초기화하시겠습니까? 사용한 골드의 100%를 돌려받습니다.",
         "confirm": "확인",
         "cancel": "취소",
         "maxLevel": "최대 레벨",
@@ -276,9 +292,17 @@
         },
         "plantain_fan": {
             "name": "파초선",
-            "description": "철선공주의 보물, 우레와 함께 부는 바람"
+            "description": "철선공주의 보물, 광풍을 일으킴"
         },
-        "goldenStaff": {
+        "nine_tooth_rake": {
+            "name": "구치정파",
+            "description": "저팔계의 천계신병, 부채꼴 공격으로 적을 끌어당김"
+        },
+        "dragon_scale_sword": {
+            "name": "용린검",
+            "description": "용의 비늘로 덮인 백룡의 검, 추적 탄환 발사"
+        },
+        "golden_staff": {
             "name": "금골봉",
             "description": "운명의 자의 마법봉, 마음대로 자라거나 줄어듦"
         },

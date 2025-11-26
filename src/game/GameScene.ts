@@ -3,6 +3,8 @@ import { Player, type WASDKeys } from "./player";
 import { EnemySpawner } from "./enemy";
 import { WeaponManager, type UpgradeOption } from "./weapon";
 import { ExperienceManager } from "./experience";
+import { AudioManager, SoundEffect, MusicTrack } from "./AudioManager";
+import { VirtualJoystick } from "./VirtualJoystick";
 import { useSaveStore, useAppStore } from "../store";
 import {
   PERMANENT_UPGRADES,
@@ -14,7 +16,6 @@ import {
   getMapImagePath,
   GAME_SCENE_KEY,
   EVENT_MAP,
-  DEFAULT_GAME_TIME,
   SCREEN_SIZE,
   START_Z_INDEX,
 } from "../constant";
@@ -45,6 +46,7 @@ export class GameScene extends Phaser.Scene {
   private weaponManager?: WeaponManager;
   private experienceManager?: ExperienceManager;
   private rewardUI?: RewardSelectionUI;
+  private audioManager?: AudioManager;
   private uiContainer?: Phaser.GameObjects.Container;
   private healthBarBg?: Phaser.GameObjects.Rectangle;
   private healthBar?: Phaser.GameObjects.Rectangle;
@@ -60,12 +62,17 @@ export class GameScene extends Phaser.Scene {
   private playerDamageCoolDown: number = 0;
   private killCount = 0;
   private gameTime = 0;
+  private virtualJoystick?: VirtualJoystick;
+  private isTouchDevice: boolean = false;
 
   constructor() {
     super({ key: GAME_SCENE_KEY });
   }
 
   preload(): void {
+    // Load audio assets
+    // AudioManager.preloadAudio(this);
+
     // Load experience gem textures - Buddhist beads and spirit essence
     this.load.svg("gem-low", "assets/gem-low.svg", {
       width: 32,
@@ -144,8 +151,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   public create(): void {
+    // Initialize audio manager
+    // this.audioManager = new AudioManager(this);
+    this.audioManager?.playMusic(MusicTrack.GAME_THEME);
+
     eventBus.on(EVENT_MAP.SHOW_END_GAME_MODAL, () => {
       this.endGame();
+    });
+
+    // Listen for experience collection to play sound
+    eventBus.on(EVENT_MAP.EXP_COLLECTED, (value: number) => {
+      // Vary volume based on gem value
+      const volume = 0.3 + (value / 10) * 0.3; // 0.3 to 0.6
+      this.audioManager?.playSfx(SoundEffect.EXP_PICKUP, volume);
     });
 
     // Set world bounds
@@ -192,6 +210,9 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
+    // Detect touch device
+    this.isTouchDevice = this.sys.game.device.input.touch;
+
     // Input controls
     const cursors = this.input.keyboard?.createCursorKeys();
     if (cursors) {
@@ -203,6 +224,18 @@ export class GameScene extends Phaser.Scene {
       s: this.input.keyboard?.addKey("S"),
       d: this.input.keyboard?.addKey("D"),
     };
+
+    // Initialize virtual joystick for touch devices
+    if (this.isTouchDevice) {
+      const padding = scaleManager.getUIElementSize(20);
+      const joystickRadius = scaleManager.getUIElementSize(60);
+      this.virtualJoystick = new VirtualJoystick(
+        this,
+        padding + joystickRadius,
+        this.cameras.main.height - padding - joystickRadius,
+      );
+      this.virtualJoystick.show();
+    }
 
     // Get selected map and its available enemies
     const selectedMap = useAppStore.getState().getSelectMap();
@@ -236,7 +269,7 @@ export class GameScene extends Phaser.Scene {
     this.createUI();
 
     // Game state
-    this.gameTime = DEFAULT_GAME_TIME;
+    this.gameTime = selectedMap.gameTime;
     this.isPaused = false;
     this.isGameOver = false;
 
@@ -249,15 +282,28 @@ export class GameScene extends Phaser.Scene {
 
   private handleResize(gameSize: Phaser.Structs.Size): void {
     const width = gameSize.width;
+    const height = gameSize.height;
 
     // Update scale manager
     scaleManager.updateScale();
 
     // Update camera bounds
     this.cameras.main.setBounds(-2000, -2000, 4000, 4000);
+    this.cameras.main.setZoom(scaleManager.getCameraZoom());
 
     // Update UI positions and sizes
     this.updateUILayout(width);
+
+    // Update virtual joystick position and size
+    if (this.virtualJoystick && this.isTouchDevice) {
+      this.virtualJoystick.updateSize();
+      const padding = scaleManager.getUIElementSize(20);
+      const joystickRadius = scaleManager.getUIElementSize(60);
+      this.virtualJoystick.setPosition(
+        padding + joystickRadius,
+        height - padding - joystickRadius,
+      );
+    }
   }
 
   private updateUILayout(width: number): void {
@@ -472,7 +518,11 @@ export class GameScene extends Phaser.Scene {
   private endGame(): void {
     // Save game data
     useSaveStore.getState().addKills(this.killCount);
-    useSaveStore.getState().updatePlayTime(DEFAULT_GAME_TIME - this.gameTime);
+    useSaveStore
+      .getState()
+      .updatePlayTime(
+        useAppStore.getState().getSelectMap().gameTime - this.gameTime,
+      );
 
     this.showModal({
       title: i18n.t("game.endGameTitle"),
@@ -546,8 +596,9 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    // Update player
-    this.player.update(this.cursors, this.wasd);
+    // Update player with joystick input
+    const joystickInput = this.virtualJoystick?.getInput();
+    this.player.update(this.cursors, this.wasd, joystickInput);
 
     // Update enemies
     const playerPos = this.player.getPosition();
@@ -585,6 +636,7 @@ export class GameScene extends Phaser.Scene {
 
       if (distance < 30 && this.playerDamageCoolDown <= 0) {
         this.player.takeDamage(enemy.damage);
+        this.audioManager?.playSfx(SoundEffect.PLAYER_HIT);
         this.playerDamageCoolDown = 500; // 0.5 seconds of invincibility
       }
     });
@@ -608,7 +660,9 @@ export class GameScene extends Phaser.Scene {
 
           if (distance < 20) {
             const killed = enemy.takeDamage(projectile.damage);
+            this.audioManager?.playSfx(SoundEffect.WEAPON_HIT, 0.3);
             if (killed) {
+              this.audioManager?.playSfx(SoundEffect.ENEMY_DEATH, 0.5);
               this.killCount++;
               this.killsSinceLastReward++;
               this.checkRewardTrigger();
@@ -642,6 +696,7 @@ export class GameScene extends Phaser.Scene {
           if (distance < 25 && typeof orb.damage === "number") {
             const killed = enemy.takeDamage(orb.damage);
             if (killed) {
+              this.audioManager?.playSfx(SoundEffect.ENEMY_DEATH, 0.5);
               this.killCount++;
               this.killsSinceLastReward++;
               this.checkRewardTrigger();
@@ -670,6 +725,7 @@ export class GameScene extends Phaser.Scene {
 
         if (distance < 50) {
           coin.destroy();
+          this.audioManager?.playSfx(SoundEffect.GOLD_PICKUP, 0.6);
           useSaveStore.getState().addGold(1);
         } else if (distance < 300) {
           const speed = 200;
@@ -714,15 +770,19 @@ export class GameScene extends Phaser.Scene {
   private showRewardSelection(): void {
     if (this.rewardUI?.isVisible() || this.isPaused) return;
     this.pause();
+    this.audioManager?.playSfx(SoundEffect.REWARD_APPEAR);
+    this.audioManager?.pauseMusic();
 
     this.rewardUI?.show((option: RewardOption) => {
       this.handleRewardSelection(option);
+      this.audioManager?.resumeMusic();
       this.resume();
     });
   }
 
   private handleRewardSelection(option: RewardOption): void {
-    console.log("handleRewardSelection:", option);
+    this.audioManager?.playSfx(SoundEffect.POWERUP);
+
     if (option.type === "weapon") {
       const weaponData = option.data as WeaponData;
 
@@ -798,7 +858,7 @@ export class GameScene extends Phaser.Scene {
           break;
         case "revive":
           // Resurrection Pill: Revive upon death
-          this.player.hasRevive = true;
+          this.player.reviveCount += 1;
           break;
       }
     }
@@ -808,6 +868,8 @@ export class GameScene extends Phaser.Scene {
     if (this.isPaused) {
       return;
     }
+    this.audioManager?.playSfx(SoundEffect.PLAYER_LEVEL_UP);
+    this.audioManager?.pauseMusic();
     this.pause();
     const startDepth = scaleManager.getZIndex();
     const textDepth = scaleManager.getZIndex();
@@ -879,6 +941,7 @@ export class GameScene extends Phaser.Scene {
 
       button.on("pointerover", () => {
         button.setFillStyle(0x555555);
+        this.audioManager?.playSfx(SoundEffect.UI_HOVER, 0.3);
       });
 
       button.on("pointerout", () => {
@@ -886,6 +949,7 @@ export class GameScene extends Phaser.Scene {
       });
 
       button.on("pointerdown", () => {
+        this.audioManager?.playSfx(SoundEffect.UI_CLICK);
         this.selectUpgrade(option);
         // Clear menu
         overlay.destroy();
@@ -902,6 +966,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   public selectUpgrade(option: UpgradeOption): void {
+    this.audioManager?.playSfx(SoundEffect.UI_SELECT);
+    this.audioManager?.resumeMusic();
+
     if (option.type === "upgrade" && option.weapon) {
       option.weapon.upgrade();
     } else if (option.type === "new" && option.weaponClass) {
@@ -1064,9 +1131,18 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver) return;
     this.isGameOver = true;
 
+    // Play victory sound and music
+    this.audioManager?.stopMusic();
+    this.audioManager?.playSfx(SoundEffect.VICTORY);
+    this.audioManager?.playMusic(MusicTrack.VICTORY_THEME, false);
+
     // Save game data
     useSaveStore.getState().addKills(this.killCount);
-    useSaveStore.getState().updatePlayTime(DEFAULT_GAME_TIME - this.gameTime);
+    useSaveStore
+      .getState()
+      .updatePlayTime(
+        useAppStore.getState().getSelectMap().gameTime - this.gameTime,
+      );
 
     // Complete the chapter and unlock characters
     const selectedMap = useAppStore.getState().getSelectMap();
@@ -1095,9 +1171,17 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver) return;
     this.isGameOver = true;
 
+    // Play death sound and stop music
+    this.audioManager?.stopMusic();
+    this.audioManager?.playSfx(SoundEffect.PLAYER_DEATH);
+
     // Save game data
     useSaveStore.getState().addKills(this.killCount);
-    useSaveStore.getState().updatePlayTime(DEFAULT_GAME_TIME - this.gameTime);
+    useSaveStore
+      .getState()
+      .updatePlayTime(
+        useAppStore.getState().getSelectMap().gameTime - this.gameTime,
+      );
 
     const minutes = Math.floor(this.gameTime / 60);
     const seconds = Math.floor(this.gameTime % 60);

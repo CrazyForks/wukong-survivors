@@ -122,28 +122,42 @@ export class Enemy {
   }
 }
 
-// Enemy spawner
+// Enemy spawner - Following Vampire Survivors spawn rules
 export class EnemySpawner {
   private scene: GameScene;
   private enemies: Enemy[];
   private spawnTimer: number;
   private spawnInterval: number;
+  private baseSpawnInterval: number;
   private enemiesPerWave: number;
+  private maxEnemiesOnScreen: number;
   private difficultyTimer: number;
+  private gameTime: number;
   private availableEnemies: EnemyType[];
+  private minSpawnDistance: number;
+  private maxSpawnDistance: number;
 
   constructor(scene: GameScene, availableEnemies: EnemyType[]) {
     this.scene = scene;
     this.enemies = [];
     this.spawnTimer = 0;
-    this.spawnInterval = 2000; // Spawn a wave every 2 seconds
-    this.enemiesPerWave = 3;
+    this.baseSpawnInterval = 1500; // Base spawn interval: 1.5 seconds
+    this.spawnInterval = this.baseSpawnInterval;
+    this.enemiesPerWave = 2; // Start with 2 enemies per wave
+    this.maxEnemiesOnScreen = 100; // Max enemies on screen at once
     this.difficultyTimer = 0;
+    this.gameTime = 0;
     this.availableEnemies =
       availableEnemies.length > 0 ? availableEnemies : ["wolf_minion"];
+
+    // Spawn distance from player (just outside visible screen)
+    this.minSpawnDistance = 500; // Minimum spawn distance
+    this.maxSpawnDistance = 700; // Maximum spawn distance
   }
 
   public update(_time: number, delta: number, playerPos: Position): void {
+    this.gameTime += delta;
+
     // Update all enemies
     this.enemies.forEach((enemy) => {
       if (!enemy.isDead) {
@@ -154,45 +168,90 @@ export class EnemySpawner {
     // Clean up dead enemies
     this.enemies = this.enemies.filter((enemy) => !enemy.isDead);
 
-    // Spawn new enemies
-    this.spawnTimer += delta;
-    if (this.spawnTimer >= this.spawnInterval) {
-      this.spawnTimer = 0;
-      this.spawnWave(playerPos);
+    // Only spawn if under the limit
+    if (this.enemies.length < this.maxEnemiesOnScreen) {
+      this.spawnTimer += delta;
+      if (this.spawnTimer >= this.spawnInterval) {
+        this.spawnTimer = 0;
+        this.spawnWave(playerPos);
+      }
     }
 
-    // Increase difficulty
+    // Increase difficulty over time (Vampire Survivors style)
     this.difficultyTimer += delta;
     if (this.difficultyTimer >= 30000) {
-      // Increase difficulty every 30 seconds
+      // Every 30 seconds
       this.difficultyTimer = 0;
-      this.enemiesPerWave += 1;
-      this.spawnInterval = Math.max(1000, this.spawnInterval - 100);
+      this.increaseDifficulty();
     }
   }
 
+  private increaseDifficulty(): void {
+    // Increase enemies per wave
+    this.enemiesPerWave = Math.min(10, this.enemiesPerWave + 1);
+
+    // Decrease spawn interval (faster spawning)
+    this.spawnInterval = Math.max(500, this.spawnInterval - 100);
+
+    // Increase max enemies on screen
+    this.maxEnemiesOnScreen = Math.min(300, this.maxEnemiesOnScreen + 20);
+  }
+
   private spawnWave(playerPos: Position): void {
-    for (let i = 0; i < this.enemiesPerWave; i++) {
+    // Calculate actual spawn count based on game time
+    const timeBasedMultiplier = 1 + Math.floor(this.gameTime / 60000); // +1 per minute
+    const spawnCount = Math.min(
+      this.enemiesPerWave * timeBasedMultiplier,
+      this.maxEnemiesOnScreen - this.enemies.length,
+    );
+
+    for (let i = 0; i < spawnCount; i++) {
       this.spawnEnemy(playerPos);
     }
   }
 
   private spawnEnemy(playerPos: Position): void {
-    // Spawn at random position outside player's view
+    // Vampire Survivors spawn rule: Always spawn outside visible screen
+    // Random angle around player
     const angle = Math.random() * Math.PI * 2;
-    const distance = 400 + Math.random() * 200;
+
+    // Random distance between min and max spawn distance
+    const distance =
+      this.minSpawnDistance +
+      Math.random() * (this.maxSpawnDistance - this.minSpawnDistance);
 
     const x = playerPos.x + Math.cos(angle) * distance;
     const y = playerPos.y + Math.sin(angle) * distance;
 
-    // Randomly select enemy type from available enemies
-    const randomIndex = Math.floor(
-      Math.random() * this.availableEnemies.length,
-    );
-    const enemyType = this.availableEnemies[randomIndex];
+    // Select enemy type based on game time (later game = harder enemies)
+    const enemyType = this.selectEnemyType();
 
     const enemy = new Enemy(this.scene, x, y, enemyType);
     this.enemies.push(enemy);
+  }
+
+  private selectEnemyType(): EnemyType {
+    // As game progresses, increase chance of elite enemies
+    const eliteChance = Math.min(0.3, this.gameTime / 300000); // Up to 30% elite chance
+
+    // Filter enemies by rank
+    const minions = this.availableEnemies.filter(
+      (type) => ENEMIES_DATA[type].rank === "minion",
+    );
+    const elites = this.availableEnemies.filter(
+      (type) => ENEMIES_DATA[type].rank === "elite",
+    );
+
+    // Decide whether to spawn elite or minion
+    const spawnElite = elites.length > 0 && Math.random() < eliteChance;
+    const pool = spawnElite
+      ? elites
+      : minions.length > 0
+        ? minions
+        : this.availableEnemies;
+
+    // Random selection from pool
+    return pool[Math.floor(Math.random() * pool.length)];
   }
 
   public getEnemies(): Enemy[] {

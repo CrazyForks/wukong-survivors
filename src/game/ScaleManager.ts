@@ -128,6 +128,10 @@ class ScaleManagerClass {
   public getUIElementSize(baseSize: number): number {
     return Math.round(baseSize * this.config.uiScale);
   }
+
+  public getCameraZoom() {
+    return 1;
+  }
 }
 
 // Export singleton instance

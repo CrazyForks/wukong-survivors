@@ -27,7 +27,7 @@ export class Player {
   public armor: number;
   public critRate: number;
   public expBonus: number;
-  public hasRevive: boolean;
+  public reviveCount = 0;
   private scene: GameScene;
 
   constructor(
@@ -57,15 +57,17 @@ export class Player {
     this.armor = 0;
     this.critRate = 0;
     this.expBonus = 0;
-    this.hasRevive = false;
+    this.reviveCount = 0;
 
     // Set camera to follow with responsive zoom
     scene.cameras.main.startFollow(this.sprite);
+    scene.cameras.main.setZoom(scaleManager.getCameraZoom());
   }
 
   public update(
     cursors?: Phaser.Types.Input.Keyboard.CursorKeys,
     wasd?: WASDKeys,
+    joystickInput?: { x: number; y: number },
   ): void {
     // Reset velocity
     this.sprite.setVelocity(0);
@@ -74,22 +76,29 @@ export class Player {
     let velocityX = 0;
     let velocityY = 0;
 
-    if (cursors?.left.isDown || wasd?.a?.isDown) {
-      velocityX = -this.speed;
-    } else if (cursors?.right.isDown || wasd?.d?.isDown) {
-      velocityX = this.speed;
-    }
+    // Joystick input (higher priority for mobile)
+    if (joystickInput && (joystickInput.x !== 0 || joystickInput.y !== 0)) {
+      velocityX = joystickInput.x * this.speed;
+      velocityY = joystickInput.y * this.speed;
+    } else {
+      // Keyboard input
+      if (cursors?.left.isDown || wasd?.a?.isDown) {
+        velocityX = -this.speed;
+      } else if (cursors?.right.isDown || wasd?.d?.isDown) {
+        velocityX = this.speed;
+      }
 
-    if (cursors?.up.isDown || wasd?.w?.isDown) {
-      velocityY = -this.speed;
-    } else if (cursors?.down.isDown || wasd?.s?.isDown) {
-      velocityY = this.speed;
-    }
+      if (cursors?.up.isDown || wasd?.w?.isDown) {
+        velocityY = -this.speed;
+      } else if (cursors?.down.isDown || wasd?.s?.isDown) {
+        velocityY = this.speed;
+      }
 
-    // Normalize diagonal movement speed
-    if (velocityX !== 0 && velocityY !== 0) {
-      velocityX *= 0.707;
-      velocityY *= 0.707;
+      // Normalize diagonal movement speed for keyboard
+      if (velocityX !== 0 && velocityY !== 0) {
+        velocityX *= 0.707;
+        velocityY *= 0.707;
+      }
     }
 
     this.sprite.setVelocity(velocityX, velocityY);
@@ -114,8 +123,8 @@ export class Player {
 
   private die(): void {
     // Check for revive
-    if (this.hasRevive) {
-      this.hasRevive = false;
+    if (this.reviveCount > 0) {
+      this.reviveCount -= 1;
       this.health = this.maxHealth;
       // Visual effect for revival
       this.sprite.setTint(0xffff00);

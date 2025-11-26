@@ -138,6 +138,22 @@
             "name": "Steinaffe",
             "description": "Boss des Sumeru-Berges, Urform des Großen Weisen"
         },
+        "tang_monk": {
+            "name": "Mönch Tang",
+            "description": "Buddhistischer Meister auf der Reise nach Westen, mit außergewöhnlichem Glück gesegnet"
+        },
+        "sha_monk": {
+            "name": "Mönch Sha",
+            "description": "Ehemaliger Vorhang-General, ausgewogener Krieger der Flusssande"
+        },
+        "zhu_bajie": {
+            "name": "Zhu Bajie",
+            "description": "Wiedergeborener Marschall Tianpeng, ausdauernder Tank mit mächtiger Harke"
+        },
+        "white_dragon_horse": {
+            "name": "Weißes Drachenpferd",
+            "description": "Drachenprinz in Pferdeform, schnelles himmlisches Ross"
+        },
         "unlockCharacter": "Charakter freischalten",
         "locked": "Gesperrt",
         "unlockCondition": "Freischaltungsbedingung",
@@ -168,7 +184,7 @@
             "name": "Kapitel 6 - Westliches Paradies",
             "description": "Die finale Herausforderung, der Pfad der Erleuchtung"
         },
-        "selectMap": "Karte auswählen",
+        "selectMap": "Kapitel auswählen",
         "difficulty": "Schwierigkeit"
     },
     "unlockConditions": {
@@ -176,16 +192,16 @@
         "kills": "Besiege {value} Feinde",
         "time": "Überlebe {value} Sekunden",
         "gold": "Sammle {value} Gold",
-        "chapter": "Freischalte Kapitel {value}"
+        "chapter": "Schließe Kapitel {value} ab "
     },
     "shop": {
         "title": "Permanente Verbesserungen",
         "hint": "Verbessern Sie permanente Eigenschaften, um stärker zu werden!",
-        "infoText": "* Reset gibt 70% des verbrauchten Goldes zurück",
-        "resetMessage": "Gibt {refund} Gold zurück\n(70% des verbrauchten)",
+        "infoText": "* Reset gibt 100% des verbrauchten Goldes zurück",
+        "resetMessage": "Gibt {refund} Gold zurück",
         "purchaseUpgrade": "Upgrade kaufen",
         "resetUpgrades": "Alle Upgrades zurücksetzen",
-        "resetConfirm": "Alle Upgrades zurücksetzen? Sie erhalten 70% des verbrauchten Goldes zurück.",
+        "resetConfirm": "Alle Upgrades zurücksetzen? Sie erhalten 100% des verbrauchten Goldes zurück.",
         "confirm": "Bestätigen",
         "cancel": "Abbrechen",
         "maxLevel": "Max Level",
@@ -278,33 +294,13 @@
             "name": "Blattfächer",
             "description": "Juwel der Eisernen Fächer Prinzessin, tosender Wind"
         },
-        "goldenStaff": {
-            "name": "Goldene Stab",
-            "description": "Magischer Stab des Auserwählten, wächst und schrumpft nach Belieben"
+        "nine_tooth_rake": {
+            "name": "Neunzahn-Harke",
+            "description": "Zhu Bajies himmlische Waffe, fächerförmiger Angriff zieht Feinde heran"
         },
-        "fireLance": {
-            "name": "Feuerlanze",
-            "description": "Mit Feuer umhüllte Lanze, die Feinde verbrennt"
-        },
-        "windTamer": {
-            "name": "Windgleichgewicht Perle",
-            "description": "Göttliche Perle, die Stürme kontrolliert"
-        },
-        "violetBell": {
-            "name": "Violetter Glocke",
-            "description": "Magisches Juwel, das tödliche Schallwellen aussendet"
-        },
-        "fireproofCloak": {
-            "name": "Feuerfester Umhang",
-            "description": "Schützendes göttliches Licht, das Schaden widersteht"
-        },
-        "twinBlades": {
-            "name": "Doppelschwert",
-            "description": "Doppelschwert des Tiger-Vorhut für schnelle Angriffe"
-        },
-        "bullHorns": {
-            "name": "Stierdämon Hörner",
-            "description": "Mächtige Hörner des Bullenknigs, ununterbrochene Attacke"
+        "dragon_scale_sword": {
+            "name": "Drachenschuppen-Schwert",
+            "description": "Klinge des Weißen Drachen mit Drachenschuppen, feuert verfolgende Geschosse"
         },
         "upgrade": "{name} verbessern",
         "addWeapon": "{name} hinzufügen",

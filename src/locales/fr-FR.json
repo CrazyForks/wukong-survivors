@@ -136,9 +136,25 @@
         },
         "stone_monkey": {
             "name": "Singe de Pierre",
-            "description": "Boss de la Montagne Sumeru, forme originelle du Grand Sage"
+            "description": "Boss du Mont Sumeru, forme originale du Grand Sage"
         },
-        "unlockCharacter": "Débloquer le personnage",
+        "tang_monk": {
+            "name": "Moine Tang",
+            "description": "Maître bouddhiste du Voyage vers l'Ouest, béni d'une chance extraordinaire"
+        },
+        "sha_monk": {
+            "name": "Moine Sha",
+            "description": "Ancien Général des Rideaux, guerrier équilibré des sables fluviaux"
+        },
+        "zhu_bajie": {
+            "name": "Zhu Bajie",
+            "description": "Maréchal Tianpeng réincarné, tank endurant avec râteau puissant"
+        },
+        "white_dragon_horse": {
+            "name": "Cheval Dragon Blanc",
+            "description": "Prince Dragon sous forme de cheval, coursier céleste rapide"
+        },
+        "unlockCharacter": "Débloquer un personnage",
         "locked": "Verrouillé",
         "unlockCondition": "Condition de déblocage",
         "specialWeapon": "Arme spéciale"
@@ -168,7 +184,7 @@
             "name": "Chapitre 6 - Paradis de l'Ouest",
             "description": "La dernière épreuve, le chemin de l'éveil"
         },
-        "selectMap": "Sélectionner la carte",
+        "selectMap": "Sélectionner le chapitre",
         "difficulty": "Difficulté"
     },
     "unlockConditions": {
@@ -176,16 +192,16 @@
         "kills": "Vaincre {value} ennemis",
         "time": "Survivre {value} secondes",
         "gold": "Collecter {value} or",
-        "chapter": "Débloquer le chapitre {value}"
+        "chapter": "Terminer le chapitre {value} "
     },
     "shop": {
         "title": "Améliorations permanentes",
         "hint": "Améliorez les caractéristiques permanentes pour devenir plus fort!",
-        "infoText": "* Réinitialiser rend 70% de l'or dépensé",
-        "resetMessage": "Rend {refund} or\n(70% de l'or dépensé)",
+        "infoText": "* Réinitialiser rend 100% de l'or dépensé",
+        "resetMessage": "Rend {refund} or",
         "purchaseUpgrade": "Acheter l'amélioration",
         "resetUpgrades": "Réinitialiser toutes les améliorations",
-        "resetConfirm": "Réinitialiser toutes les améliorations ? Vous récupérerez 70% de l'or dépensé.",
+        "resetConfirm": "Réinitialiser toutes les améliorations ? Vous récupérerez 100% de l'or dépensé.",
         "confirm": "Confirmer",
         "cancel": "Annuler",
         "maxLevel": "Niveau maximum",
@@ -278,7 +294,15 @@
             "name": "Éventail à Feuilles",
             "description": "Joyau de la Princesse à l'Éventail de Fer, vents rugissants"
         },
-        "goldenStaff": {
+        "nine_tooth_rake": {
+            "name": "Râteau à Neuf Dents",
+            "description": "Arme céleste de Zhu Bajie, attaque en éventail attirant les ennemis"
+        },
+        "dragon_scale_sword": {
+            "name": "Épée Écaille de Dragon",
+            "description": "Lame du Dragon Blanc couverte d'écailles, lance des projectiles guidés"
+        },
+        "golden_staff": {
             "name": "Bâton Doré",
             "description": "Bâton magique de l'Élu, grandit et rétrécit à volonté"
         },

@@ -15,6 +15,7 @@ export default defineConfig(
       "**/coverage/**",
       "**/playwright-report/**",
       "**/playwright-results/**",
+      "**/scripts/**",
     ],
   },
   {
@@ -36,6 +37,13 @@ export default defineConfig(
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
+    files: ["**/__tests__/**", "**/*.test.*", "**/*.spec.*"],
+    rules: {
+      "i18next/no-literal-string": "off",
+      "@typescript-eslint/no-var-requires": "off",
     },
   },
 );

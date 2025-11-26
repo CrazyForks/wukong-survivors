@@ -138,6 +138,22 @@
       "name": "石猴",
       "description": "须弥山首领，齐天大圣原身"
     },
+    "tang_monk": {
+      "name": "唐僧",
+      "description": "西天取经的佛门高僧，气运加身福泽深厚"
+    },
+    "sha_monk": {
+      "name": "沙僧",
+      "description": "前卷帘大将，流沙河中的平衡战士"
+    },
+    "zhu_bajie": {
+      "name": "猪八戒",
+      "description": "天蓬元帅转世，高耐久坦克手持九齿钉耙"
+    },
+    "white_dragon_horse": {
+      "name": "白龙马",
+      "description": "龙王三太子化身，迅捷的天界神驹"
+    },
     "black_bear": {
       "name": "黑熊精",
       "description": "强大的熊妖，高生命和防御"
@@ -176,7 +192,7 @@
       "name": "第六回 - 西域佛境",
       "description": "终极挑战，觉醒之路"
     },
-    "selectMap": "选择地图",
+    "selectMap": "选择章节",
     "difficulty": "难度"
   },
   "unlockConditions": {
@@ -184,16 +200,16 @@
     "kills": "击败{value}个敌人",
     "time": "生存{value}秒",
     "gold": "收集{value}金币",
-    "chapter": "解锁第{value}章"
+    "chapter": "通关第{value}章 "
   },
   "shop": {
     "title": "永久强化",
     "hint": "提升永久属性，让你在游戏中更强大",
-    "infoText": "* 重置强化会返还70%的金币",
-    "resetMessage": "将返还 {refund} 金币\n(已花费的70%)",
+    "infoText": "* 重置强化会返还100%的金币",
+    "resetMessage": "将返还 {refund} 金币",
     "purchaseUpgrade": "购买升级",
     "resetUpgrades": "重置所有升级",
-    "resetConfirm": "重置所有升级？你将获得70%的已花费金币。",
+    "resetConfirm": "重置所有升级？你将获得100%的已花费金币。",
     "confirm": "确认",
     "cancel": "取消",
     "maxLevel": "已满级",
@@ -286,9 +302,13 @@
       "name": "芭蕉扇",
       "description": "铁扇公主的法宝，狂风呼啸"
     },
-    "goldenStaff": {
-      "name": "金箍棒",
-      "description": "天命人的如意神兵，可长可短"
+    "nine_tooth_rake": {
+      "name": "九齿钉耙",
+      "description": "猪八戒的天界神兵，扇形攻击并拉拽敌人"
+    },
+    "dragon_scale_sword": {
+      "name": "龙鳞剑",
+      "description": "白龙之剑布满龙鳞，发射追踪弹幕"
     },
     "fireLance": {
       "name": "火尖枪",

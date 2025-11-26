@@ -136,7 +136,23 @@
     },
     "stone_monkey": {
       "name": "石猿",
-      "description": "須弥山ボス、斉天大聖の原身"
+      "description": "須弥山ボス、斉天大聖の原型"
+    },
+    "tang_monk": {
+      "name": "三蔵法師",
+      "description": "西天取経の仏門高僧、幸運に恵まれた聖者"
+    },
+    "sha_monk": {
+      "name": "沙悟浄",
+      "description": "元・捲簾大将、流砂河のバランス型戦士"
+    },
+    "zhu_bajie": {
+      "name": "猪八戒",
+      "description": "天蓬元帥の転生、九歯の釘耙を持つ高耐久タンク"
+    },
+    "white_dragon_horse": {
+      "name": "白龍馬",
+      "description": "龍王三太子の化身、迅速な天界の神馬"
     },
     "unlockCharacter": "キャラクター選択",
     "locked": "ロック中",
@@ -168,7 +184,7 @@
       "name": "第六回 - 西域仏境",
       "description": "究極の挑戦、覚醒への道"
     },
-    "selectMap": "マップ選択",
+    "selectMap": "チャプター選択",
     "difficulty": "難易度"
   },
   "unlockConditions": {
@@ -176,16 +192,16 @@
     "kills": "{value}体の敵を倒す",
     "time": "{value}秒生き延びる",
     "gold": "{value}ゴールド収集",
-    "chapter": "チャプター{value}を解放する"
+    "chapter": "チャプター{value}をクリアする "
   },
   "shop": {
     "title": "永続アップグレード",
     "hint": "永続的なステータスアップで強くなろう！",
-    "infoText": "* リセットすると使用したゴールドの70%が返還されます",
-    "resetMessage": "{refund} ゴールド返還\n(使用分の70%)",
+    "infoText": "* リセットすると使用したゴールドの100%が返還されます",
+    "resetMessage": "{refund} ゴールド返還",
     "purchaseUpgrade": "アップグレード購入",
     "resetUpgrades": "すべてリセット",
-    "resetConfirm": "すべてのアップグレードをリセットしますか？使用したゴールドの70%が返還されます。",
+    "resetConfirm": "すべてのアップグレードをリセットしますか？使用したゴールドの100%が返還されます。",
     "confirm": "確認",
     "cancel": "キャンセル",
     "maxLevel": "最大レベル",
@@ -276,9 +292,17 @@
     },
     "plantain_fan": {
       "name": "芭蕉扇",
-      "description": "鉄扇公主の法宝、狂風呼嘯"
+      "description": "鉄扇公主の宝、疾風を呼ぶ"
     },
-    "goldenStaff": {
+    "nine_tooth_rake": {
+      "name": "九歯釘耙",
+      "description": "猪八戒の天界神兵、扇形攻撃で敵を引き寄せる"
+    },
+    "dragon_scale_sword": {
+      "name": "龍鱗剣",
+      "description": "龍の鱗を纏う白龍の剣、追尾弾を発射"
+    },
+    "golden_staff": {
       "name": "金箍棒",
       "description": "天命人の如意神兵、自在に伸縮"
     },
