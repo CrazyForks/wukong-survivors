@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { GameMap, MapType } from "../../types/types";
-import { MAPS } from "../../constant";
+import { MAPS } from "../../constant/map";
 import { useUnlockedMaps, useSelectedMap, useAppStore } from "../../store";
 import styles from "./index.module.css";
 
@@ -103,7 +103,7 @@ const MapSelect: React.FC<MapSelectProps> = ({ onSelect, onBack }) => {
         </div>
       )}
 
-      <div className={styles.buttons}>
+      <div className="button-group">
         <button
           className="confirmButton"
           onClick={handleConfirm}

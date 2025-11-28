@@ -1,13 +1,11 @@
 import Phaser from "phaser";
+import { WEAPONS, ELIXIRS, RARITY_COLORS, MAX_SELECT_SIZE } from "../constant";
 import {
-  WEAPONS,
-  ELIXIRS,
   getRandomWeapons,
   getRandomElixirs,
-  RARITY_COLORS,
   getAvailableCrafts,
-} from "../constant/rewards";
-import type { RewardOption } from "../types/reward";
+} from "../util";
+import type { RewardOption } from "../types";
 import { useSaveStore } from "../store";
 import i18n from "../i18n";
 import { scaleManager } from "./ScaleManager";
@@ -68,7 +66,7 @@ export class RewardSelectionUI {
     // Title
     const title = this.scene.add
       .text(centerX, centerY - 220, i18n.t("rewards.title"), {
-        fontSize: scaleManager.getFontSize(48),
+        fontSize: scaleManager.getTitleSize(),
         color: "#ffd700",
         fontStyle: "bold",
         stroke: "#000000",
@@ -93,27 +91,25 @@ export class RewardSelectionUI {
   private generateOptions(): void {
     this.currentOptions = [];
 
-    // Randomly decide weapon and elixir counts (at least 2, max 5)
-    const weaponCount = Math.floor(Math.random() * 2) + 2; // 2-3 weapons
-    const elixirCount = 5 - weaponCount; // Remaining are elixirs
-
-    // Get random weapons
-    const randomWeapons = getRandomWeapons(weaponCount);
-    randomWeapons.forEach((weaponId) => {
-      this.currentOptions.push({
-        type: "weapon",
-        data: { ...WEAPONS[weaponId] },
+    if (Math.random() > 0.5) {
+      // Get random weapons
+      const randomWeapons = getRandomWeapons(MAX_SELECT_SIZE);
+      randomWeapons.forEach((weaponId) => {
+        this.currentOptions.push({
+          type: "weapon",
+          data: { ...WEAPONS[weaponId] },
+        });
       });
-    });
-
-    // Get random elixirs
-    const randomElixirs = getRandomElixirs(elixirCount);
-    randomElixirs.forEach((elixirId) => {
-      this.currentOptions.push({
-        type: "elixir",
-        data: { ...ELIXIRS[elixirId] },
+    } else {
+      // Get random elixirs
+      const randomElixirs = getRandomElixirs(MAX_SELECT_SIZE);
+      randomElixirs.forEach((elixirId) => {
+        this.currentOptions.push({
+          type: "elixir",
+          data: { ...ELIXIRS[elixirId] },
+        });
       });
-    });
+    }
 
     // Shuffle order
     this.currentOptions.sort(() => Math.random() - 0.5);
@@ -175,7 +171,7 @@ export class RewardSelectionUI {
     // Icon (using emoji instead of images)
     const icon = this.scene.add
       .text(x, y - 50, isWeapon ? "⚔️" : "🧪", {
-        fontSize: scaleManager.getFontSize(48),
+        fontSize: scaleManager.getTitleSize(),
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -194,7 +190,7 @@ export class RewardSelectionUI {
     // Name
     const nameText = this.scene.add
       .text(x, y, name, {
-        fontSize: scaleManager.getFontSize(20),
+        fontSize: scaleManager.getNameSize(),
         color: "#ffffff",
         fontStyle: "bold",
         align: "center",
@@ -209,7 +205,7 @@ export class RewardSelectionUI {
     // Description
     const descText = this.scene.add
       .text(x, y + 35, description, {
-        fontSize: scaleManager.getFontSize(14),
+        fontSize: scaleManager.getDescSize(),
         color: "#cccccc",
         align: "center",
         wordWrap: { width: width - 20 },
@@ -223,7 +219,7 @@ export class RewardSelectionUI {
     // Rarity text
     const rarityText = this.scene.add
       .text(x, y + 70, i18n.t(`rewards.rarity.${rarity}`), {
-        fontSize: scaleManager.getFontSize(16),
+        fontSize: scaleManager.getDescSize(),
         color: `#${color.toString(16).padStart(6, "0")}`,
         fontStyle: "bold",
       })
@@ -301,7 +297,7 @@ export class RewardSelectionUI {
         buttonY,
         i18n.t("rewards.refreshCost", { cost: this.refreshCost }),
         {
-          fontSize: scaleManager.getFontSize(18),
+          fontSize: scaleManager.getNameSize(),
           color: canRefresh ? "#ffffff" : "#666666",
           fontStyle: "bold",
         },
@@ -341,7 +337,7 @@ export class RewardSelectionUI {
           centerY + 200,
           i18n.t("rewards.craftHint", { count: availableCrafts.length }),
           {
-            fontSize: scaleManager.getFontSize(16),
+            fontSize: scaleManager.getDescSize(),
             color: "#ffd700",
             fontStyle: "italic",
           },

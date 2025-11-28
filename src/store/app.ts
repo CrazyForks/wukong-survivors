@@ -2,7 +2,8 @@ import { create } from "zustand";
 import type { CharacterType, MapType, CharacterData, GameMap } from "../types";
 import { useSaveStore } from "./save";
 import { useShallow } from "zustand/react/shallow";
-import { MAPS, CHARACTERS_DATA } from "../constant";
+import { CHARACTERS_DATA } from "../constant";
+import { MAPS } from "../constant/map";
 
 type States = {
   selectedCharacterId: CharacterType;

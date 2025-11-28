@@ -6,6 +6,7 @@ import type {
   WeaponType,
   PermanentUpgradeType,
   MapType,
+  Language,
 } from "../types";
 import { useShallow } from "zustand/react/shallow";
 import { useAppStore } from "./app";
@@ -21,7 +22,7 @@ interface SaveStore extends GameSave {
   updatePlayTime: (seconds: number) => void;
   upgradePermanent: (upgradeId: PermanentUpgradeType) => boolean;
   resetPermanentUpgrades: () => void;
-  setLanguage: (language: string) => void;
+  setLanguage: (language: Language) => void;
   resetAll: () => void;
   addWeapon: (weaponId: WeaponType) => void;
   completeChapter: (map: MapType) => void;

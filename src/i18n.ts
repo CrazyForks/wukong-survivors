@@ -1,6 +1,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { useSaveStore } from "./store";
+import type { Language } from "./types";
 
 // Import translation files
 import zhCN from "./locales/zh-CN.json";
@@ -13,18 +14,6 @@ import koKR from "./locales/ko-KR.json";
 import ptBR from "./locales/pt-BR.json";
 import ruRU from "./locales/ru-RU.json";
 import zhTW from "./locales/zh-TW.json";
-
-export type Language =
-  | "en-US"
-  | "zh-CN"
-  | "ja-JP"
-  | "de-DE"
-  | "es-ES"
-  | "fr-FR"
-  | "ko-KR"
-  | "pt-BR"
-  | "ru-RU"
-  | "zh-TW";
 
 const resources = {
   "zh-CN": { translation: zhCN },

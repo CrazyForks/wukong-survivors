@@ -1,29 +1,42 @@
 import Phaser from "phaser";
 import { Player } from "./player";
 import { Enemy } from "./enemy";
-import i18n from "../i18n";
 import { scaleManager } from "./ScaleManager";
 import type { WeaponType } from "../types";
 import logger from "../logger";
+import i18n from "../i18n";
+import { MAX_SELECT_SIZE } from "../constant";
 
-interface WeaponConfig {
+/**
+ * Configuration interface for weapon creation
+ */
+export interface WeaponConfig {
   damage: number;
   coolDown: number;
   type: WeaponType;
-  projectiles?: Phaser.Physics.Arcade.Group;
 }
 
+/**
+ * Extended projectile sprite with additional weapon-related properties
+ */
 export interface ProjectileSprite extends Phaser.Physics.Arcade.Sprite {
   damage?: number;
+  piercing?: number;
   weaponRef?: Weapon;
 }
 
-interface OrbData {
+/**
+ * Data structure for orb-type weapon projectiles
+ */
+export interface OrbData {
   sprite: ProjectileSprite;
   offset: number;
 }
 
-// Weapon base class
+/**
+ * Abstract base class for all weapons in the game
+ * Provides common functionality and defines the interface for weapon implementations
+ */
 export abstract class Weapon {
   protected scene: Phaser.Scene;
   protected player: Player;
@@ -33,10 +46,15 @@ export abstract class Weapon {
   public coolDown: number;
   protected lastFired: number;
   public type: WeaponType;
-  static type: WeaponType;
   public orbs: OrbData[] = [];
-  public projectiles?: Phaser.Physics.Arcade.Group;
+  public projectiles: Phaser.Physics.Arcade.Group;
 
+  /**
+   * Create a new weapon
+   * @param scene Game scene reference
+   * @param player Player reference
+   * @param config Weapon configuration
+   */
   constructor(scene: Phaser.Scene, player: Player, config: WeaponConfig) {
     this.scene = scene;
     this.player = player;
@@ -45,11 +63,15 @@ export abstract class Weapon {
     this.damage = config.damage;
     this.coolDown = config.coolDown;
     this.lastFired = 0;
-    Weapon.type = config.type;
     this.type = config.type;
-    this.projectiles = config.projectiles;
+    this.projectiles = scene.physics.add.group();
   }
 
+  /**
+   * Update weapon logic and handle firing
+   * @param time Current game time
+   * @param enemies Array of active enemies
+   */
   public update(time: number, enemies: Enemy[]): void {
     if (time - this.lastFired >= this.coolDown) {
       this.fire(enemies);
@@ -57,8 +79,15 @@ export abstract class Weapon {
     }
   }
 
+  /**
+   * Fire the weapon - must be implemented by subclasses
+   * @param enemies Array of enemies to potentially target
+   */
   protected abstract fire(enemies: Enemy[]): void;
 
+  /**
+   * Upgrade the weapon if not at max level
+   */
   public upgrade(): void {
     if (this.level < this.maxLevel) {
       this.level++;
@@ -66,6 +95,9 @@ export abstract class Weapon {
     }
   }
 
+  /**
+   * Apply weapon-specific upgrades - must be implemented by subclasses
+   */
   protected abstract applyUpgrade(): void;
 
   /**
@@ -75,22 +107,53 @@ export abstract class Weapon {
    */
   protected getClosestEnemy(enemies: Enemy[]): Enemy | undefined {
     if (enemies.length === 0) return undefined;
+
     let closestEnemy: Enemy | undefined;
     let minDist = Infinity;
+
+    // Loop through all enemies to find the closest one
     enemies.forEach((enemy) => {
       if (enemy.isDead) return;
+
       const dist = Phaser.Math.Distance.Between(
         this.player.sprite.x,
         this.player.sprite.y,
         enemy.sprite.x,
         enemy.sprite.y,
       );
+
       if (dist < minDist) {
         minDist = dist;
         closestEnemy = enemy;
       }
     });
+
     return closestEnemy;
+  }
+
+  /**
+   * Get all enemies within a specified range of the player
+   * @param enemies Array of enemies to filter
+   * @param range Maximum distance from player
+   * @returns Array of enemies within range
+   */
+  protected getEnemiesInRange(enemies: Enemy[], range: number): Enemy[] {
+    if (enemies.length === 0) return [];
+
+    const playerPos = this.player.getPosition();
+
+    return enemies.filter((enemy) => {
+      if (enemy.isDead) return false;
+
+      const distance = Phaser.Math.Distance.Between(
+        playerPos.x,
+        playerPos.y,
+        enemy.sprite.x,
+        enemy.sprite.y,
+      );
+
+      return distance <= range;
+    });
   }
 
   /**
@@ -104,57 +167,101 @@ export abstract class Weapon {
       ? Math.atan2(velocity.y, velocity.x)
       : 0;
   }
+
+  /**
+   * Create a projectile with consistent settings
+   * @param x X position to spawn projectile
+   * @param y Y position to spawn projectile
+   * @param textureName Texture key to use
+   * @param size Sprite size factor
+   * @returns Created projectile sprite
+   */
+  protected createProjectile(
+    x: number,
+    y: number,
+    textureName: string,
+    size: number = 24,
+  ): ProjectileSprite {
+    const projectileSize = scaleManager.getSpriteSize(size);
+    const projectile = this.projectiles.create(
+      x,
+      y,
+      textureName,
+    ) as ProjectileSprite;
+
+    projectile.setCircle(projectileSize / 2);
+    projectile.setDisplaySize(projectileSize, projectileSize);
+    projectile.damage = this.damage;
+    projectile.weaponRef = this;
+
+    return projectile;
+  }
 }
 
-// Magic Missile weapon - auto-attack nearest enemy (renamed to Golden Staff)
+/**
+ * Golden Staff weapon class
+ * Fires auto-targeting magic missiles at the closest enemy
+ */
 export class GoldenStaff extends Weapon {
   private projectileSpeed: number;
   private piercing: number;
 
+  /**
+   * Create a new Golden Staff weapon
+   * @param scene Game scene reference
+   * @param player Player reference
+   */
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player, {
       damage: 15,
       coolDown: 1000,
       type: "golden_staff",
-      projectiles: scene.physics.add.group(),
     });
-    this.projectileSpeed = 300;
-    this.piercing = 1;
+    this.projectileSpeed = 300; // Base projectile speed
+    this.piercing = 1; // Base piercing value (number of enemies it can hit)
   }
 
+  /**
+   * Fire magic missile at the closest enemy
+   * @param enemies Array of active enemies
+   */
   protected fire(enemies: Enemy[]): void {
+    // Check if there are enemies to target
     if (enemies.length === 0) return;
+
     const playerPos = this.player.getPosition();
     const nearestEnemy = this.getClosestEnemy(enemies);
 
+    // Only fire if an enemy was found
     if (!nearestEnemy) return;
 
-    // Fire projectile using loaded texture with responsive scaling
-    const projectileSize = scaleManager.getSpriteSize(24);
-    const projectile = this.projectiles?.create(
+    // Create projectile using helper method
+    const projectile = this.createProjectile(
       playerPos.x,
       playerPos.y,
       this.type,
+      24,
     );
-    projectile.setCircle(projectileSize / 2);
-    projectile.setDisplaySize(projectileSize, projectileSize);
 
-    // Set projectile direction
-    const targetEnemy: Enemy = nearestEnemy; // Type assertion
+    // Set piercing property
+    projectile.piercing = this.piercing;
+
+    // Calculate direction towards target enemy
+    const targetEnemy: Enemy = nearestEnemy;
     const dx = targetEnemy.sprite.x - playerPos.x;
     const dy = targetEnemy.sprite.y - playerPos.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
+    // Set projectile velocity towards enemy
     projectile.setVelocity(
       (dx / distance) * this.projectileSpeed,
       (dy / distance) * this.projectileSpeed,
     );
 
-    projectile.damage = this.damage;
-    projectile.piercing = this.piercing;
-    projectile.weaponRef = this;
+    // Set projectile rotation based on direction
+    projectile.setRotation(Math.atan2(dy, dx));
 
-    // Set lifetime
+    // Set lifetime for the projectile
     this.scene.time.delayedCall(2000, () => {
       if (projectile.active) {
         projectile.destroy();
@@ -162,238 +269,335 @@ export class GoldenStaff extends Weapon {
     });
   }
 
+  /**
+   * Apply upgrades when weapon levels up
+   */
   protected applyUpgrade(): void {
+    // Increase damage with each level
     this.damage += 5;
+
+    // Decrease cooldown with each level (capped at 300ms)
     this.coolDown = Math.max(300, this.coolDown - 100);
+
+    // Increase piercing at specific levels
     if (this.level >= 3) {
-      this.piercing = 2;
+      this.piercing = 2; // Can pierce through 2 enemies at level 3
     }
     if (this.level >= 5) {
-      this.piercing = 3;
+      this.piercing = 3; // Can pierce through 3 enemies at max level
     }
   }
 }
 
+/**
+ * Fireproof Cloak weapon class
+ * Creates rotating fire orbs around the player that deal damage to nearby enemies
+ */
 export class FireproofCloak extends Weapon {
   private orbCount: number;
   private radius: number;
   private rotationSpeed: number;
   private angle: number;
 
+  /**
+   * Create a new Fireproof Cloak weapon
+   * @param scene Game scene reference
+   * @param player Player reference
+   */
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player, {
       damage: 8,
       coolDown: 100,
       type: "fireproof_cloak",
     });
-    this.orbCount = 1;
-    this.radius = scaleManager.scaleValue(80);
-    this.rotationSpeed = 2;
-    this.angle = 0;
+    this.orbCount = 1; // Start with 1 orb
+    this.radius = scaleManager.scaleValue(80); // Initial rotation radius
+    this.rotationSpeed = 2; // Initial rotation speed
+    this.angle = 0; // Current rotation angle
 
+    // Initialize orbs on creation
     this.createOrbs();
   }
 
+  /**
+   * Create orbs for the fireproof cloak
+   * Destroys existing orbs and creates new ones based on current orbCount
+   */
   private createOrbs(): void {
-    // Clear old orbs
+    // Clear old orbs to prevent memory leaks
     this.orbs.forEach((orb) => orb.sprite.destroy());
     this.orbs = [];
 
-    // Create new orbs using loaded texture with responsive scaling
+    // Create new orbs with responsive scaling
     const orbSize = scaleManager.getSpriteSize(32);
     for (let i = 0; i < this.orbCount; i++) {
+      // Create orb sprite
       const orb = this.scene.physics.add.sprite(
         0,
         0,
         this.type,
       ) as ProjectileSprite;
+
+      // Set physics and appearance
       orb.setCircle(orbSize / 2);
       orb.setDisplaySize(orbSize, orbSize);
 
+      // Set damage properties
       orb.damage = this.damage;
       orb.weaponRef = this;
 
+      // Calculate angular offset for evenly spaced orbs
+      const offset = ((Math.PI * 2) / this.orbCount) * i;
+
+      // Add to orb collection
       this.orbs.push({
         sprite: orb,
-        offset: ((Math.PI * 2) / this.orbCount) * i,
+        offset: offset,
       });
     }
   }
 
-  public update(time: number, enemies: Enemy[]): void {
-    logger.info("update:", time, enemies);
-    // Update orb positions
+  /**
+   * Update orb positions and rotation
+   * @param time Current game time
+   * @param _enemies Array of active enemies (not used)
+   */
+  public update(_time: number, _enemies: Enemy[]): void {
+    logger.info(_time, _enemies);
+    // Update rotation angle (deltaTime approximation)
     this.angle += this.rotationSpeed * 0.016; // Assuming 60fps
+
+    // Get current player position
     const playerPos = this.player.getPosition();
 
+    // Update each orb's position around the player
     this.orbs.forEach((orb) => {
-      const angle = this.angle + orb.offset;
-      orb.sprite.x = playerPos.x + Math.cos(angle) * this.radius;
-      orb.sprite.y = playerPos.y + Math.sin(angle) * this.radius;
+      const adjustedAngle = this.angle + orb.offset;
+      orb.sprite.x = playerPos.x + Math.cos(adjustedAngle) * this.radius;
+      orb.sprite.y = playerPos.y + Math.sin(adjustedAngle) * this.radius;
     });
   }
 
-  protected fire(enemies: Enemy[]): void {
-    // Aura doesn't need fire method as it persists continuously
-    logger.info("fire:", enemies);
+  /**
+   * Fire method implementation (not used for persistent aura weapons)
+   * @param _enemies Array of enemies (not used)
+   */
+  protected fire(_enemies: Enemy[]): void {
+    logger.info(_enemies);
+    // Fireproof Cloak doesn't need a traditional fire method as it persists continuously
   }
 
+  /**
+   * Apply upgrades when weapon levels up
+   */
   protected applyUpgrade(): void {
+    // Increase damage with each level
     this.damage += 5;
+
+    // Update orbs with new damage value
+    this.orbs.forEach((orb) => {
+      orb.sprite.damage = this.damage;
+    });
+
+    // Level-based upgrades
     if (this.level === 2) {
+      // Add second orb at level 2
       this.orbCount = 2;
       this.createOrbs();
     } else if (this.level === 3) {
-      this.radius = 100;
+      // Increase radius at level 3
+      this.radius = scaleManager.scaleValue(100);
     } else if (this.level === 4) {
+      // Add third orb at level 4
       this.orbCount = 3;
       this.createOrbs();
     } else if (this.level === 5) {
+      // Increase rotation speed at max level
       this.rotationSpeed = 3;
     }
   }
 }
 
-// Ruyi Staff - Ultimate form of Golden Staff with enhanced power
+/**
+ * Ruyi Staff weapon class
+ * Ultimate form of Golden Staff with enhanced power
+ * Creates high damage projectiles with piercing capability
+ */
 export class RuyiStaff extends Weapon {
   private projectileSpeed: number;
   private piercing: number;
   private projectileCount: number;
 
+  /**
+   * Create a new Ruyi Staff weapon
+   * @param scene Game scene reference
+   * @param player Player reference
+   */
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player, {
-      damage: 50,
+      damage: 50, // High base damage
       coolDown: 800,
       type: "ruyi_staff",
-      projectiles: scene.physics.add.group(),
     });
-    this.projectileSpeed = 400;
-    this.piercing = 3;
-    this.projectileCount = 1;
+
+    // Initialize weapon properties
+    this.projectileSpeed = scaleManager.scaleValue(400); // Responsive projectile speed
+    this.piercing = 3; // Can pierce through 3 enemies initially
+    this.projectileCount = 1; // Start with 1 projectile per shot
   }
 
+  /**
+   * Fire projectiles at the nearest enemies
+   * @param enemies Array of active enemies
+   */
   protected fire(enemies: Enemy[]): void {
     if (enemies.length === 0) return;
 
     const playerPos = this.player.getPosition();
 
-    // Fire multiple projectiles
+    // Fire multiple projectiles based on projectileCount
     for (let i = 0; i < this.projectileCount; i++) {
-      let nearestEnemy: Enemy | null = null;
-      let nearestDistance = Infinity;
-
-      enemies.forEach((enemy) => {
-        if (enemy.isDead) return;
-        const dx = enemy.sprite.x - playerPos.x;
-        const dy = enemy.sprite.y - playerPos.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < nearestDistance) {
-          nearestDistance = distance;
-          nearestEnemy = enemy;
-        }
-      });
-
+      // Find the nearest enemy using the base class helper method
+      const nearestEnemy = this.getClosestEnemy(enemies);
       if (!nearestEnemy) continue;
 
-      const projectileSize = scaleManager.getSpriteSize(32);
-      const projectile = this.projectiles?.create(
+      // Calculate angle to target enemy
+      const angle = Math.atan2(
+        nearestEnemy.sprite.y - playerPos.y,
+        nearestEnemy.sprite.x - playerPos.x,
+      );
+
+      // Use the createProjectile utility method from Weapon base class
+      const projectile = this.createProjectile(
         playerPos.x,
         playerPos.y,
         this.type,
+        32,
       );
-      projectile.setCircle(projectileSize / 2);
-      projectile.setDisplaySize(projectileSize, projectileSize);
-
-      const targetEnemy: Enemy = nearestEnemy;
-      const dx = targetEnemy.sprite.x - playerPos.x;
-      const dy = targetEnemy.sprite.y - playerPos.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      projectile.setVelocity(
-        (dx / distance) * this.projectileSpeed,
-        (dy / distance) * this.projectileSpeed,
-      );
-
       projectile.damage = this.damage;
       projectile.piercing = this.piercing;
-      projectile.weaponRef = this;
+      projectile.rotation = angle;
+      projectile.setVelocity(
+        Math.cos(angle) * this.projectileSpeed,
+        Math.sin(angle) * this.projectileSpeed,
+      );
 
+      // Set lifetime
       this.scene.time.delayedCall(3000, () => {
         if (projectile.active) projectile.destroy();
       });
+
+      // Track projectile in the weapon's projectile group
+      this.projectiles?.add(projectile);
     }
   }
 
+  /**
+   * Apply upgrades when weapon levels up
+   * Enhances damage, reduces cooldown, increases projectile count, and improves piercing
+   */
   protected applyUpgrade(): void {
+    // Increase damage with each level
     this.damage += 10;
+
+    // Reduce cooldown with a minimum of 500ms
     this.coolDown = Math.max(500, this.coolDown - 50);
+
+    // Add second projectile at level 3
     if (this.level >= 3) this.projectileCount = 2;
+
+    // Further increase piercing capability at max level
     if (this.level >= 5) this.piercing = 5;
   }
 }
 
-// Fire Lance - Fast piercing spear
+/**
+ * Fire Lance weapon class
+ * Fast piercing spear that travels quickly and can pierce through multiple enemies
+ * at higher levels
+ */
 export class FireLance extends Weapon {
   private projectileSpeed: number;
   private piercing: number;
 
+  /**
+   * Create a new Fire Lance weapon
+   * @param scene Game scene reference
+   * @param player Player reference
+   */
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player, {
       damage: 20,
       coolDown: 1200,
       type: "fire_lance",
-      projectiles: scene.physics.add.group(),
     });
-    this.projectileSpeed = 500;
-    this.piercing = 2;
+
+    // Initialize weapon properties
+    this.projectileSpeed = scaleManager.scaleValue(500); // Responsive projectile speed
+    this.piercing = 2; // Can pierce through 2 enemies initially
   }
 
+  /**
+   * Fire a fast projectile at the closest enemy
+   * @param enemies Array of active enemies
+   */
   protected fire(enemies: Enemy[]): void {
     if (enemies.length === 0) return;
 
     const playerPos = this.player.getPosition();
-    const nearestEnemy = this.getClosestEnemy(enemies);
 
+    // Find closest enemy using base class helper method
+    const nearestEnemy = this.getClosestEnemy(enemies);
     if (!nearestEnemy) return;
 
-    const projectileSize = scaleManager.getSpriteSize(28);
-    const projectile = this.projectiles?.create(
-      playerPos.x,
-      playerPos.y,
-      this.type,
-    );
-    projectile.setCircle(projectileSize / 2);
-    projectile.setDisplaySize(projectileSize, projectileSize);
-
-    const targetEnemy: Enemy = nearestEnemy;
+    // Calculate angle to target enemy
     const angle = Phaser.Math.Angle.Between(
       playerPos.x,
       playerPos.y,
-      targetEnemy.sprite.x,
-      targetEnemy.sprite.y,
+      nearestEnemy.sprite.x,
+      nearestEnemy.sprite.y,
     );
 
+    // Use createProjectile utility method from Weapon base class
+    const projectile = this.createProjectile(
+      playerPos.x,
+      playerPos.y,
+      this.type,
+      28,
+    );
+    projectile.damage = this.damage;
+    projectile.piercing = this.piercing;
+    projectile.rotation = angle;
     projectile.setVelocity(
       Math.cos(angle) * this.projectileSpeed,
       Math.sin(angle) * this.projectileSpeed,
     );
-    projectile.setRotation(angle);
 
-    projectile.damage = this.damage;
-    projectile.piercing = this.piercing;
-    projectile.weaponRef = this;
-
+    // Set lifetime
     this.scene.time.delayedCall(2500, () => {
       if (projectile.active) projectile.destroy();
     });
+
+    // Track projectile in the weapon's projectile group
+    this.projectiles?.add(projectile);
   }
 
+  /**
+   * Apply upgrades when weapon levels up
+   * Enhances damage, piercing, speed, and reduces cooldown
+   */
   protected applyUpgrade(): void {
+    // Increase damage with each level
     this.damage += 6;
+
+    // Reduce cooldown with a minimum of 600ms
     this.coolDown = Math.max(600, this.coolDown - 150);
+
+    // Increase piercing capability at level 3
     if (this.level >= 3) this.piercing = 3;
-    if (this.level >= 5) this.projectileSpeed += 100;
+
+    // Increase speed at max level
+    if (this.level >= 5) this.projectileSpeed = scaleManager.scaleValue(600);
   }
 }
 
@@ -548,7 +752,6 @@ export class TwinBlades extends Weapon {
       damage: 18,
       coolDown: 800,
       type: "twin_blades",
-      projectiles: scene.physics.add.group(),
     });
     this.projectileSpeed = 450;
   }
@@ -611,7 +814,6 @@ export class Mace extends Weapon {
       damage: 35,
       coolDown: 1800,
       type: "mace",
-      projectiles: scene.physics.add.group(),
     });
     this.projectileSpeed = 250;
     this.stunChance = 0.3;
@@ -795,7 +997,6 @@ export class IceNeedle extends Weapon {
       damage: 16,
       coolDown: 900,
       type: "ice_needle",
-      projectiles: scene.physics.add.group(),
     });
     this.projectileSpeed = 550;
     this.projectileCount = 3;
@@ -1162,7 +1363,7 @@ export class PlantainFan extends Weapon {
   }
 }
 
-// Three Pointed Blade - 三尖两刃刀（二郎神）
+// Three Pointed Blade - Erlang Shen's weapon
 export class ThreePointedBlade extends Weapon {
   private projectileSpeed: number;
   private slashCount: number;
@@ -1172,7 +1373,6 @@ export class ThreePointedBlade extends Weapon {
       damage: 42,
       coolDown: 1100,
       type: "three_pointed_blade",
-      projectiles: scene.physics.add.group(),
     });
     this.projectileSpeed = 400;
     this.slashCount = 3;
@@ -1184,7 +1384,7 @@ export class ThreePointedBlade extends Weapon {
     const playerPos = this.player.getPosition();
     const projectileSize = scaleManager.getSpriteSize(32);
 
-    // 三叉斩击，120度扇形
+    // Three-pronged attack, 120 degree fan shape
     for (let i = 0; i < this.slashCount; i++) {
       const angleOffset = ((i - 1) * Math.PI) / 6; // -30°, 0°, 30°
       const baseAngle = this.getPlayerAngle();
@@ -1220,7 +1420,7 @@ export class ThreePointedBlade extends Weapon {
   }
 }
 
-// Nine Ring Staff - 九环锡杖（唐僧/沙僧）
+// Nine Ring Staff - Tang Monk/Sha Monk's weapon
 export class NineRingStaff extends Weapon {
   private soundWaveRadius: number;
   private stunDuration: number;
@@ -1238,13 +1438,13 @@ export class NineRingStaff extends Weapon {
   protected fire(enemies: Enemy[]): void {
     const playerPos = this.player.getPosition();
 
-    // 创建音波圆环特效
+    // Create sound wave circle effect
     const graphics = this.scene.add.graphics();
     graphics.lineStyle(4, 0xffd700, 1);
     graphics.strokeCircle(0, 0, this.soundWaveRadius);
     graphics.setPosition(playerPos.x, playerPos.y);
 
-    // 对范围内敌人造成伤害和短暂眩晕
+    // Deal damage and brief stun to nearby enemies
     enemies.forEach((enemy) => {
       if (enemy.isDead) return;
 
@@ -1257,7 +1457,7 @@ export class NineRingStaff extends Weapon {
 
       if (distance <= this.soundWaveRadius) {
         enemy.takeDamage(this.damage);
-        // 眩晕效果：短暂减速
+        // Stun effect: brief slowdown
         if (enemy.sprite.body && "setVelocity" in enemy.sprite.body) {
           const originalSpeed = enemy.speed;
           enemy.speed *= 0.3;
@@ -1268,7 +1468,7 @@ export class NineRingStaff extends Weapon {
       }
     });
 
-    // 音波扩散动画
+    // Sound wave spreading animation
     this.scene.tweens.add({
       targets: graphics,
       scaleX: 1.5,
@@ -1287,7 +1487,7 @@ export class NineRingStaff extends Weapon {
   }
 }
 
-// Crescent Blade - 月牙铲（沙僧）
+// Crescent Blade - Sha Monk's crescent shovel
 export class CrescentBlade extends Weapon {
   private bladeCount: number;
   private returnSpeed: number;
@@ -1297,7 +1497,6 @@ export class CrescentBlade extends Weapon {
       damage: 33,
       coolDown: 1500,
       type: "crescent_blade",
-      projectiles: scene.physics.add.group(),
     });
     this.bladeCount = 2;
     this.returnSpeed = 350;
@@ -1309,7 +1508,7 @@ export class CrescentBlade extends Weapon {
     const projectileSize = scaleManager.getSpriteSize(28);
     const baseAngle = this.getPlayerAngle();
 
-    // 发射多个月牙铲，回旋镖效果
+    // Launch multiple crescent blades with boomerang effect
     for (let i = 0; i < this.bladeCount; i++) {
       const angleOffset = ((i - 0.5) * Math.PI) / 4;
       const angle = baseAngle + angleOffset;
@@ -1327,7 +1526,7 @@ export class CrescentBlade extends Weapon {
       blade.damage = this.damage;
       blade.weaponRef = this;
 
-      // 回旋效果
+      // Boomerang effect
       this.scene.time.delayedCall(800, () => {
         if (blade.active) {
           const dx = playerPos.x - blade.x;
@@ -1354,7 +1553,7 @@ export class CrescentBlade extends Weapon {
   }
 }
 
-// Iron Cudgel - 混铁棍（牛魔王）
+// Iron Cudgel - Bull Demon King's weapon
 export class IronCudgel extends Weapon {
   private smashRadius: number;
   private knockbackForce: number;
@@ -1372,7 +1571,7 @@ export class IronCudgel extends Weapon {
   protected fire(enemies: Enemy[]): void {
     const playerPos = this.player.getPosition();
 
-    // 重击地面，产生巨大冲击波
+    // Heavy strike on the ground, creating a huge shockwave
     const graphics = this.scene.add.graphics();
     graphics.fillStyle(0x8b4513, 0.6);
     graphics.fillCircle(0, 0, this.smashRadius);
@@ -1391,7 +1590,7 @@ export class IronCudgel extends Weapon {
       if (distance <= this.smashRadius) {
         enemy.takeDamage(this.damage);
 
-        // 强力击退
+        // Powerful knockback
         if (enemy.sprite.body && "setVelocity" in enemy.sprite.body) {
           const angle = Phaser.Math.Angle.Between(
             playerPos.x,
@@ -1425,7 +1624,7 @@ export class IronCudgel extends Weapon {
   }
 }
 
-// Seven Star Sword - 七星剑（道家）
+// Seven Star Sword - Daoist weapon
 export class SevenStarSword extends Weapon {
   private swordCount: number;
   private orbitRadius: number;
@@ -1466,7 +1665,7 @@ export class SevenStarSword extends Weapon {
     logger.info(enemies);
     const playerPos = this.player.getPosition();
     const angleStep = (Math.PI * 2) / this.swordCount;
-    const rotation = (time / 1000) * 3; // 旋转速度
+    const rotation = (time / 1000) * 3; // Rotation speed
 
     this.swords.forEach((sword, index) => {
       const angle = rotation + angleStep * index;
@@ -1477,7 +1676,7 @@ export class SevenStarSword extends Weapon {
   }
 
   protected fire(enemies: Enemy[]): void {
-    // 持续环绕攻击，不需要特定发射逻辑
+    // Continuous circling attack, no specific firing logic needed
     logger.info(enemies);
   }
 
@@ -1495,7 +1694,7 @@ export class SevenStarSword extends Weapon {
   }
 }
 
-// Ginseng Fruit - 人参果（特殊恢复型）
+// Ginseng Fruit - Special recovery type
 export class GinsengFruit extends Weapon {
   private healAmount: number;
   private maxHealthBonus: number;
@@ -1511,13 +1710,13 @@ export class GinsengFruit extends Weapon {
   }
 
   protected fire(enemies: Enemy[]): void {
-    // 治疗玩家
+    // Heal player
     const currentHealth = this.player.health;
     const maxHealth = this.player.maxHealth;
     const newHealth = Math.min(currentHealth + this.healAmount, maxHealth);
     this.player.health = newHealth;
 
-    // 创建治疗特效
+    // Create healing effect
     const playerPos = this.player.getPosition();
     const graphics = this.scene.add.graphics();
     graphics.fillStyle(0x90ee90, 0.8);
@@ -1533,7 +1732,7 @@ export class GinsengFruit extends Weapon {
       onComplete: () => graphics.destroy(),
     });
 
-    // 对附近敌人造成少量伤害（仙气威慑）
+    // Deal minor damage to nearby enemies (immortal aura deterrence)
     enemies.forEach((enemy) => {
       if (enemy.isDead) return;
 
@@ -1558,15 +1757,15 @@ export class GinsengFruit extends Weapon {
     if (this.level >= 4) this.maxHealthBonus = 40;
     if (this.level >= 5) this.healAmount = 100;
 
-    // 提升最大生命值
+    // Increase maximum health
     if (this.maxHealthBonus > 0) {
       this.player.maxHealth = this.player.maxHealth + this.maxHealthBonus;
-      this.maxHealthBonus = 0; // 只在升级时加一次
+      this.maxHealthBonus = 0; // Only add once when upgrading
     }
   }
 }
 
-// Heaven Earth Circle - 乾坤圈（哪吒）
+// Heaven Earth Circle - Nezha's weapon
 export class HeavenEarthCircle extends Weapon {
   private circleSpeed: number;
   private returnDelay: number;
@@ -1576,7 +1775,6 @@ export class HeavenEarthCircle extends Weapon {
       damage: 40,
       coolDown: 1800,
       type: "heaven_earth_circle",
-      projectiles: scene.physics.add.group(),
     });
     this.circleSpeed = 450;
     this.returnDelay = 1000;
@@ -1597,7 +1795,7 @@ export class HeavenEarthCircle extends Weapon {
     circle.setCircle(projectileSize / 2);
     circle.setDisplaySize(projectileSize, projectileSize);
 
-    // 直线飞出
+    // Fly straight
     circle.setVelocity(
       Math.cos(targetAngle) * this.circleSpeed,
       Math.sin(targetAngle) * this.circleSpeed,
@@ -1605,7 +1803,7 @@ export class HeavenEarthCircle extends Weapon {
     circle.damage = this.damage;
     circle.weaponRef = this;
 
-    // 返回逻辑
+    // Return logic
     this.scene.time.delayedCall(this.returnDelay, () => {
       if (circle.active) {
         const checkReturn = () => {
@@ -1645,7 +1843,7 @@ export class HeavenEarthCircle extends Weapon {
   }
 }
 
-// Red Armillary Sash - 混天绫（哪吒）
+// Red Armillary Sash - Nezha's weapon
 export class RedArmillarySash extends Weapon {
   private sashLength: number;
   private whipCount: number;
@@ -1664,18 +1862,18 @@ export class RedArmillarySash extends Weapon {
     const playerPos = this.player.getPosition();
     const baseAngle = this.getPlayerAngle();
 
-    // 鞭打攻击，扇形挥舞
+    // Whip attack, fan-shaped swing
     for (let i = 0; i < this.whipCount; i++) {
       const angle = baseAngle + ((i - 1) * Math.PI) / 8;
       const endX = playerPos.x + Math.cos(angle) * this.sashLength;
       const endY = playerPos.y + Math.sin(angle) * this.sashLength;
 
-      // 创建鞭打轨迹
+      // Create whip trajectory
       const graphics = this.scene.add.graphics();
       graphics.lineStyle(6, 0xff4444, 0.8);
       graphics.lineBetween(playerPos.x, playerPos.y, endX, endY);
 
-      // 检测范围内敌人
+      // Detect nearby enemies
       enemies.forEach((enemy) => {
         if (enemy.isDead) return;
 
@@ -1699,7 +1897,7 @@ export class RedArmillarySash extends Weapon {
 
           if (angleDiff < Math.PI / 12) {
             enemy.takeDamage(this.damage);
-            // 束缚效果：减速
+            // Binding effect: slowdown
             if (enemy.sprite.body && "setVelocity" in enemy.sprite.body) {
               const originalSpeed = enemy.speed;
               enemy.speed *= 0.5;
@@ -1729,7 +1927,7 @@ export class RedArmillarySash extends Weapon {
   }
 }
 
-// Purple Gold Gourd - 紫金葫芦（金角银角）
+// Purple Gold Gourd - Golden/Silver Horn's weapon
 export class PurpleGoldGourd extends Weapon {
   private absorbRadius: number;
   private absorbDuration: number;
@@ -1747,7 +1945,7 @@ export class PurpleGoldGourd extends Weapon {
   protected fire(enemies: Enemy[]): void {
     const playerPos = this.player.getPosition();
 
-    // 创建吸收特效
+    // Create absorption effect
     const graphics = this.scene.add.graphics();
     graphics.lineStyle(4, 0x9932cc, 1);
     graphics.strokeCircle(0, 0, this.absorbRadius);
@@ -1767,7 +1965,7 @@ export class PurpleGoldGourd extends Weapon {
 
       if (distance <= this.absorbRadius) {
         absorbedEnemies.push(enemy);
-        // 吸引效果
+        // Attraction effect
         if (enemy.sprite.body && "setVelocity" in enemy.sprite.body) {
           const angle = Phaser.Math.Angle.Between(
             enemy.sprite.x,
@@ -1783,7 +1981,7 @@ export class PurpleGoldGourd extends Weapon {
       }
     });
 
-    // 延迟爆发伤害
+    // Delayed burst damage
     this.scene.time.delayedCall(this.absorbDuration, () => {
       absorbedEnemies.forEach((enemy) => {
         if (!enemy.isDead) {
@@ -1810,7 +2008,7 @@ export class PurpleGoldGourd extends Weapon {
   }
 }
 
-// Golden Rope Immortal - 幌金绳（太上老君）
+// Golden Rope Immortal - Immortality Binding Rope (Taishang Laojun)
 export class GoldenRopeImmortal extends Weapon {
   private ropeChains: number;
   private chainLength: number;
@@ -1857,7 +2055,7 @@ export class GoldenRopeImmortal extends Weapon {
       );
 
       if (distance <= this.chainLength) {
-        // 创建绳索特效
+        // Create rope effect
         const graphics = this.scene.add.graphics();
         graphics.lineStyle(3, 0xffd700, 0.9);
         graphics.lineBetween(
@@ -1869,7 +2067,7 @@ export class GoldenRopeImmortal extends Weapon {
 
         enemy.takeDamage(this.damage);
 
-        // 强力束缚：大幅减速并持续伤害
+        // Powerful binding: Significantly slow down and deal continuous damage
         if (enemy.sprite.body && "setVelocity" in enemy.sprite.body) {
           const originalSpeed = enemy.speed;
           enemy.speed *= 0.2;
@@ -1914,7 +2112,7 @@ export class GoldenRopeImmortal extends Weapon {
   }
 }
 
-// Demon Revealing Mirror - 照妖镜
+// Demon Revealing Mirror - Monster Revealing Mirror
 export class DemonRevealingMirror extends Weapon {
   private revealRadius: number;
   private critBonus: number;
@@ -1926,13 +2124,13 @@ export class DemonRevealingMirror extends Weapon {
       type: "demon_revealing_mirror",
     });
     this.revealRadius = scaleManager.scaleValue(200);
-    this.critBonus = 1.5; // 暴击倍率
+    this.critBonus = 1.5; // Critical hit multiplier
   }
 
   protected fire(enemies: Enemy[]): void {
     const playerPos = this.player.getPosition();
 
-    // 创建照妖镜光环
+    // Create demon mirror aura
     const graphics = this.scene.add.graphics();
     graphics.lineStyle(3, 0xffffff, 1);
     graphics.strokeCircle(0, 0, this.revealRadius);
@@ -1949,12 +2147,12 @@ export class DemonRevealingMirror extends Weapon {
       );
 
       if (distance <= this.revealRadius) {
-        // 暴击伤害
-        const isCrit = Math.random() < 0.6; // 60%暴击率
+        // Critical hit damage
+        const isCrit = Math.random() < 0.6; // 60% critical hit chance
         const finalDamage = isCrit ? this.damage * this.critBonus : this.damage;
         enemy.takeDamage(finalDamage);
 
-        // 弱点标记特效
+        // Weakness marking effect
         const marker = this.scene.add.graphics();
         marker.lineStyle(2, 0xff0000, 1);
         marker.strokeCircle(0, 0, 20);
@@ -1989,7 +2187,7 @@ export class DemonRevealingMirror extends Weapon {
   }
 }
 
-// Sea Calming Needle - 定海神针（金箍棒终极形态）
+// Sea Calming Needle - Ocean Pacifying Needle (Golden Cudgel's ultimate form)
 export class SeaCalmingNeedle extends Weapon {
   private sweepRange: number;
   private sweepAngle: number;
@@ -2001,14 +2199,14 @@ export class SeaCalmingNeedle extends Weapon {
       type: "sea_calming_needle",
     });
     this.sweepRange = scaleManager.scaleValue(300);
-    this.sweepAngle = Math.PI; // 180度
+    this.sweepAngle = Math.PI; // 180 degrees
   }
 
   protected fire(enemies: Enemy[]): void {
     const playerPos = this.player.getPosition();
     const targetAngle = this.getPlayerAngle();
 
-    // 创建巨大横扫特效
+    // Create huge sweeping effect
     const graphics = this.scene.add.graphics();
     graphics.fillStyle(0xffd700, 0.5);
     graphics.slice(
@@ -2043,7 +2241,7 @@ export class SeaCalmingNeedle extends Weapon {
       if (distance < this.sweepRange && angleDiff < this.sweepAngle / 2) {
         enemy.takeDamage(this.damage);
 
-        // 巨力击飞
+        // Giant force knockback
         if (enemy.sprite.body && "setVelocity" in enemy.sprite.body) {
           enemy.sprite.body.setVelocity(
             Math.cos(angle) * 600,
@@ -2071,7 +2269,7 @@ export class SeaCalmingNeedle extends Weapon {
   }
 }
 
-// Eight Trigrams Furnace - 八卦炉（太上老君）
+// Eight Trigrams Furnace - Supreme Elder's weapon
 export class EightTrigramsFurnace extends Weapon {
   private furnaceRadius: number;
   private burnDuration: number;
@@ -2084,18 +2282,18 @@ export class EightTrigramsFurnace extends Weapon {
       type: "eight_trigrams_furnace",
     });
     this.furnaceRadius = scaleManager.scaleValue(250);
-    this.burnDuration = 5000; // 持续5秒灼烧
+    this.burnDuration = 5000; // 5 seconds burning duration
     this.burnDamagePerTick = 5;
   }
 
   protected fire(enemies: Enemy[]): void {
     const playerPos = this.player.getPosition();
 
-    // 创建八卦炉特效 - 八个火焰柱
+    // Create Eight Trigrams Furnace effect - eight fire pillars
     const furnaceGraphics = this.scene.add.graphics();
     furnaceGraphics.setPosition(playerPos.x, playerPos.y);
 
-    // 绘制八个方位的火焰
+    // Draw flames in eight directions
     for (let i = 0; i < 8; i++) {
       const angle = (i * Math.PI) / 4;
       const x = Math.cos(angle) * this.furnaceRadius;
@@ -2105,7 +2303,7 @@ export class EightTrigramsFurnace extends Weapon {
       furnaceGraphics.fillCircle(x, y, 30);
     }
 
-    // 中心火焰
+    // Center flame
     furnaceGraphics.fillStyle(0xff0000, 0.5);
     furnaceGraphics.fillCircle(0, 0, this.furnaceRadius);
 
@@ -2122,7 +2320,7 @@ export class EightTrigramsFurnace extends Weapon {
       if (distance < this.furnaceRadius) {
         enemy.takeDamage(this.damage);
 
-        // 应用持续灼烧效果
+        // Apply continuous burning effect
         const maxBurnTicks = Math.floor(this.burnDuration / 500);
 
         this.scene.time.addEvent({
@@ -2155,7 +2353,7 @@ export class EightTrigramsFurnace extends Weapon {
   }
 }
 
-// Dragon Staff - 盘龙杖（观音座下）
+// Dragon Staff - Guanyin's weapon
 export class DragonStaff extends Weapon {
   private tornadoRadius: number;
   private pullStrength: number;
@@ -2165,7 +2363,6 @@ export class DragonStaff extends Weapon {
       damage: 36,
       coolDown: 2300,
       type: "dragon_staff",
-      projectiles: scene.physics.add.group(),
     });
     this.tornadoRadius = scaleManager.scaleValue(220);
     this.pullStrength = 150;
@@ -2180,11 +2377,11 @@ export class DragonStaff extends Weapon {
     const targetX = closestEnemy.sprite.x;
     const targetY = closestEnemy.sprite.y;
 
-    // 创建龙卷风
+    // Create tornado
     const tornado = this.scene.add.graphics();
     tornado.setPosition(targetX, targetY);
 
-    // 绘制龙卷风螺旋
+    // Draw tornado spiral
     for (let i = 0; i < 8; i++) {
       const angle = (i * Math.PI) / 4 + this.scene.time.now * 0.01;
       const radius = this.tornadoRadius * (1 - i / 10);
@@ -2195,7 +2392,7 @@ export class DragonStaff extends Weapon {
       tornado.fillCircle(x, y, 25);
     }
 
-    // 龙卷风效果 - 持续伤害和拉扯
+    // Tornado effect - continuous damage and pulling
     const tornadoDuration = 3000;
     const damageInterval = 300;
     const damageTicks = tornadoDuration / damageInterval;
@@ -2217,7 +2414,7 @@ export class DragonStaff extends Weapon {
           if (distance < this.tornadoRadius) {
             enemy.takeDamage(this.damage / damageTicks);
 
-            // 拉向中心
+            // Pull towards center
             const angle = Phaser.Math.Angle.Between(
               enemy.sprite.x,
               enemy.sprite.y,
@@ -2252,7 +2449,7 @@ export class DragonStaff extends Weapon {
   }
 }
 
-// Seven Treasure Tree - 七宝妙树（准提道人）
+// Seven Treasure Tree - Zhunti's magical tree
 export class SevenTreasureTree extends Weapon {
   private sweepRange: number;
   private purifyRadius: number;
@@ -2271,11 +2468,11 @@ export class SevenTreasureTree extends Weapon {
     const playerPos = this.player.getPosition();
     const targetAngle = this.getPlayerAngle();
 
-    // 创建七宝妙树刷新特效
+    // Create Seven Treasure Tree refresh effect
     const treeGraphics = this.scene.add.graphics();
     treeGraphics.setPosition(playerPos.x, playerPos.y);
 
-    // 绘制七色光芒
+    // Draw seven-colored rays
     const colors = [
       0xff0000, 0xff7f00, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082, 0x9400d3,
     ];
@@ -2288,7 +2485,7 @@ export class SevenTreasureTree extends Weapon {
       treeGraphics.lineBetween(0, 0, endX, endY);
     });
 
-    // 中心净化圈
+    // Center purification circle
     treeGraphics.lineStyle(3, 0xffffff, 0.8);
     treeGraphics.strokeCircle(0, 0, this.purifyRadius);
 
@@ -2302,13 +2499,13 @@ export class SevenTreasureTree extends Weapon {
         enemy.sprite.y,
       );
 
-      // 范围内的敌人受到伤害
+      // Enemies in range take damage
       if (distance < this.purifyRadius) {
         const damageMultiplier = distance < this.sweepRange ? 1.5 : 1.0;
         enemy.takeDamage(this.damage * damageMultiplier);
 
-        // 净化效果 - 移除buff（游戏中可扩展）
-        // 这里仅做伤害和击退
+        // Purification effect - remove buffs (expandable in game)
+        // Only damage and knockback here
         const angle = Phaser.Math.Angle.Between(
           playerPos.x,
           playerPos.y,
@@ -2341,7 +2538,7 @@ export class SevenTreasureTree extends Weapon {
   }
 }
 
-// Immortal Slaying Blade - 斩仙飞刀（陆压道人）
+// Immortal Slaying Blade - Lu Ya's weapon
 export class ImmortalSlayingBlade extends Weapon {
   private lockOnDuration: number;
   private bladeSpeed: number;
@@ -2351,16 +2548,15 @@ export class ImmortalSlayingBlade extends Weapon {
       damage: 48,
       coolDown: 4000,
       type: "immortal_slaying_blade",
-      projectiles: scene.physics.add.group(),
     });
-    this.lockOnDuration = 1500; // 锁定1.5秒
+    this.lockOnDuration = 1500; // 1.5 seconds lock-on duration
     this.bladeSpeed = 400;
   }
 
   protected fire(enemies: Enemy[]): void {
     if (enemies.length === 0) return;
 
-    // 锁定血量最高的敌人
+    // Lock onto enemy with highest HP
     const target = enemies.reduce(
       (highest, enemy) => {
         if (enemy.isDead) return highest;
@@ -2373,7 +2569,7 @@ export class ImmortalSlayingBlade extends Weapon {
 
     const playerPos = this.player.getPosition();
 
-    // 创建"请宝贝转身"锁定特效
+    // Create "Treasure, please turn" lock-on effect
     const lockGraphics = this.scene.add.graphics();
     lockGraphics.lineStyle(3, 0xff0000, 1);
     lockGraphics.strokeCircle(target.sprite.x, target.sprite.y, 50);
@@ -2389,7 +2585,7 @@ export class ImmortalSlayingBlade extends Weapon {
       onComplete: () => {
         lockGraphics.destroy();
 
-        // 锁定后发射必杀飞刀
+        // Fire decisive blade after lock-on
         if (target.isDead) return;
 
         const projectileSize = scaleManager.getSpriteSize(28);
@@ -2405,7 +2601,7 @@ export class ImmortalSlayingBlade extends Weapon {
         blade.weaponRef = this;
         blade.setTint(0xff0000);
 
-        // 追踪目标
+        // Track target
         const trackBlade = () => {
           if (!blade.active || target.isDead) {
             if (blade.active) blade.destroy();
@@ -2417,7 +2613,7 @@ export class ImmortalSlayingBlade extends Weapon {
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < 20) {
-            // 必杀效果 - 额外伤害
+            // Decisive effect - bonus damage
             target.takeDamage(this.damage * 2);
             blade.destroy();
             return;
@@ -2435,7 +2631,7 @@ export class ImmortalSlayingBlade extends Weapon {
 
         trackBlade();
 
-        // 超时保护
+        // Timeout protection
         this.scene.time.delayedCall(5000, () => {
           if (blade.active) blade.destroy();
         });
@@ -2451,7 +2647,7 @@ export class ImmortalSlayingBlade extends Weapon {
   }
 }
 
-// Diamond Snare - 金刚琢（太上老君）
+// Diamond Snare - Supreme Elder's weapon
 export class DiamondSnare extends Weapon {
   private snareSpeed: number;
   private armorBreak: number;
@@ -2461,10 +2657,9 @@ export class DiamondSnare extends Weapon {
       damage: 34,
       coolDown: 1900,
       type: "diamond_snare",
-      projectiles: scene.physics.add.group(),
     });
     this.snareSpeed = 500;
-    this.armorBreak = 0.5; // 无视50%防御
+    this.armorBreak = 0.5; // Ignore 50% defense
   }
 
   protected fire(enemies: Enemy[]): void {
@@ -2494,11 +2689,11 @@ export class DiamondSnare extends Weapon {
       Math.cos(angle) * this.snareSpeed,
       Math.sin(angle) * this.snareSpeed,
     );
-    snare.damage = this.damage * (1 + this.armorBreak); // 破防加成
+    snare.damage = this.damage * (1 + this.armorBreak); // Armor penetration bonus
     snare.weaponRef = this;
     snare.setTint(0xffd700);
 
-    // 旋转效果
+    // Rotation effect
     this.scene.tweens.add({
       targets: snare,
       rotation: Math.PI * 4,
@@ -2515,11 +2710,11 @@ export class DiamondSnare extends Weapon {
     this.snareSpeed += 50;
     if (this.level >= 2) this.armorBreak = 0.6;
     if (this.level >= 3) this.armorBreak = 0.7;
-    if (this.level >= 5) this.armorBreak = 1.0; // 5级完全无视防御
+    if (this.level >= 5) this.armorBreak = 1.0; // Level 5 ignores all defense
   }
 }
 
-// Exquisite Pagoda - 玲珑宝塔（托塔天王李靖）
+// Exquisite Pagoda - Li Jing's Pagoda
 export class ExquisitePagoda extends Weapon {
   private pagodaRadius: number;
   private imprisonDuration: number;
@@ -2545,11 +2740,11 @@ export class ExquisitePagoda extends Weapon {
     const targetX = closestEnemy.sprite.x;
     const targetY = closestEnemy.sprite.y;
 
-    // 创建宝塔镇压特效
+    // Create pagoda suppression effect
     const pagoda = this.scene.add.graphics();
     pagoda.setPosition(targetX, targetY);
 
-    // 绘制多层宝塔
+    // Draw multi-layer pagoda
     for (let layer = 0; layer < 5; layer++) {
       const layerRadius = this.pagodaRadius * (1 - layer * 0.15);
       const layerHeight = -layer * 40;
@@ -2558,13 +2753,13 @@ export class ExquisitePagoda extends Weapon {
       pagoda.strokeRect(-layerRadius / 2, layerHeight - 20, layerRadius, 20);
     }
 
-    // 塔底封印阵
+    // Seal array at pagoda base
     pagoda.lineStyle(3, 0xff6600, 0.7);
     pagoda.strokeCircle(0, 0, this.pagodaRadius);
     pagoda.lineStyle(2, 0xffff00, 0.7);
     pagoda.strokeCircle(0, 0, this.pagodaRadius * 0.7);
 
-    // 镇压效果
+    // Suppression effect
     const imprisonedEnemies: Enemy[] = [];
     enemies.forEach((enemy) => {
       if (enemy.isDead) return;
@@ -2580,14 +2775,14 @@ export class ExquisitePagoda extends Weapon {
         imprisonedEnemies.push(enemy);
         enemy.takeDamage(this.damage);
 
-        // 禁锢 - 大幅减速
+        // Imprisonment - significant slowdown
         if (enemy.sprite.body && "setVelocity" in enemy.sprite.body) {
           enemy.sprite.body.setVelocity(0, 0);
         }
       }
     });
 
-    // 持续镇压伤害
+    // Continuous suppression damage
     const imprisonTicks = Math.floor(this.imprisonDuration / 500);
     this.scene.time.addEvent({
       delay: 500,
@@ -2596,7 +2791,7 @@ export class ExquisitePagoda extends Weapon {
         imprisonedEnemies.forEach((enemy) => {
           if (!enemy.isDead) {
             enemy.takeDamage(this.damageOverTime);
-            // 保持禁锢
+            // Maintain imprisonment
             if (enemy.sprite.body && "setVelocity" in enemy.sprite.body) {
               enemy.sprite.body.setVelocity(0, 0);
             }
@@ -2623,7 +2818,7 @@ export class ExquisitePagoda extends Weapon {
   }
 }
 
-// Nine Tooth Rake - 九齿钉耙（猪八戒）
+// Nine Tooth Rake - Zhu Bajie's weapon
 export class NineToothRake extends Weapon {
   private rakeRange: number;
 
@@ -2640,13 +2835,13 @@ export class NineToothRake extends Weapon {
     const playerPos = this.player.getPosition();
     const targetAngle = this.getPlayerAngle();
 
-    // 创建九齿钉耙扫击特效 - 扇形攻击
+    // Create nine-tooth rake sweep effect - fan-shaped attack
     const graphics = this.scene.add.graphics();
     graphics.setPosition(playerPos.x, playerPos.y);
 
-    // 绘制钉耙的九个齿
-    const teethCount = 5 + Math.floor(this.level / 2); // 5-7个齿
-    const spreadAngle = Math.PI / 4; // 45度扇形
+    // Draw the nine teeth of the rake
+    const teethCount = 5 + Math.floor(this.level / 2); // 5-7 teeth
+    const spreadAngle = Math.PI / 4; // 45 degree fan shape
 
     for (let i = 0; i < teethCount; i++) {
       const angle =
@@ -2659,12 +2854,12 @@ export class NineToothRake extends Weapon {
       graphics.lineStyle(6, 0xffa500, 0.8);
       graphics.lineBetween(startX, startY, endX, endY);
 
-      // 齿尖
+      // Tooth tips
       graphics.fillStyle(0xff8c00, 1);
       graphics.fillCircle(endX, endY, 8);
     }
 
-    // 扇形覆盖区域
+    // Fan-shaped coverage area
     graphics.fillStyle(0xffa500, 0.3);
     graphics.slice(
       0,
@@ -2676,7 +2871,7 @@ export class NineToothRake extends Weapon {
     );
     graphics.fillPath();
 
-    // 对范围内的敌人造成伤害
+    // Deal damage to enemies in range
     enemies.forEach((enemy) => {
       if (enemy.isDead) return;
 
@@ -2698,7 +2893,7 @@ export class NineToothRake extends Weapon {
       if (distance < this.rakeRange && angleDiff < spreadAngle / 2) {
         enemy.takeDamage(this.damage);
 
-        // 钉耙特效：向后拉扯敌人（耙的效果）
+        // Rake effect: pull enemies backward (rake effect)
         const pullAngle = Phaser.Math.Angle.Between(
           enemy.sprite.x,
           enemy.sprite.y,
@@ -2730,7 +2925,7 @@ export class NineToothRake extends Weapon {
   }
 }
 
-// Dragon Scale Sword - 龙鳞剑（白龙马）
+// Dragon Scale Sword - White Dragon Horse's weapon
 export class DragonScaleSword extends Weapon {
   private swordSpeed: number;
   private swordCount: number;
@@ -2740,7 +2935,6 @@ export class DragonScaleSword extends Weapon {
       damage: 26,
       coolDown: 1200,
       type: "dragon_scale_sword",
-      projectiles: scene.physics.add.group(),
     });
     this.swordSpeed = 450;
     this.swordCount = 1;
@@ -2751,7 +2945,7 @@ export class DragonScaleSword extends Weapon {
 
     const playerPos = this.player.getPosition();
 
-    // 查找最近的敌人
+    // Find closest enemy
     const closestEnemy = this.getClosestEnemy(enemies);
 
     if (!closestEnemy) return;
@@ -2763,7 +2957,7 @@ export class DragonScaleSword extends Weapon {
       closestEnemy.sprite.y,
     );
 
-    // 发射多把龙鳞剑气
+    // Launch multiple dragon scale sword qi
     for (let i = 0; i < this.swordCount; i++) {
       const angle = baseAngle + (i - (this.swordCount - 1) / 2) * 0.2;
       const projectileSize = scaleManager.getSpriteSize(32);
@@ -2783,9 +2977,9 @@ export class DragonScaleSword extends Weapon {
       sword.damage = this.damage;
       sword.weaponRef = this;
       sword.setRotation(angle);
-      sword.setTint(0x00ffff); // 青色龙光
+      sword.setTint(0x00ffff); // Cyan dragon light
 
-      // 龙鳞剑气特效 - 螺旋轨迹
+      // Dragon scale sword qi effect - spiral trajectory
       let spiralAngle = 0;
       const spiralRadius = 15;
       const updateSpiral = () => {
@@ -2795,7 +2989,7 @@ export class DragonScaleSword extends Weapon {
         const offsetX = Math.cos(spiralAngle) * spiralRadius;
         const offsetY = Math.sin(spiralAngle) * spiralRadius;
 
-        // 创建剑气轨迹
+        // Create sword qi trajectory
         const trail = this.scene.add.graphics();
         trail.fillStyle(0x00ffff, 0.5);
         trail.fillCircle(sword.x + offsetX, sword.y + offsetY, 5);
@@ -2813,7 +3007,7 @@ export class DragonScaleSword extends Weapon {
       };
       updateSpiral();
 
-      // 生命周期
+      // Lifetime
       this.scene.time.delayedCall(2000, () => {
         if (sword.active) sword.destroy();
       });
@@ -3009,12 +3203,14 @@ export class WeaponManager {
     });
 
     // New weapon options
-    this.availableWeapons.forEach((weaponInfo) => {
-      if (!this.hasWeapon(weaponInfo)) {
-        const type = weaponInfo.type;
+    Object.entries(WEAPON_MAP).forEach(([type, weaponClass]) => {
+      if (
+        this.availableWeapons.includes(weaponClass) &&
+        !this.hasWeapon(weaponClass)
+      ) {
         options.push({
           type: "new",
-          weaponClass: weaponInfo,
+          weaponClass: weaponClass,
           name: i18n.t(`weapons.${type}.name`),
           description: i18n.t(`weapons.${type}.description`),
         });
@@ -3023,7 +3219,7 @@ export class WeaponManager {
 
     // Randomly select 3 options
     const shuffled = options.sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3);
+    return shuffled.slice(0, MAX_SELECT_SIZE);
   }
 
   public clear(): void {
@@ -3036,7 +3232,7 @@ export class WeaponManager {
   }
 }
 
-// Weapon Synergy System - 武器协同效果系统
+// Weapon Synergy System - Weapon combination effect system
 export interface WeaponSynergyBonus {
   id: string;
   name: string;
@@ -3058,8 +3254,8 @@ export interface WeaponSynergyBonus {
 export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   {
     id: "fire_combo",
-    name: "烈焰之势",
-    description: "火尖枪 + 风火轮 = 火焰伤害提升 30%",
+    name: "Blazing Power",
+    description: "Fire Lance + Wind Fire Wheels = Fire damage + 30%",
     weapons: ["fire_lance", "wind_fire_wheels"],
     effects: {
       damageBonus: 0.3,
@@ -3067,8 +3263,9 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   },
   {
     id: "staff_master",
-    name: "棍法大师",
-    description: "金箍棒 + 如意金箍棒 + 定海神针 = 攻速提升 30%",
+    name: "Staff Master",
+    description:
+      "Golden Staff + Ruyi Golden Cudgel + Sea Calming Needle = Attack speed + 30%",
     weapons: ["golden_staff", "ruyi_staff", "sea_calming_needle"],
     effects: {
       attackSpeedBonus: 0.3,
@@ -3076,8 +3273,8 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   },
   {
     id: "storm_power",
-    name: "风暴之力",
-    description: "定风珠 + 芭蕉扇 = 范围+50%",
+    name: "Storm Power",
+    description: "Wind Tamer + Plantain Fan = Range + 50%",
     weapons: ["wind_tamer", "plantain_fan"],
     effects: {
       rangeBonus: 0.5,
@@ -3085,8 +3282,8 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   },
   {
     id: "blade_resonance",
-    name: "剑刃共鸣",
-    description: "三尖两刃刀 + 七星剑 = 暴击率+15%",
+    name: "Blade Resonance",
+    description: "Three Pointed Blade + Seven Star Sword = Critical rate + 15%",
     weapons: ["three_pointed_blade", "seven_star_sword"],
     effects: {
       critRateBonus: 0.15,
@@ -3094,8 +3291,8 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   },
   {
     id: "buddhist_guardian",
-    name: "佛门金刚",
-    description: "九环锡杖 + 降魔杵 = 护甲+10",
+    name: "Buddhist Guardian",
+    description: "Nine Ring Staff + Demon Mace = Armor + 10",
     weapons: ["nine_ring_staff", "mace"],
     effects: {
       armorBonus: 10,
@@ -3103,8 +3300,8 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   },
   {
     id: "heavy_weapons_master",
-    name: "重武器大师",
-    description: "月牙铲 + 混铁棍 = 击退距离+50%",
+    name: "Heavy Weapons Master",
+    description: "Crescent Blade + Iron Cudgel = Knockback distance + 50%",
     weapons: ["crescent_blade", "iron_cudgel"],
     effects: {
       controlDurationBonus: 0.5,
@@ -3112,8 +3309,8 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   },
   {
     id: "immortal_protection",
-    name: "仙气护体",
-    description: "人参果 + 任意武器 = 生命恢复速度+5/秒",
+    name: "Immortal Protection",
+    description: "Ginseng Fruit + Any weapon = Health regeneration + 5/sec",
     weapons: ["ginseng_fruit"],
     effects: {
       healthRegenBonus: 5,
@@ -3121,8 +3318,9 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   },
   {
     id: "nezha_trinity",
-    name: "哪吒三宝",
-    description: "乾坤圈 + 混天绫 + 风火轮 = 全属性+10%",
+    name: "Nezha's Trinity",
+    description:
+      "Heaven Earth Circle + Red Armillary Sash + Wind Fire Wheels = All stats + 10%",
     weapons: ["heaven_earth_circle", "red_armillary_sash", "wind_fire_wheels"],
     effects: {
       allStatsBonus: 0.1,
@@ -3130,8 +3328,8 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   },
   {
     id: "binding_mastery",
-    name: "束缚精通",
-    description: "金绳索 + 幌金绳 = 控制时间+50%",
+    name: "Binding Mastery",
+    description: "Golden Rope + Golden Rope Immortal = Control duration + 50%",
     weapons: ["golden_rope", "golden_rope_immortal"],
     effects: {
       controlDurationBonus: 0.5,
@@ -3139,21 +3337,17 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
   },
   {
     id: "absorption_master",
-    name: "吸收大师",
-    description: "紫金葫芦 + 玉净瓶 = 伤害+25%",
+    name: "Absorption Master",
+    description: "Purple Gold Gourd + Jade Clear Bottle = Damage +25%",
     weapons: ["purple_gold_gourd", "jade_purity_bottle"],
-    effects: {
-      damageBonus: 0.25,
-    },
+    effects: { damageBonus: 0.25 },
   },
   {
     id: "weakness_detection",
-    name: "识破弱点",
-    description: "照妖镜 + 任意攻击武器 = 暴击伤害+30%",
+    name: "Weakness Detection",
+    description: "Demon Mirror + any attack weapon = Critical damage +30%",
     weapons: ["demon_revealing_mirror"],
-    effects: {
-      critDamageBonus: 0.3,
-    },
+    effects: { critDamageBonus: 0.3 },
   },
 ];
 
@@ -3167,9 +3361,9 @@ export class WeaponSynergyManager {
   }
 
   /**
-   * 检查并激活武器协同效果
-   * @param weapons 玩家当前拥有的所有武器
-   * @returns 激活的协同效果列表
+   * Check and activate weapon synergy effects
+   * @param weapons All weapons currently owned by the player
+   * @returns List of activated synergy effects
    */
   public checkSynergies(weapons: Weapon[]): WeaponSynergyBonus[] {
     const weaponTypes = weapons.map((w) => w.type);
@@ -3177,12 +3371,12 @@ export class WeaponSynergyManager {
     this.activeSynergies.clear();
 
     WEAPON_SYNERGIES.forEach((synergy) => {
-      // 检查是否满足协同条件
+      // Check if synergy conditions are met
       const hasAllWeapons = synergy.weapons.every((weaponType) =>
         weaponTypes.includes(weaponType),
       );
 
-      // 对于 "任意武器" 协同（如人参果、照妖镜），只需要该武器存在即可
+      // For "any weapon" synergies (e.g., Ginseng Fruit, Demon Mirror), only need that weapon to exist
       const isSingleWeaponSynergy = synergy.weapons.length === 1;
       const hasSingleWeapon =
         isSingleWeaponSynergy && weaponTypes.includes(synergy.weapons[0]);

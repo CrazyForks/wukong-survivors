@@ -19,7 +19,7 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     color: "#FFD700",
   },
 
-  // ===== 西游记师徒 =====
+  // ===== Journey to the West Party =====
   tang_monk: {
     id: "tang_monk",
     name: "唐僧",
@@ -485,7 +485,3 @@ export const CHARACTERS_DATA: Record<CharacterType, CharacterData> = {
     color: "#A9A9A9",
   },
 } as const;
-
-export const getCharacterImagePath = (id: CharacterType): string => {
-  return `assets/characters/${id}.svg`;
-};

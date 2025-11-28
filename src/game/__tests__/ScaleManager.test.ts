@@ -116,27 +116,6 @@ describe("ScaleManager", () => {
     });
   });
 
-  describe("Font Size", () => {
-    it("should return scaled font size as string with px", () => {
-      window.innerWidth = 1920;
-      window.innerHeight = 1080;
-      scaleManager.updateScale();
-
-      const fontSize = scaleManager.getFontSize(16);
-      expect(fontSize).toMatch(/^\d+px$/);
-    });
-
-    it("should scale font size appropriately", () => {
-      window.innerWidth = 1920;
-      window.innerHeight = 1080;
-      scaleManager.updateScale();
-
-      const fontSize = scaleManager.getFontSize(16);
-      const sizeValue = parseInt(fontSize);
-      expect(sizeValue).toBeGreaterThan(0);
-    });
-  });
-
   describe("Sprite Sizing", () => {
     it("should return rounded sprite size", () => {
       window.innerWidth = 1920;

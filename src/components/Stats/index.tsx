@@ -1,3 +1,4 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   useUnlockedCharacters,
@@ -7,12 +8,14 @@ import {
   useTotalPlayTime,
   useCompletedChapters,
 } from "../../store";
-import { CHARACTERS_DATA, MAPS } from "../../constant";
+import { CHARACTERS_DATA } from "../../constant";
+import { MAPS } from "../../constant/map";
 import styles from "./index.module.css";
+import { formatTime } from "../../util";
 
 const chatterList = Object.keys(CHARACTERS_DATA);
 
-const Stats = () => {
+const Stats: React.FC = () => {
   const [t] = useTranslation();
   const unlockedCharacters = useUnlockedCharacters();
   const completedChapters = useCompletedChapters();
@@ -20,12 +23,6 @@ const Stats = () => {
   const totalKills = useTotalKills();
   const bestSurvivalTime = useBestSurvivalTime();
   const totalPlayTime = useTotalPlayTime();
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
 
   return (
     <div className={styles.statsGrid}>
@@ -65,4 +62,4 @@ const Stats = () => {
   );
 };
 
-export default Stats;
+export default React.memo(Stats);

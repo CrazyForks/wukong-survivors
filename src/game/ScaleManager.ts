@@ -59,6 +59,10 @@ class ScaleManagerClass {
     return t;
   }
 
+  public isMobile() {
+    return this.config.screenWidth < 768;
+  }
+
   /**
    * Update scale factors based on current screen size
    */
@@ -82,7 +86,7 @@ class ScaleManagerClass {
     if (this.config.screenWidth < 480) {
       // Small mobile devices
       this.config.uiScale = this.config.scale * 1.4;
-    } else if (this.config.screenWidth < 768) {
+    } else if (this.isMobile()) {
       // Mobile devices
       this.config.uiScale = this.config.scale * 1.2;
     } else if (this.config.screenWidth < 1024) {
@@ -107,11 +111,18 @@ class ScaleManagerClass {
     return value * this.config.scale;
   }
 
-  /**
-   * Get responsive font size
-   */
-  public getFontSize(baseFontSize: number): string {
-    const scaledSize = Math.round(baseFontSize * this.config.uiScale);
+  public getTitleSize(): string {
+    const scaledSize = Math.round(32 * this.config.uiScale);
+    return `${scaledSize}px`;
+  }
+
+  public getNameSize(): string {
+    const scaledSize = Math.round(16 * this.config.uiScale);
+    return `${scaledSize}px`;
+  }
+
+  public getDescSize(): string {
+    const scaledSize = Math.round(14 * this.config.uiScale);
     return `${scaledSize}px`;
   }
 

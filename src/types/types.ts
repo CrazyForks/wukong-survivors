@@ -18,8 +18,8 @@ export interface GameMap {
     value: number;
   };
   difficulty: number; // 1-6 corresponding to chapters
-  availableEnemies: EnemyType[]; // 该章节出现的敌人
-  gameTime: number; // 该章节的游戏时长（秒），默认为30分钟
+  availableEnemies: EnemyType[];
+  gameTime: number;
 }
 
 export type PermanentUpgradeType =
@@ -44,11 +44,23 @@ export type GameSave = {
   totalKills: number;
   totalPlayTime: number;
   bestSurvivalTime: number;
-  completedChapters: MapType[]; // 已通关的章节
-  ownedWeapons: WeaponType[]; // 已拥有的武器
-  language: string;
+  completedChapters: MapType[];
+  ownedWeapons: WeaponType[];
+  language: Language;
 } & Record<PermanentUpgradeType, number>;
 
 export type Screen = "home" | "mapSelect" | "shop" | "game";
 
 export type MessageType = "info" | "warning" | "error" | "success";
+
+export type Language =
+  | "en-US"
+  | "zh-CN"
+  | "ja-JP"
+  | "de-DE"
+  | "es-ES"
+  | "fr-FR"
+  | "ko-KR"
+  | "pt-BR"
+  | "ru-RU"
+  | "zh-TW";

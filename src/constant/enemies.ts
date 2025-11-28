@@ -332,7 +332,3 @@ export const ENEMIES_DATA: Record<EnemyType, EnemyData> = {
     color: "#00CED1",
   },
 };
-
-export const getEnemyImagePath = (id: EnemyType): string => {
-  return `assets/enemies/${id}.svg`;
-};

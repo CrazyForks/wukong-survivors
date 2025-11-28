@@ -1,8 +1,9 @@
 import styles from "./index.module.css";
-import { SupportLanguageCodes, type Language } from "../../i18n";
+import { SupportLanguageCodes } from "../../i18n";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n";
 import { useLanguage } from "../../store";
+import type { Language } from "../../types";
 
 const LanguageSelect = () => {
   const [t] = useTranslation();

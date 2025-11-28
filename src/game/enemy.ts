@@ -1,31 +1,39 @@
 import Phaser from "phaser";
 import { scaleManager } from "./ScaleManager";
-import { ENEMIES_DATA } from "../constant/enemies";
+import { ENEMIES_DATA } from "../constant";
 import type { EnemyType, EnemyRank } from "../types";
 import type { GameScene } from "./GameScene";
+import type { Position } from "./player";
 
-interface Position {
-  x: number;
-  y: number;
-}
-
+/**
+ * Extended sprite interface that includes a reference to the parent Enemy object
+ */
 interface EnemySprite extends Phaser.Physics.Arcade.Sprite {
   enemyRef?: Enemy;
 }
 
-// Enemy class
+/**
+ * Enemy class represents hostile entities in the game that target the player
+ */
 export class Enemy {
   public sprite: EnemySprite;
   public type: EnemyType;
-  public maxHealth: number = 0;
-  public health: number = 0;
-  public speed: number = 0;
-  public damage: number = 0;
-  public expValue: number = 0;
-  public goldValue: number = 0;
+  public maxHealth: number;
+  public health: number;
+  public speed: number;
+  public damage: number;
+  public expValue: number;
+  public goldValue: number;
   public isDead: boolean;
   private scene: GameScene;
 
+  /**
+   * Create a new enemy instance
+   * @param scene Game scene reference
+   * @param x Initial x position
+   * @param y Initial y position
+   * @param enemyType Type of enemy to create
+   */
   constructor(scene: GameScene, x: number, y: number, enemyType: EnemyType) {
     this.scene = scene;
     this.type = enemyType;
@@ -34,7 +42,7 @@ export class Enemy {
     // Get enemy data from constants
     const enemyData = ENEMIES_DATA[enemyType];
 
-    // Set properties from enemy data
+    // Initialize properties from enemy data
     this.maxHealth = enemyData.health;
     this.health = this.maxHealth;
     this.speed = enemyData.speed;
@@ -42,7 +50,7 @@ export class Enemy {
     this.expValue = enemyData.xpValue;
     this.goldValue = enemyData.goldValue;
 
-    // Create enemy sprite with loaded texture using enemy ID
+    // Create enemy sprite with loaded texture
     this.sprite = scene.physics.add.sprite(x, y, enemyType) as EnemySprite;
 
     // Set display size based on enemy rank with responsive scaling
@@ -53,10 +61,15 @@ export class Enemy {
     // Set collision body to match sprite size
     this.sprite.body?.setSize(displaySize, displaySize);
 
-    // Store reference
+    // Store reference to enemy object on sprite for collision handling
     this.sprite.enemyRef = this;
   }
 
+  /**
+   * Determine enemy base size based on rank
+   * @param rank Enemy rank (minion, elite, etc.)
+   * @returns Base size in pixels
+   */
   private getEnemySizeByRank(rank: EnemyRank): number {
     switch (rank) {
       case "minion":
@@ -68,14 +81,19 @@ export class Enemy {
     }
   }
 
+  /**
+   * Update enemy behavior - primarily movement towards player
+   * @param playerPos Current player position
+   */
   public update(playerPos: Position): void {
     if (this.isDead) return;
 
-    // Track player
+    // Calculate direction vector towards player
     const dx = playerPos.x - this.sprite.x;
     const dy = playerPos.y - this.sprite.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
+    // Normalize direction vector and apply speed
     if (distance > 0) {
       this.sprite.setVelocity(
         (dx / distance) * this.speed,
@@ -84,12 +102,18 @@ export class Enemy {
     }
   }
 
+  /**
+   * Apply damage to the enemy
+   * @param damage Amount of damage to apply
+   * @returns True if enemy was killed, false otherwise
+   */
   public takeDamage(damage: number): boolean {
     if (this.isDead) return false;
 
+    // Reduce health
     this.health -= damage;
 
-    // Damage effect
+    // Apply hit visual feedback
     this.sprite.setTint(0xffffff);
     this.scene.time.delayedCall(50, () => {
       if (!this.isDead) {
@@ -97,24 +121,31 @@ export class Enemy {
       }
     });
 
+    // Check if enemy was killed
     if (this.health <= 0) {
-      this.die();
+      this.handleDeath();
       return true;
     }
     return false;
   }
 
-  private die(): void {
+  /**
+   * Handle enemy death logic
+   */
+  private handleDeath(): void {
     if (this.isDead) return;
     this.isDead = true;
 
-    // Drop experience
+    // Spawn experience points at enemy position
     this.scene.spawnExperience(this.sprite.x, this.sprite.y, this.expValue);
 
-    // Destroy enemy
+    // Clean up sprite
     this.sprite.destroy();
   }
 
+  /**
+   * Explicitly destroy the enemy
+   */
   public destroy(): void {
     if (this.sprite && this.sprite.scene) {
       this.sprite.destroy();
@@ -122,7 +153,9 @@ export class Enemy {
   }
 }
 
-// Enemy spawner - Following Vampire Survivors spawn rules
+/**
+ * EnemySpawner class handles spawning and managing enemy waves following Vampire Survivors style spawning rules
+ */
 export class EnemySpawner {
   private scene: GameScene;
   private enemies: Enemy[];
@@ -137,6 +170,11 @@ export class EnemySpawner {
   private minSpawnDistance: number;
   private maxSpawnDistance: number;
 
+  /**
+   * Create a new enemy spawner
+   * @param scene Game scene reference
+   * @param availableEnemies Array of enemy types that can be spawned
+   */
   constructor(scene: GameScene, availableEnemies: EnemyType[]) {
     this.scene = scene;
     this.enemies = [];
@@ -155,20 +193,26 @@ export class EnemySpawner {
     this.maxSpawnDistance = 700; // Maximum spawn distance
   }
 
+  /**
+   * Update spawner logic and all active enemies
+   * @param _time Current game time
+   * @param delta Time since last update in milliseconds
+   * @param playerPos Current player position
+   */
   public update(_time: number, delta: number, playerPos: Position): void {
     this.gameTime += delta;
 
-    // Update all enemies
+    // Update all active enemies
     this.enemies.forEach((enemy) => {
       if (!enemy.isDead) {
         enemy.update(playerPos);
       }
     });
 
-    // Clean up dead enemies
+    // Clean up dead enemies to free resources
     this.enemies = this.enemies.filter((enemy) => !enemy.isDead);
 
-    // Only spawn if under the limit
+    // Handle enemy spawning if below max limit
     if (this.enemies.length < this.maxEnemiesOnScreen) {
       this.spawnTimer += delta;
       if (this.spawnTimer >= this.spawnInterval) {
@@ -186,55 +230,74 @@ export class EnemySpawner {
     }
   }
 
+  /**
+   * Increase game difficulty by adjusting spawn parameters
+   */
   private increaseDifficulty(): void {
-    // Increase enemies per wave
+    // Increase enemies per wave (capped at 10)
     this.enemiesPerWave = Math.min(10, this.enemiesPerWave + 1);
 
-    // Decrease spawn interval (faster spawning)
+    // Decrease spawn interval for faster spawning (minimum 500ms)
     this.spawnInterval = Math.max(500, this.spawnInterval - 100);
 
-    // Increase max enemies on screen
+    // Increase max enemies on screen (capped at 300)
     this.maxEnemiesOnScreen = Math.min(300, this.maxEnemiesOnScreen + 20);
   }
 
+  /**
+   * Spawn a wave of enemies based on current game state
+   * @param playerPos Current player position
+   */
   private spawnWave(playerPos: Position): void {
-    // Calculate actual spawn count based on game time
+    // Calculate actual spawn count based on game time (scales with minutes played)
     const timeBasedMultiplier = 1 + Math.floor(this.gameTime / 60000); // +1 per minute
+
+    // Ensure we don't exceed max enemies on screen
     const spawnCount = Math.min(
       this.enemiesPerWave * timeBasedMultiplier,
       this.maxEnemiesOnScreen - this.enemies.length,
     );
 
+    // Spawn each enemy in the wave
     for (let i = 0; i < spawnCount; i++) {
       this.spawnEnemy(playerPos);
     }
   }
 
+  /**
+   * Spawn a single enemy at a random position around the player
+   * @param playerPos Current player position
+   */
   private spawnEnemy(playerPos: Position): void {
-    // Vampire Survivors spawn rule: Always spawn outside visible screen
-    // Random angle around player
-    const angle = Math.random() * Math.PI * 2;
+    // Calculate random spawn position outside visible screen
+    const angle = Math.random() * Math.PI * 2; // Random angle around player
 
     // Random distance between min and max spawn distance
     const distance =
       this.minSpawnDistance +
       Math.random() * (this.maxSpawnDistance - this.minSpawnDistance);
 
+    // Calculate spawn coordinates
     const x = playerPos.x + Math.cos(angle) * distance;
     const y = playerPos.y + Math.sin(angle) * distance;
 
-    // Select enemy type based on game time (later game = harder enemies)
+    // Select appropriate enemy type based on game progression
     const enemyType = this.selectEnemyType();
 
+    // Create and add enemy
     const enemy = new Enemy(this.scene, x, y, enemyType);
     this.enemies.push(enemy);
   }
 
+  /**
+   * Select enemy type based on game time and difficulty
+   * @returns EnemyType to spawn
+   */
   private selectEnemyType(): EnemyType {
-    // As game progresses, increase chance of elite enemies
-    const eliteChance = Math.min(0.3, this.gameTime / 300000); // Up to 30% elite chance
+    // Increase elite spawn chance as game progresses (capped at 30%)
+    const eliteChance = Math.min(0.3, this.gameTime / 300000);
 
-    // Filter enemies by rank
+    // Filter enemies by rank for balanced spawning
     const minions = this.availableEnemies.filter(
       (type) => ENEMIES_DATA[type].rank === "minion",
     );
@@ -244,22 +307,33 @@ export class EnemySpawner {
 
     // Decide whether to spawn elite or minion
     const spawnElite = elites.length > 0 && Math.random() < eliteChance;
+
+    // Select appropriate enemy pool based on decision
     const pool = spawnElite
       ? elites
       : minions.length > 0
         ? minions
         : this.availableEnemies;
 
-    // Random selection from pool
+    // Randomly select from the determined pool
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
+  /**
+   * Get all active (non-dead) enemies
+   * @returns Array of active enemies
+   */
   public getEnemies(): Enemy[] {
     return this.enemies.filter((enemy) => !enemy.isDead);
   }
 
+  /**
+   * Clear all enemies from the spawner
+   */
   public clear(): void {
+    // Destroy all enemy sprites
     this.enemies.forEach((enemy) => enemy.destroy());
+    // Clear the enemy array
     this.enemies = [];
   }
 }

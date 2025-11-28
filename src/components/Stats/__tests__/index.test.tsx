@@ -53,7 +53,7 @@ describe("Stats Component", () => {
   it("should format survival time correctly (2:05 for 125 seconds)", () => {
     render(<Stats />);
 
-    expect(screen.getByText("2:05")).toBeInTheDocument();
+    expect(screen.getByText("02:05")).toBeInTheDocument();
   });
 
   it("should format total play time correctly (61:05 for 3665 seconds)", () => {

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { CHARACTERS_DATA, getCharacterImagePath } from "../../constant";
+import { CHARACTERS_DATA } from "../../constant/characters";
+import { getCharacterImagePath } from "../../util";
 import type { CharacterData, Screen } from "../../types";
 import {
   useAppStore,
@@ -166,7 +167,7 @@ const Home: React.FC<CharacterSelectProps> = ({ changeScreen }) => {
         </div>
       )}
 
-      <div className={styles.buttons}>
+      <div className="button-group">
         <button
           className="confirmButton"
           onClick={handleConfirm}

@@ -480,142 +480,142 @@ export const ELIXIRS: Record<ElixirType, ElixirData> = {
   },
 };
 
-// Weapon crafting recipes (结合西游记原著设定)
+// Weapon crafting recipes (based on Journey to the West setting)
 export const WEAPON_RECIPES: Record<
   string,
   { materials: WeaponType[]; result: WeaponType }
 > = {
-  // 如意金箍棒：金箍棒 + 雷公凿 + 降魔杵（天地神兵，需要强力武器融合）
+  // Ruyi Golden Cudgel: Golden Staff + Thunder Drum + Demon Mace (Heavenly weapon, requires fusion of powerful weapons)
   ruyi_staff: {
     materials: ["golden_staff", "thunder_drum", "mace"],
     result: "ruyi_staff",
   },
-  // 玉净瓶：紫金铃 + 定风珠 + 避火罩（观音法宝，需要多种神器）
+  // Jade Purity Bottle: Violet Bell + Wind Tamer + Fireproof Cloak (Guanyin's treasure, requires multiple divine artifacts)
   jade_purity_bottle: {
     materials: ["violet_bell", "wind_tamer", "fireproof_cloak"],
     result: "jade_purity_bottle",
   },
-  // 芭蕉扇：定风珠 + 火尖枪 + 牛魔双角（铁扇公主和牛魔王相关）
+  // Plantain Fan: Wind Tamer + Fire Lance + Bull Horns (related to Iron Fan Princess and Bull Demon King)
   plantain_fan: {
     materials: ["wind_tamer", "fire_lance", "bull_horns"],
     result: "plantain_fan",
   },
-  // 风火轮：火尖枪 + 定风珠（哪吒/红孩儿的风火之力）
+  // Wind Fire Wheels: Fire Lance + Wind Tamer (Nezha/Red Boy's wind and fire power)
   wind_fire_wheels: {
     materials: ["fire_lance", "wind_tamer"],
     result: "wind_fire_wheels",
   },
-  // 紫金铃：金绳索 + 雷公凿（黄眉大王法宝，需要束缚和音波之力）
+  // Violet Bell: Golden Rope + Thunder Drum (Yellow Eyebrow King's treasure, requires binding and sonic power)
   violet_bell: {
     materials: ["golden_rope", "thunder_drum"],
     result: "violet_bell",
   },
-  // 牛魔双角：降魔杵 + 火尖枪（牛魔王的力量和火焰）
+  // Bull Horns: Demon Mace + Fire Lance (Bull Demon King's strength and fire)
   bull_horns: {
     materials: ["mace", "fire_lance"],
     result: "bull_horns",
   },
-  // 冰魄银针：金绳索 + 双刃刀（快速精准攻击）
+  // Ice Needle: Golden Rope + Twin Blades (fast and precise attacks)
   ice_needle: {
     materials: ["golden_rope", "twin_blades"],
     result: "ice_needle",
   },
-  // 雷公凿：双刃刀 + 金绳索（快速攻击 + 雷电之力）
+  // Thunder Drum: Twin Blades + Golden Rope (fast attacks + thunder power)
   thunder_drum: {
     materials: ["twin_blades", "golden_rope"],
     result: "thunder_drum",
   },
-  // 三尖两刃刀：双刃刀 + 金箍棒（神兵合璧）
+  // Three Pointed Blade: Twin Blades + Golden Staff (weapon fusion)
   three_pointed_blade: {
     materials: ["twin_blades", "golden_staff"],
     result: "three_pointed_blade",
   },
-  // 九环锡杖：降魔杵 + 金绳索（佛门法器）
+  // Nine Ring Staff: Demon Mace + Golden Rope (Buddhist artifact)
   nine_ring_staff: {
     materials: ["mace", "golden_rope"],
     result: "nine_ring_staff",
   },
-  // 月牙铲：降魔杵 + 双刃刀（破甲利器）
+  // Crescent Blade: Demon Mace + Twin Blades (armor-piercing weapon)
   crescent_blade: {
     materials: ["mace", "twin_blades"],
     result: "crescent_blade",
   },
-  // 混铁棍：牛魔双角 + 降魔杵（力量型武器）
+  // Iron Cudgel: Bull Horns + Demon Mace (strength-based weapon)
   iron_cudgel: {
     materials: ["bull_horns", "mace"],
     result: "iron_cudgel",
   },
-  // 七星剑：金绳索 + 冰魄银针（道家剑气，精准快速）
+  // Seven Star Sword: Golden Rope + Ice Needle (Taoist sword energy, precise and fast)
   seven_star_sword: {
     materials: ["golden_rope", "ice_needle"],
     result: "seven_star_sword",
   },
-  // 乾坤圈：金箍棒 + 火尖枪（哪吒神器）
+  // Heaven Earth Circle: Golden Staff + Fire Lance (Nezha's divine weapon)
   heaven_earth_circle: {
     materials: ["golden_staff", "fire_lance"],
     result: "heaven_earth_circle",
   },
-  // 混天绫：金绳索 + 风火轮（哪吒法宝）
+  // Red Armillary Sash: Golden Rope + Wind Fire Wheels (Nezha's treasure)
   red_armillary_sash: {
     materials: ["golden_rope", "wind_fire_wheels"],
     result: "red_armillary_sash",
   },
-  // 紫金葫芦：玉净瓶 + 金绳索（吸收法宝）
+  // Purple Gold Gourd: Jade Purity Bottle + Golden Rope (absorbing treasure)
   purple_gold_gourd: {
     materials: ["jade_purity_bottle", "golden_rope"],
     result: "purple_gold_gourd",
   },
-  // 幌金绳：金绳索 + 九环锡杖（太上老君法宝）
+  // Golden Rope Immortal: Golden Rope + Nine Ring Staff (Taishang Laojun's treasure)
   golden_rope_immortal: {
     materials: ["golden_rope", "nine_ring_staff"],
     result: "golden_rope_immortal",
   },
-  // 照妖镜：七星剑 + 冰魄银针（识破弱点）
+  // Demon Revealing Mirror: Seven Star Sword + Ice Needle (reveals weaknesses)
   demon_revealing_mirror: {
     materials: ["seven_star_sword", "ice_needle"],
     result: "demon_revealing_mirror",
   },
-  // 定海神针：如意金箍棒 + 牛魔双角（终极形态）
+  // Sea Calming Needle: Ruyi Golden Cudgel + Bull Horns (ultimate form)
   sea_calming_needle: {
     materials: ["ruyi_staff", "bull_horns"],
     result: "sea_calming_needle",
   },
-  // 八卦炉：紫金铃 + 火尖枪 + 降魔杵（太上老君炼丹炉）
+  // Eight Trigrams Furnace: Violet Bell + Fire Lance + Demon Mace (Taishang Laojun's alchemy furnace)
   eight_trigrams_furnace: {
     materials: ["violet_bell", "fire_lance", "mace"],
     result: "eight_trigrams_furnace",
   },
-  // 盘龙杖：降魔杵 + 定风珠（观音神兵，龙卷风暴）
+  // Dragon Staff: Demon Mace + Wind Tamer (Guanyin's weapon, tornado storm)
   dragon_staff: {
     materials: ["mace", "wind_tamer"],
     result: "dragon_staff",
   },
-  // 七宝妙树：玉净瓶 + 紫金铃 + 定风珠（准提道人法宝）
+  // Seven Treasure Tree: Jade Purity Bottle + Violet Bell + Wind Tamer (Zhunti Taoist's treasure)
   seven_treasure_tree: {
     materials: ["jade_purity_bottle", "violet_bell", "wind_tamer"],
     result: "seven_treasure_tree",
   },
-  // 斩仙飞刀：三尖两刃刀 + 如意金箍棒（陆压道人神器）
+  // Immortal Slaying Blade: Three Pointed Blade + Ruyi Golden Cudgel (Luya Taoist's divine weapon)
   immortal_slaying_blade: {
     materials: ["three_pointed_blade", "ruyi_staff"],
     result: "immortal_slaying_blade",
   },
-  // 金刚琢：牛魔双角 + 雷公凿（太上老君破防神器）
+  // Diamond Snare: Bull Horns + Thunder Drum (Taishang Laojun's armor-breaking artifact)
   diamond_snare: {
     materials: ["bull_horns", "thunder_drum"],
     result: "diamond_snare",
   },
-  // 玲珑宝塔：玉净瓶 + 降魔杵 + 九环锡杖（托塔天王镇压之宝）
+  // Exquisite Pagoda: Jade Purity Bottle + Demon Mace + Nine Ring Staff (Pagoda Bearer Li Jing's suppression treasure)
   exquisite_pagoda: {
     materials: ["jade_purity_bottle", "mace", "nine_ring_staff"],
     result: "exquisite_pagoda",
   },
-  // 九齿钉耙：降魔杵 + 三尖两刃刀（猪八戒神兵）
+  // Nine Tooth Rake: Demon Mace + Three Pointed Blade (Pigsy's divine weapon)
   nine_tooth_rake: {
     materials: ["mace", "three_pointed_blade"],
     result: "nine_tooth_rake",
   },
-  // 龙鳞剑：冰魄银针 + 双刃刀（白龙马龙族剑气）
+  // Dragon Scale Sword: Ice Needle + Twin Blades (White Dragon Horse's dragon sword energy)
   dragon_scale_sword: {
     materials: ["ice_needle", "twin_blades"],
     result: "dragon_scale_sword",
@@ -628,132 +628,4 @@ export const RARITY_COLORS: Record<WeaponRarity, number> = {
   rare: 0x4169e1,
   epic: 0x9932cc,
   legendary: 0xffd700,
-};
-
-// Get weight by rarity
-export function getRarityWeight(rarity: WeaponRarity): number {
-  const weights: Record<WeaponRarity, number> = {
-    common: 50,
-    rare: 30,
-    epic: 15,
-    legendary: 5,
-  };
-  return weights[rarity];
-}
-
-// Randomly get weapons (considering rarity weight)
-export function getRandomWeapons(count: number = 3): WeaponType[] {
-  const allWeapons = Object.keys(WEAPONS) as WeaponType[];
-
-  // Build weighted pool with unique weapons and their weights
-  const weaponWeights: { weapon: WeaponType; weight: number }[] =
-    allWeapons.map((weaponId) => ({
-      weapon: weaponId,
-      weight: getRarityWeight(WEAPONS[weaponId].rarity),
-    }));
-
-  const selected: WeaponType[] = [];
-  const availableWeapons = [...weaponWeights];
-
-  // Random selection with guaranteed uniqueness
-  while (selected.length < count && availableWeapons.length > 0) {
-    // Calculate total weight
-    const totalWeight = availableWeapons.reduce(
-      (sum, item) => sum + item.weight,
-      0,
-    );
-
-    // Random weighted selection
-    let random = Math.random() * totalWeight;
-    let selectedIndex = -1;
-
-    for (let i = 0; i < availableWeapons.length; i++) {
-      random -= availableWeapons[i].weight;
-      if (random <= 0) {
-        selectedIndex = i;
-        break;
-      }
-    }
-
-    if (selectedIndex >= 0) {
-      selected.push(availableWeapons[selectedIndex].weapon);
-      availableWeapons.splice(selectedIndex, 1); // Remove selected weapon to prevent duplicates
-    }
-  }
-
-  return selected;
-}
-
-// Randomly get elixirs
-export function getRandomElixirs(count: number = 3): ElixirType[] {
-  const allElixirs = Object.keys(ELIXIRS) as ElixirType[];
-
-  // Build weighted pool with unique elixirs and their weights
-  const elixirWeights: { elixir: ElixirType; weight: number }[] =
-    allElixirs.map((elixirId) => ({
-      elixir: elixirId,
-      weight: getRarityWeight(ELIXIRS[elixirId].rarity),
-    }));
-
-  const selected: ElixirType[] = [];
-  const availableElixirs = [...elixirWeights];
-
-  // Random selection with guaranteed uniqueness
-  while (selected.length < count && availableElixirs.length > 0) {
-    // Calculate total weight
-    const totalWeight = availableElixirs.reduce(
-      (sum, item) => sum + item.weight,
-      0,
-    );
-
-    // Random weighted selection
-    let random = Math.random() * totalWeight;
-    let selectedIndex = -1;
-
-    for (let i = 0; i < availableElixirs.length; i++) {
-      random -= availableElixirs[i].weight;
-      if (random <= 0) {
-        selectedIndex = i;
-        break;
-      }
-    }
-
-    if (selectedIndex >= 0) {
-      selected.push(availableElixirs[selectedIndex].elixir);
-      availableElixirs.splice(selectedIndex, 1); // Remove selected elixir to prevent duplicates
-    }
-  }
-
-  return selected;
-}
-
-// Check if weapon can be crafted
-export function canCraftWeapon(
-  ownedWeapons: WeaponType[],
-  recipeKey: string,
-): boolean {
-  const recipe = WEAPON_RECIPES[recipeKey];
-  if (!recipe) return false;
-
-  return recipe.materials.every((material) => ownedWeapons.includes(material));
-}
-
-// Get list of craftable weapons
-export function getAvailableCrafts(ownedWeapons: WeaponType[]): WeaponType[] {
-  const available: WeaponType[] = [];
-
-  Object.entries(WEAPON_RECIPES).forEach(([key, recipe]) => {
-    if (
-      canCraftWeapon(ownedWeapons, key) &&
-      !ownedWeapons.includes(recipe.result)
-    ) {
-      available.push(recipe.result);
-    }
-  });
-
-  return available;
-}
-
-export const getWeaponImagePath = (id: WeaponType): string => {
-  return `assets/weapons/${id}.svg`;
 };

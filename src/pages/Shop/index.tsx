@@ -104,7 +104,7 @@ const Shop: React.FC<ShopProps> = ({ onBack }) => {
         })}
       </div>
 
-      <div className={styles.shopFooter}>
+      <div className="button-group">
         <button className="backButton" onClick={onBack}>
           {t("game.backToHome")}
         </button>
