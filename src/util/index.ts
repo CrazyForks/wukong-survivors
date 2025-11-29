@@ -7,7 +7,6 @@ import type {
   MapType,
 } from "../types";
 import { WEAPONS, ELIXIRS, WEAPON_RECIPES } from "../constant";
-import _ from "lodash";
 
 export const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
@@ -90,11 +89,7 @@ export const getMapImagePath = (id: MapType): string => {
 
 // Randomly get weapons (considering rarity weight)
 export function getRandomWeapons(count: number): WeaponType[] {
-  const list = Object.values(WEAPON_RECIPES).map((recipe) => recipe.result);
-
-  const result = _.omit(WEAPONS, list);
-
-  return getRandomItemsWithWeight(result, count);
+  return getRandomItemsWithWeight(WEAPONS, count);
 }
 
 // Randomly get elixirs
