@@ -47,6 +47,8 @@ export type GameSave = {
   completedChapters: MapType[];
   ownedWeapons: WeaponType[];
   language: Language;
+  musicVolume: number;
+  musicEnabled: boolean;
 } & Record<PermanentUpgradeType, number>;
 
 export type Screen = "home" | "mapSelect" | "shop" | "game";

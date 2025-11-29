@@ -3,15 +3,13 @@ import { Player, type WASDKeys } from "./player";
 import { EnemySpawner } from "./enemy";
 import { WeaponManager, type UpgradeOption } from "./weapon";
 import { ExperienceManager } from "./experience";
-import { AudioManager, SoundEffect, MusicTrack } from "./AudioManager";
+import { AudioManager, SoundEffect } from "./AudioManager";
 import { VirtualJoystick } from "./VirtualJoystick";
 import { useSaveStore, useAppStore } from "../store";
 import {
   ENEMIES_DATA,
   WEAPONS,
-  GAME_SCENE_KEY,
   EVENT_MAP,
-  SCREEN_SIZE,
   START_Z_INDEX,
   PERMANENT_UPGRADES,
 } from "../constant";
@@ -58,6 +56,8 @@ export class GameScene extends Phaser.Scene {
   private levelText?: Phaser.GameObjects.Text;
   private timeText?: Phaser.GameObjects.Text;
   private killText?: Phaser.GameObjects.Text;
+  private closeButton?: Phaser.GameObjects.Rectangle;
+  private closeButtonText?: Phaser.GameObjects.Text;
   private killsSinceLastReward: number = 0;
   private killsRequiredForReward: number = 10; // Pop reward every 10 kills
   private isPaused: boolean = false;
@@ -69,30 +69,38 @@ export class GameScene extends Phaser.Scene {
   private isTouchDevice: boolean = false;
 
   constructor() {
-    super({ key: GAME_SCENE_KEY });
+    super({ key: "GameScene" });
   }
+
+  public playPlayerFireSound = () => {
+    this.audioManager?.playSfx(SoundEffect.PLAYER_FIRE);
+  };
 
   preload(): void {
     // Load audio assets
-    // AudioManager.preloadAudio(this);
+    AudioManager.preloadAudio(this);
+
+    const commonSize = scaleManager.getSpriteSize(32);
 
     // Load experience gem textures - Buddhist beads and spirit essence
     this.load.svg("gem-low", "assets/gem-low.svg", {
-      width: 32,
-      height: 32,
+      width: commonSize,
+      height: commonSize,
     });
     this.load.svg("gem-medium", "assets/gem-medium.svg", {
-      width: 32,
-      height: 32,
+      width: commonSize,
+      height: commonSize,
     });
     this.load.svg("gem-high", "assets/gem-high.svg", {
-      width: 32,
-      height: 32,
+      width: commonSize,
+      height: commonSize,
     });
 
     const selectedCharacter = useAppStore.getState().getSelectCharacter();
 
-    const characterSize = this.getCharacterSize(selectedCharacter.rank);
+    const characterSize = scaleManager.getSpriteSize(
+      this.getCharacterSize(selectedCharacter.rank),
+    );
 
     this.load.svg(
       selectedCharacter.id,
@@ -107,7 +115,7 @@ export class GameScene extends Phaser.Scene {
 
     Object.values(ENEMIES_DATA).forEach((enemy) => {
       if (enemy.chapter === selectMap.id) {
-        const size = this.getEnemySize(enemy.rank);
+        const size = scaleManager.getSpriteSize(this.getEnemySize(enemy.rank));
         this.load.svg(enemy.id, getEnemyImagePath(enemy.id), {
           width: size,
           height: size,
@@ -117,12 +125,15 @@ export class GameScene extends Phaser.Scene {
 
     Object.values(WEAPONS).forEach((weapon) => {
       this.load.svg(weapon.id, getWeaponImagePath(weapon.id), {
-        width: 32,
-        height: 32,
+        width: commonSize,
+        height: commonSize,
       });
     });
 
-    this.load.svg(selectMap.id, getMapImagePath(selectMap.id), SCREEN_SIZE);
+    this.load.svg(selectMap.id, getMapImagePath(selectMap.id), {
+      width: scaleManager.getSpriteSize(window.innerWidth),
+      height: scaleManager.getSpriteSize(window.innerHeight),
+    });
   }
 
   // Get character size
@@ -155,18 +166,10 @@ export class GameScene extends Phaser.Scene {
 
   public create(): void {
     // Initialize audio manager
-    // this.audioManager = new AudioManager(this);
-    this.audioManager?.playMusic(MusicTrack.GAME_THEME);
+    this.audioManager = new AudioManager(this);
 
     eventBus.on(EVENT_MAP.SHOW_END_GAME_MODAL, () => {
       this.endGame();
-    });
-
-    // Listen for experience collection to play sound
-    eventBus.on(EVENT_MAP.EXP_COLLECTED, (value: number) => {
-      // Vary volume based on gem value
-      const volume = 0.3 + (value / 10) * 0.3; // 0.3 to 0.6
-      this.audioManager?.playSfx(SoundEffect.EXP_PICKUP, volume);
     });
 
     // Set world bounds
@@ -310,8 +313,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateUILayout(width: number): void {
-    if (!this.timeText || !this.killText) return;
-
     const padding = scaleManager.getUIElementSize(20);
     const barWidth = scaleManager.getUIElementSize(200);
     const barHeight = scaleManager.getUIElementSize(20);
@@ -327,25 +328,59 @@ export class GameScene extends Phaser.Scene {
 
     // Update experience bar
     if (this.expBarBg && this.expBar) {
-      this.expBarBg.setPosition(padding, padding + barHeight + 5);
+      this.expBarBg.setPosition(
+        padding,
+        padding + barHeight + scaleManager.getUIElementSize(5),
+      );
       this.expBarBg.setSize(barWidth, expBarHeight);
-      this.expBar.setPosition(padding, padding + barHeight + 5);
+      this.expBar.setPosition(
+        padding,
+        padding + barHeight + scaleManager.getUIElementSize(5),
+      );
       this.expBar.height = expBarHeight;
     }
 
     // Update level text
     if (this.levelText) {
-      this.levelText.setPosition(padding + barWidth + 10, padding);
+      this.levelText.setPosition(
+        padding + barWidth + scaleManager.getUIElementSize(10),
+        padding,
+      );
       this.levelText.setFontSize(scaleManager.getNameSize());
     }
 
+    const timeX = scaleManager.isMobile()
+      ? width - padding - scaleManager.getUIElementSize(40)
+      : width / 2;
+
     // Center the time text at the top
-    this.timeText.setPosition(width / 2, padding);
-    this.timeText.setFontSize(scaleManager.getNameSize());
+    this.timeText?.setPosition(
+      timeX,
+      padding - scaleManager.getUIElementSize(16) / 4,
+    );
+    this.timeText?.setFontSize(scaleManager.getNameSize());
 
     // Center the kill count
-    this.killText.setPosition(width / 2, padding + barHeight + 10);
-    this.killText.setFontSize(scaleManager.getDescSize());
+    this.killText?.setPosition(
+      timeX,
+      padding + barHeight + scaleManager.getUIElementSize(5),
+    );
+    this.killText?.setFontSize(scaleManager.getDescSize());
+
+    const buttonHeight = scaleManager.getUIElementSize(40);
+    const buttonWidth = scaleManager.getUIElementSize(60);
+    const x = this.cameras.main.width - padding - buttonWidth / 2;
+    const y = padding + buttonHeight / 2;
+
+    this.closeButton?.setPosition(x, y);
+    this.closeButtonText?.setPosition(x, y);
+    if (scaleManager.isMobile()) {
+      this.closeButton?.setVisible(false);
+      this.closeButtonText?.setVisible(false);
+    } else {
+      this.closeButton?.setVisible(true);
+      this.closeButtonText?.setVisible(true);
+    }
   }
 
   private createBackground(): void {
@@ -414,7 +449,7 @@ export class GameScene extends Phaser.Scene {
     // Experience bar
     this.expBarBg = this.add.rectangle(
       padding,
-      padding + barHeight + 5,
+      padding + barHeight + scaleManager.getUIElementSize(5),
       barWidth,
       expBarHeight,
       0x000000,
@@ -423,7 +458,7 @@ export class GameScene extends Phaser.Scene {
     this.expBarBg.setOrigin(0, 0);
     this.expBar = this.add.rectangle(
       padding,
-      padding + barHeight + 5,
+      padding + barHeight + scaleManager.getUIElementSize(5),
       barWidth,
       expBarHeight,
       0x00ff00,
@@ -432,11 +467,12 @@ export class GameScene extends Phaser.Scene {
 
     // Level text
     this.levelText = this.add.text(
-      padding + barWidth + 10,
+      padding + barWidth + scaleManager.getUIElementSize(10),
       padding,
       i18n.t("game.level", { level: 1 }),
       {
         fontSize: scaleManager.getNameSize(),
+        fontFamily: scaleManager.getDefaultFont(),
         color: "#ffffff",
         fontStyle: "bold",
         stroke: "#000000",
@@ -448,69 +484,82 @@ export class GameScene extends Phaser.Scene {
     const timeX = scaleManager.isMobile()
       ? this.cameras.main.width - padding - scaleManager.getUIElementSize(40)
       : this.cameras.main.width / 2;
-    this.timeText = this.add.text(timeX, padding, "00:00", {
-      fontSize: scaleManager.getNameSize(),
-      color: "#ffffff",
-      fontStyle: "bold",
-      stroke: "#000000",
-      strokeThickness: 3,
-    });
+    this.timeText = this.add.text(
+      timeX,
+      padding - scaleManager.getUIElementSize(16) / 4,
+      "00:00",
+      {
+        fontSize: scaleManager.getNameSize(),
+        fontFamily: scaleManager.getDefaultFont(),
+        color: "#ffffff",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 3,
+      },
+    );
     this.timeText.setOrigin(0.5, 0);
 
     // Kill count
     this.killText = this.add.text(
       timeX,
-      padding + barHeight + 10,
+      padding + barHeight + scaleManager.getUIElementSize(5),
       `${i18n.t("stats.kills")}: 0`,
       {
         fontSize: scaleManager.getDescSize(),
+        fontFamily: scaleManager.getDefaultFont(),
         color: "#ffffff",
         stroke: "#000000",
         strokeThickness: 2,
       },
     );
     this.killText.setOrigin(0.5, 0);
+
     this.killCount = 0;
 
-    let menuButton: Phaser.GameObjects.Rectangle | null = null;
+    const buttonHeight = scaleManager.getUIElementSize(40);
+    const buttonWidth = scaleManager.getUIElementSize(60);
+    const x = this.cameras.main.width - padding - buttonWidth / 2;
+    const y = padding + buttonHeight / 2;
+    // Back to menu button
+    this.closeButton = this.add
+      .rectangle(x, y, buttonWidth, buttonHeight, 0x333333, 0.7)
+      .setStrokeStyle(3, 0xffffff)
+      .setInteractive({ useHandCursor: true })
+      .setScrollFactor(0)
+      .setDepth(scaleManager.getZIndex());
 
-    if (!scaleManager.isMobile()) {
-      const buttonHeight = scaleManager.getUIElementSize(40);
-      const buttonWidth = scaleManager.getUIElementSize(60);
-      const x = this.cameras.main.width - padding - buttonWidth / 2;
-      const y = padding + buttonHeight / 2;
-      // Back to menu button
-      menuButton = this.add
-        .rectangle(x, y, buttonWidth, buttonHeight, 0x333333, 0.7)
-        .setStrokeStyle(3, 0xffffff)
-        .setInteractive({ useHandCursor: true })
-        .setScrollFactor(0)
-        .setDepth(scaleManager.getZIndex());
+    this.closeButtonText = this.add
+      .text(x, y, "X", {
+        fontSize: scaleManager.getNameSize(),
+        fontFamily: scaleManager.getDefaultFont(),
+        color: "#ffffff",
+        fontStyle: "bold",
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(scaleManager.getZIndex());
 
-      this.add
-        .text(x, y, "X", {
-          fontSize: scaleManager.getNameSize(),
-          color: "#ffffff",
-          fontStyle: "bold",
-        })
-        .setOrigin(0.5)
-        .setScrollFactor(0)
-        .setDepth(scaleManager.getZIndex());
+    this.closeButton.on("pointerover", () => {
+      this.closeButton?.setFillStyle(0x555555);
+    });
 
-      menuButton.on("pointerover", () => {
-        menuButton?.setFillStyle(0x555555);
-      });
+    this.closeButton.on("pointerout", () => {
+      this.closeButton?.setFillStyle(0x333333);
+    });
 
-      menuButton.on("pointerout", () => {
-        menuButton?.setFillStyle(0x333333);
-      });
+    this.closeButton.on("pointerdown", () => {
+      this.endGame();
+    });
 
-      menuButton.on("pointerdown", () => {
-        this.endGame();
-      });
+    if (scaleManager.isMobile()) {
+      this.closeButton.setVisible(false);
+      this.closeButtonText.setVisible(false);
+    } else {
+      this.closeButton.setVisible(true);
+      this.closeButtonText.setVisible(true);
     }
 
-    const objList = [
+    this.uiContainer.add([
       this.healthBarBg,
       this.healthBar,
       this.expBarBg,
@@ -518,13 +567,9 @@ export class GameScene extends Phaser.Scene {
       this.levelText,
       this.timeText,
       this.killText,
-    ];
-
-    if (menuButton) {
-      objList.push(menuButton);
-    }
-
-    this.uiContainer.add(objList);
+      this.closeButton,
+      this.closeButtonText,
+    ]);
   }
 
   private endGame(): void {
@@ -542,10 +587,12 @@ export class GameScene extends Phaser.Scene {
       description: i18n.t("game.endGameDesc"),
       cancelText: i18n.t("shop.cancel"),
       onCancel: () => {
+        this.audioManager?.stopMusic();
         this.resume();
       },
       okText: i18n.t("game.endGame"),
       onOk: () => {
+        this.audioManager?.stopMusic();
         eventBus.emit(EVENT_MAP.BACK_TO_HOME);
       },
     });
@@ -665,9 +712,7 @@ export class GameScene extends Phaser.Scene {
 
           if (distance < 20) {
             const killed = enemy.takeDamage(projectile.damage);
-            this.audioManager?.playSfx(SoundEffect.WEAPON_HIT, 0.3);
             if (killed) {
-              this.audioManager?.playSfx(SoundEffect.ENEMY_DEATH, 0.5);
               this.killCount++;
               this.killsSinceLastReward++;
               this.checkRewardTrigger();
@@ -701,7 +746,6 @@ export class GameScene extends Phaser.Scene {
           if (distance < 25 && typeof orb.damage === "number") {
             const killed = enemy.takeDamage(orb.damage);
             if (killed) {
-              this.audioManager?.playSfx(SoundEffect.ENEMY_DEATH, 0.5);
               this.killCount++;
               this.killsSinceLastReward++;
               this.checkRewardTrigger();
@@ -730,7 +774,6 @@ export class GameScene extends Phaser.Scene {
 
         if (distance < 50) {
           coin.destroy();
-          this.audioManager?.playSfx(SoundEffect.GOLD_PICKUP, 0.6);
           useSaveStore.getState().addGold(1);
         } else if (distance < 300) {
           const speed = 200;
@@ -765,18 +808,16 @@ export class GameScene extends Phaser.Scene {
   public pause() {
     this.isPaused = true;
     this.physics.pause();
-    this.audioManager?.pauseMusic();
   }
 
   public resume() {
     this.isPaused = false;
     this.physics.resume();
-    this.audioManager?.resumeMusic();
   }
 
   private showRewardSelection(): void {
     if (this.rewardUI?.isVisible()) return;
-    this.audioManager?.playSfx(SoundEffect.REWARD_APPEAR);
+    this.audioManager?.playSfx(SoundEffect.LEVEL_UP);
     this.pause();
 
     this.rewardUI?.show((option: RewardOption) => {
@@ -786,8 +827,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleRewardSelection(option: RewardOption): void {
-    this.audioManager?.playSfx(SoundEffect.POWERUP);
-
     if (option.type === "weapon") {
       const weaponData = option.data as WeaponData;
 
@@ -870,8 +909,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   public showLevelUpMenu(): void {
-    this.audioManager?.playSfx(SoundEffect.PLAYER_LEVEL_UP);
-
+    this.audioManager?.playSfx(SoundEffect.LEVEL_UP);
     this.pause();
     const startDepth = scaleManager.getZIndex();
     const textDepth = scaleManager.getZIndex();
@@ -896,13 +934,19 @@ export class GameScene extends Phaser.Scene {
 
     // Title
     const title = this.add
-      .text(centerX, centerY - 150, i18n.t("game.levelUp"), {
-        fontSize: scaleManager.getTitleSize(),
-        color: "#ffff00",
-        fontStyle: "bold",
-        stroke: "#000000",
-        strokeThickness: 4,
-      })
+      .text(
+        centerX,
+        centerY - scaleManager.getUIElementSize(150),
+        i18n.t("game.levelUp"),
+        {
+          fontSize: scaleManager.getTitleSize(),
+          fontFamily: scaleManager.getDefaultFont(),
+          color: "#ffff00",
+          fontStyle: "bold",
+          stroke: "#000000",
+          strokeThickness: 4,
+        },
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(textDepth);
@@ -913,23 +957,34 @@ export class GameScene extends Phaser.Scene {
     // Create option buttons
     const buttons: ButtonElement[] = [];
 
-    const width = scaleManager.isMobile()
-      ? Math.min(window.innerWidth, 600)
-      : 600;
+    const width = Math.min(
+      scaleManager.getUIElementSize(500),
+      this.cameras.main.width - 40,
+    );
 
     options.forEach((option, index) => {
-      const y = centerY - 50 + index * 100;
+      const y =
+        centerY -
+        scaleManager.getUIElementSize(50) +
+        index * scaleManager.getUIElementSize(100);
 
       const button = this.add
-        .rectangle(centerX, y, width, 80, 0x333333)
+        .rectangle(
+          centerX,
+          y,
+          width,
+          scaleManager.getUIElementSize(80),
+          0x333333,
+        )
         .setStrokeStyle(3, 0xffffff)
         .setInteractive({ useHandCursor: true })
         .setScrollFactor(0)
         .setDepth(textDepth);
 
       const nameText = this.add
-        .text(centerX, y - 15, option.name, {
+        .text(centerX, y - scaleManager.getUIElementSize(15), option.name, {
           fontSize: scaleManager.getNameSize(),
+          fontFamily: scaleManager.getDefaultFont(),
           color: "#ffffff",
           fontStyle: "bold",
         })
@@ -938,17 +993,23 @@ export class GameScene extends Phaser.Scene {
         .setDepth(endDepth);
 
       const descText = this.add
-        .text(centerX, y + 15, option.description, {
-          fontSize: scaleManager.getDescSize(),
-          color: "#cccccc",
-        })
+        .text(
+          centerX,
+          y + scaleManager.getUIElementSize(15),
+          option.description,
+          {
+            fontSize: scaleManager.getDescSize(),
+            fontFamily: scaleManager.getDefaultFont(),
+            color: "#cccccc",
+            wordWrap: { width: width - 20 },
+          },
+        )
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(endDepth);
 
       button.on("pointerover", () => {
         button.setFillStyle(0x555555);
-        this.audioManager?.playSfx(SoundEffect.UI_HOVER, 0.3);
       });
 
       button.on("pointerout", () => {
@@ -956,7 +1017,6 @@ export class GameScene extends Phaser.Scene {
       });
 
       button.on("pointerdown", () => {
-        this.audioManager?.playSfx(SoundEffect.UI_CLICK);
         this.selectUpgrade(option);
         // Clear menu
         overlay.destroy();
@@ -973,8 +1033,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   public selectUpgrade(option: UpgradeOption): void {
-    this.audioManager?.playSfx(SoundEffect.UI_SELECT);
-
     if (option.type === "upgrade" && option.weapon) {
       option.weapon.upgrade();
     } else if (option.type === "new" && option.weaponClass) {
@@ -1028,12 +1086,13 @@ export class GameScene extends Phaser.Scene {
     result.push(container);
 
     const titleText = this.add
-      .text(centerX, centerY - 100, title, {
+      .text(centerX, centerY - scaleManager.getUIElementSize(100), title, {
         fontSize: scaleManager.getTitleSize(),
         color: titleColor,
         fontStyle: "bold",
         stroke: "#000000",
         strokeThickness: 6,
+        fontFamily: scaleManager.getDefaultFont(),
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -1049,6 +1108,7 @@ export class GameScene extends Phaser.Scene {
           align: "center",
           stroke: "#000000",
           strokeThickness: 3,
+          fontFamily: scaleManager.getDefaultFont(),
         })
         .setOrigin(0.5)
         .setScrollFactor(0)
@@ -1056,8 +1116,16 @@ export class GameScene extends Phaser.Scene {
       result.push(descText);
     }
 
+    const paddingY = scaleManager.getUIElementSize(120);
+
     const okButton = this.add
-      .rectangle(centerX - 110, centerY + 120, 180, 60, 0x333333)
+      .rectangle(
+        centerX - scaleManager.getUIElementSize(110),
+        centerY + paddingY,
+        scaleManager.getUIElementSize(180),
+        scaleManager.getUIElementSize(60),
+        0x333333,
+      )
       .setStrokeStyle(3, 0xffffff)
       .setInteractive({ useHandCursor: true })
       .setScrollFactor(0)
@@ -1065,11 +1133,14 @@ export class GameScene extends Phaser.Scene {
 
     result.push(okButton);
 
+    const paddingX = scaleManager.getUIElementSize(110);
+
     const okObj = this.add
-      .text(centerX - 110, centerY + 120, okText, {
+      .text(centerX - paddingX, centerY + paddingY, okText, {
         fontSize: scaleManager.getNameSize(),
         color: "#ffffff",
         fontStyle: "bold",
+        fontFamily: scaleManager.getDefaultFont(),
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -1090,7 +1161,13 @@ export class GameScene extends Phaser.Scene {
     });
 
     const cancelButton = this.add
-      .rectangle(centerX + 110, centerY + 120, 180, 60, 0x333333)
+      .rectangle(
+        centerX + paddingX,
+        centerY + paddingY,
+        scaleManager.getUIElementSize(180),
+        scaleManager.getUIElementSize(60),
+        0x333333,
+      )
       .setStrokeStyle(3, 0xffffff)
       .setInteractive({ useHandCursor: true })
       .setScrollFactor(0)
@@ -1099,10 +1176,11 @@ export class GameScene extends Phaser.Scene {
     result.push(cancelButton);
 
     const cancelTextObj = this.add
-      .text(centerX + 110, centerY + 120, cancelText, {
+      .text(centerX + paddingX, centerY + paddingY, cancelText, {
         fontSize: scaleManager.getNameSize(),
         color: "#ffffff",
         fontStyle: "bold",
+        fontFamily: scaleManager.getDefaultFont(),
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -1132,10 +1210,7 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver) return;
     this.isGameOver = true;
 
-    // Play victory sound and music
-    this.audioManager?.stopMusic();
-    this.audioManager?.playSfx(SoundEffect.VICTORY);
-    this.audioManager?.playMusic(MusicTrack.VICTORY_THEME, false);
+    this.audioManager?.playSfx(SoundEffect.VICTORY_THEME);
 
     // Save game data
     useSaveStore.getState().addKills(this.killCount);
@@ -1159,10 +1234,12 @@ export class GameScene extends Phaser.Scene {
       description: desc,
       cancelText: i18n.t("game.backToHome"),
       onCancel: () => {
+        this.audioManager?.stopMusic();
         eventBus.emit(EVENT_MAP.BACK_TO_HOME);
       },
       okText: i18n.t("game.restart"),
       onOk: () => {
+        this.audioManager?.stopMusic();
         this.scene.restart();
       },
     });
@@ -1172,8 +1249,6 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver) return;
     this.isGameOver = true;
 
-    // Play death sound and stop music
-    this.audioManager?.stopMusic();
     this.audioManager?.playSfx(SoundEffect.PLAYER_DEATH);
 
     // Save game data
@@ -1194,10 +1269,13 @@ export class GameScene extends Phaser.Scene {
       description: desc,
       cancelText: i18n.t("game.backToHome"),
       onCancel: () => {
+        this.audioManager?.stopMusic();
         eventBus.emit(EVENT_MAP.BACK_TO_HOME);
       },
       okText: i18n.t("game.restart"),
       onOk: () => {
+        this.audioManager?.stopMusic();
+
         this.scene.restart();
       },
     });

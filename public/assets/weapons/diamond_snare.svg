@@ -56,16 +56,6 @@
           fill="#FFFFFF" stroke="#FFD700" stroke-width="0.5"/>
   </g>
   
-  <!-- Mystical runes around the ring -->
-  <text x="100" y="35" font-family="serif" font-size="10" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">金</text>
-  <text x="170" y="105" font-family="serif" font-size="10" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">剛</text>
-  <text x="100" y="175" font-family="serif" font-size="10" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">琢</text>
-  <text x="30" y="105" font-family="serif" font-size="10" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">寶</text>
-  
   <!-- Inner mystical circle -->
   <circle cx="100" cy="100" r="35" 
           fill="none" stroke="url(#goldShine)" stroke-width="3" opacity="0.6">
@@ -141,4 +131,4 @@
       <animate attributeName="opacity" values="0.1;0.4;0.1" dur="2s" repeatCount="indefinite"/>
     </line>
   </g>
-</svg>
+</svg>

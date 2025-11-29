@@ -34,12 +34,6 @@
   <path d="M 100 30 L 102 40 L 102 70 L 100 85" 
         stroke="#8B0000" stroke-width="1.5" fill="none" opacity="0.4"/>
   
-  <!-- Dao symbols on blade -->
-  <text x="100" y="50" font-family="serif" font-size="8" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">斬</text>
-  <text x="100" y="70" font-family="serif" font-size="8" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">仙</text>
-  
   <!-- Handle/grip -->
   <rect x="95" y="98" width="10" height="25" rx="2"
         fill="url(#handleGrad)" stroke="#5c0000" stroke-width="1"/>
@@ -103,4 +97,4 @@
   <path d="M 113 40 L 115 42" stroke="#909090" stroke-width="1" opacity="0.7"/>
   <path d="M 113 55 L 115 57" stroke="#909090" stroke-width="1" opacity="0.7"/>
   <path d="M 112 70 L 114 72" stroke="#909090" stroke-width="1" opacity="0.7"/>
-</svg>
+</svg>

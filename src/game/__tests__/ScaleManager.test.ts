@@ -83,39 +83,6 @@ describe("ScaleManager", () => {
     });
   });
 
-  describe("UI Scaling", () => {
-    it("should increase UI scale for small mobile devices", () => {
-      window.innerWidth = 400;
-      window.innerHeight = 600;
-      scaleManager.updateScale();
-
-      const uiSize = scaleManager.getUIElementSize(100);
-      const spriteSize = scaleManager.getSpriteSize(100);
-
-      expect(uiSize).toBeGreaterThan(spriteSize);
-    });
-
-    it("should use same scale for desktop", () => {
-      window.innerWidth = 1920;
-      window.innerHeight = 1080;
-      scaleManager.updateScale();
-
-      const uiSize = scaleManager.getUIElementSize(100);
-      const spriteSize = scaleManager.getSpriteSize(100);
-
-      expect(uiSize).toBe(spriteSize);
-    });
-
-    it("should scale UI for tablets differently", () => {
-      window.innerWidth = 800;
-      window.innerHeight = 600;
-      scaleManager.updateScale();
-
-      const uiSize = scaleManager.getUIElementSize(100);
-      expect(uiSize).toBeGreaterThan(0);
-    });
-  });
-
   describe("Sprite Sizing", () => {
     it("should return rounded sprite size", () => {
       window.innerWidth = 1920;

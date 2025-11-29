@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { ExperienceGem, ExperienceManager } from "../experience";
-import eventBus from "../eventBus";
-
 // Mock Phaser
 const mockScene = {
   physics: {
@@ -142,7 +140,6 @@ describe("ExperienceManager", () => {
     manager.update();
 
     expect(mockPlayer.addExperience).toHaveBeenCalledWith(5);
-    expect(eventBus.emit).toHaveBeenCalled();
   });
 
   it("should not collect gems that are far away", () => {

@@ -3,17 +3,13 @@
  * Following game development best practices for mobile and desktop support
  */
 
-import { SCREEN_SIZE, START_Z_INDEX } from "../constant";
+import { START_Z_INDEX } from "../constant";
 import _ from "lodash";
 
 export interface ScaleConfig {
   // Base design dimensions (reference screen size)
   baseWidth: number;
   baseHeight: number;
-
-  // Current screen dimensions
-  screenWidth: number;
-  screenHeight: number;
 
   // Calculated scale factors
   scaleX: number;
@@ -28,8 +24,6 @@ class ScaleManagerClass {
   private config: ScaleConfig = {
     baseWidth: 1920,
     baseHeight: 1080,
-    screenWidth: SCREEN_SIZE.width,
-    screenHeight: SCREEN_SIZE.height,
     scaleX: 1,
     scaleY: 1,
     scale: 1,
@@ -37,7 +31,7 @@ class ScaleManagerClass {
   };
 
   private minScale = 1;
-  private maxScale = 2.0;
+  private maxScale = 2;
   private zIndex = START_Z_INDEX;
 
   constructor() {
@@ -54,25 +48,25 @@ class ScaleManagerClass {
   }
 
   getZIndex() {
-    const t = (this.zIndex + 1) % 100;
-    this.zIndex = t;
-    return t;
+    this.zIndex = (this.zIndex + 1) % 100;
+    return this.zIndex;
   }
 
   public isMobile() {
-    return this.config.screenWidth < 768;
+    return window.innerWidth < 768;
+  }
+
+  public isSmallMobile() {
+    return window.innerWidth < 480;
   }
 
   /**
    * Update scale factors based on current screen size
    */
   public updateScale(): void {
-    this.config.screenWidth = window.innerWidth;
-    this.config.screenHeight = window.innerHeight;
-
     // Calculate scale factors
-    this.config.scaleX = this.config.screenWidth / this.config.baseWidth;
-    this.config.scaleY = this.config.screenHeight / this.config.baseHeight;
+    this.config.scaleX = window.innerWidth / this.config.baseWidth;
+    this.config.scaleY = window.innerHeight / this.config.baseHeight;
 
     // Use minimum scale to maintain aspect ratio without stretching
     const rawScale = Math.min(this.config.scaleX, this.config.scaleY);
@@ -83,18 +77,21 @@ class ScaleManagerClass {
 
     // UI scale can be slightly different for better readability
     // On very small screens, increase UI scale relative to game objects
-    if (this.config.screenWidth < 480) {
+    if (this.isSmallMobile()) {
       // Small mobile devices
-      this.config.uiScale = this.config.scale * 1.4;
+      this.config.uiScale = this.config.scale * 1;
     } else if (this.isMobile()) {
       // Mobile devices
-      this.config.uiScale = this.config.scale * 1.2;
-    } else if (this.config.screenWidth < 1024) {
+      this.config.uiScale = this.config.scale * 1;
+    } else if (window.innerWidth < 1024) {
       // Tablets
       this.config.uiScale = this.config.scale * 1.1;
-    } else {
+    } else if (window.innerWidth < 1920) {
       // Desktop
-      this.config.uiScale = this.config.scale;
+      this.config.uiScale = this.config.scale * 1.2;
+    } else {
+      // Ultra-wide desktops
+      this.config.uiScale = this.config.scale * 1.4;
     }
 
     // Clamp UI scale
@@ -112,8 +109,12 @@ class ScaleManagerClass {
   }
 
   public getTitleSize(): string {
-    const scaledSize = Math.round(32 * this.config.uiScale);
+    const scaledSize = Math.round(24 * this.config.uiScale);
     return `${scaledSize}px`;
+  }
+
+  public getDefaultFont(): string {
+    return "PingFang SC, Microsoft YaHei, SimSun, Arial, sans-serif";
   }
 
   public getNameSize(): string {

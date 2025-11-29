@@ -3,7 +3,6 @@ import { Player } from "./player";
 import { Enemy } from "./enemy";
 import { scaleManager } from "./ScaleManager";
 import type { WeaponType } from "../types";
-import logger from "../logger";
 import i18n from "../i18n";
 import { MAX_SELECT_SIZE } from "../constant";
 
@@ -74,6 +73,7 @@ export abstract class Weapon {
    */
   public update(time: number, enemies: Enemy[]): void {
     if (time - this.lastFired >= this.coolDown) {
+      this.player.scene.playPlayerFireSound();
       this.fire(enemies);
       this.lastFired = time;
     }
@@ -276,7 +276,7 @@ export class GoldenStaff extends Weapon {
     // Increase damage with each level
     this.damage += 5;
 
-    // Decrease cooldown with each level (capped at 300ms)
+    // Decrease cool down with each level (capped at 300ms)
     this.coolDown = Math.max(300, this.coolDown - 100);
 
     // Increase piercing at specific levels
@@ -363,7 +363,7 @@ export class FireproofCloak extends Weapon {
    * @param _enemies Array of active enemies (not used)
    */
   public update(_time: number, _enemies: Enemy[]): void {
-    logger.info(_time, _enemies);
+    console.log(_time, _enemies);
     // Update rotation angle (deltaTime approximation)
     this.angle += this.rotationSpeed * 0.016; // Assuming 60fps
 
@@ -383,7 +383,7 @@ export class FireproofCloak extends Weapon {
    * @param _enemies Array of enemies (not used)
    */
   protected fire(_enemies: Enemy[]): void {
-    logger.info(_enemies);
+    console.log(_enemies);
     // Fireproof Cloak doesn't need a traditional fire method as it persists continuously
   }
 
@@ -494,13 +494,13 @@ export class RuyiStaff extends Weapon {
 
   /**
    * Apply upgrades when weapon levels up
-   * Enhances damage, reduces cooldown, increases projectile count, and improves piercing
+   * Enhances damage, reduces cool down, increases projectile count, and improves piercing
    */
   protected applyUpgrade(): void {
     // Increase damage with each level
     this.damage += 10;
 
-    // Reduce cooldown with a minimum of 500ms
+    // Reduce cool down with a minimum of 500ms
     this.coolDown = Math.max(500, this.coolDown - 50);
 
     // Add second projectile at level 3
@@ -584,13 +584,13 @@ export class FireLance extends Weapon {
 
   /**
    * Apply upgrades when weapon levels up
-   * Enhances damage, piercing, speed, and reduces cooldown
+   * Enhances damage, piercing, speed, and reduces cool down
    */
   protected applyUpgrade(): void {
     // Increase damage with each level
     this.damage += 6;
 
-    // Reduce cooldown with a minimum of 600ms
+    // Reduce cool down with a minimum of 600ms
     this.coolDown = Math.max(600, this.coolDown - 150);
 
     // Increase piercing capability at level 3
@@ -645,7 +645,7 @@ export class WindTamer extends Weapon {
   }
 
   public update(_time: number, _enemies: Enemy[]): void {
-    logger.info(_time, _enemies);
+    console.log(_time, _enemies);
     const playerPos = this.player.getPosition();
     this.orbs.forEach((orb) => {
       orb.sprite.x = playerPos.x;
@@ -959,9 +959,9 @@ export class ThunderDrum extends Weapon {
       // Lightning strike effect
       const lightning = this.scene.add.rectangle(
         target.sprite.x,
-        target.sprite.y - 100,
-        10,
-        100,
+        target.sprite.y - scaleManager.getUIElementSize(100),
+        scaleManager.getUIElementSize(10),
+        scaleManager.getUIElementSize(100),
         0xffd700,
         0.8,
       );
@@ -1088,7 +1088,7 @@ export class WindFireWheels extends Weapon {
   }
 
   public update(_time: number, _enemies: Enemy[]): void {
-    logger.info(_time, _enemies);
+    console.log(_time, _enemies);
     this.angle += this.rotationSpeed * 0.016;
     const playerPos = this.player.getPosition();
 
@@ -1101,7 +1101,7 @@ export class WindFireWheels extends Weapon {
   }
 
   protected fire(_enemies: Enemy[]): void {
-    logger.info(_enemies);
+    console.log(_enemies);
     // Continuous damage from spinning wheels
   }
 
@@ -1363,7 +1363,7 @@ export class PlantainFan extends Weapon {
   }
 }
 
-// Three Pointed Blade - Erlang Shen's weapon
+// Three Pointed Blade - Erlang Shen weapon
 export class ThreePointedBlade extends Weapon {
   private projectileSpeed: number;
   private slashCount: number;
@@ -1503,7 +1503,7 @@ export class CrescentBlade extends Weapon {
   }
 
   protected fire(enemies: Enemy[]): void {
-    logger.info(enemies);
+    console.log(enemies);
     const playerPos = this.player.getPosition();
     const projectileSize = scaleManager.getSpriteSize(28);
     const baseAngle = this.getPlayerAngle();
@@ -1662,7 +1662,7 @@ export class SevenStarSword extends Weapon {
   }
 
   public update(time: number, enemies: Enemy[]): void {
-    logger.info(enemies);
+    console.log(enemies);
     const playerPos = this.player.getPosition();
     const angleStep = (Math.PI * 2) / this.swordCount;
     const rotation = (time / 1000) * 3; // Rotation speed
@@ -1677,7 +1677,7 @@ export class SevenStarSword extends Weapon {
 
   protected fire(enemies: Enemy[]): void {
     // Continuous circling attack, no specific firing logic needed
-    logger.info(enemies);
+    console.log(enemies);
   }
 
   protected applyUpgrade(): void {

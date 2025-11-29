@@ -10,6 +10,7 @@ import type {
 } from "../types";
 import { useShallow } from "zustand/react/shallow";
 import { useAppStore } from "./app";
+import Phaser from "phaser";
 
 const SAVE_KEY = "wu_kong_survivors_save_1";
 
@@ -26,6 +27,8 @@ interface SaveStore extends GameSave {
   resetAll: () => void;
   addWeapon: (weaponId: WeaponType) => void;
   completeChapter: (map: MapType) => void;
+  setMusicVolume: (volume: number) => void;
+  setMusicEnabled: (enabled: boolean) => void;
 }
 
 // Create Zustand Store with persist middleware
@@ -34,6 +37,13 @@ export const useSaveStore = create<SaveStore>()(
     (set, get) => ({
       // Initial state
       ...DEFAULT_SAVE,
+      setMusicVolume(volume) {
+        const t = Phaser.Math.Clamp(volume, 0, 1);
+        set({ musicVolume: t });
+      },
+      setMusicEnabled(enabled) {
+        set({ musicEnabled: enabled });
+      },
 
       // Actions
       addGold: (amount: number) => {

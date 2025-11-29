@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styles from "./index.module.css";
 import { GameScene } from "../../game/GameScene";
-import { EVENT_MAP, SCREEN_SIZE } from "../../constant";
+import { EVENT_MAP } from "../../constant";
 import Phaser from "phaser";
 import EventBus from "../../game/eventBus";
 
@@ -11,7 +11,8 @@ interface GameWrapperProps {
 
 const getConfig = (parent: HTMLElement) => {
   const config: Phaser.Types.Core.GameConfig = {
-    ...SCREEN_SIZE,
+    width: window.innerWidth,
+    height: window.innerHeight,
     type: Phaser.AUTO,
     parent,
     physics: {

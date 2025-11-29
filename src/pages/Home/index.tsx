@@ -24,7 +24,6 @@ const Home: React.FC<CharacterSelectProps> = ({ changeScreen }) => {
   const totalGold = useTotalGold();
   const unlockedCharacters = useUnlockedCharacters();
   const [visible, setVisible] = useState(false);
-
   const characterId = useSelectedCharacter();
 
   const selectedCharacter = useMemo(() => {
@@ -176,7 +175,12 @@ const Home: React.FC<CharacterSelectProps> = ({ changeScreen }) => {
           {t("game.start")}
         </button>
 
-        <button className="backButton" onClick={() => changeScreen("shop")}>
+        <button
+          className="backButton"
+          onClick={() => {
+            changeScreen("shop");
+          }}
+        >
           <img src="./assets/shop.svg" alt={t("shop.title")} />
         </button>
 

@@ -130,8 +130,6 @@
   <!-- Buddhist symbols -->
   <text x="100" y="135" font-family="serif" font-size="8" fill="#DAA520" 
         text-anchor="middle" font-weight="bold">卍</text>
-  <text x="100" y="155" font-family="serif" font-size="8" fill="#DAA520" 
-        text-anchor="middle" font-weight="bold">佛</text>
   
   <!-- Light rays -->
   <path d="M 100 55 L 100 45" stroke="#FFD700" stroke-width="1.5" opacity="0.6">
@@ -154,4 +152,4 @@
   <circle cx="100" cy="95" r="1.5" fill="#FFFACD" opacity="0.8">
     <animate attributeName="opacity" values="0.8;0.2;0.8" dur="1.5s" repeatCount="indefinite"/>
   </circle>
-</svg>
+</svg>

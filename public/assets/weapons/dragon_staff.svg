@@ -107,16 +107,6 @@
     <line x1="5" y1="5" x2="9" y2="8" stroke="#DAA520" stroke-width="1"/>
   </g>
   
-  <!-- Mystical runes on staff -->
-  <text x="100" y="48" font-family="serif" font-size="6" fill="#FFD700" 
-        text-anchor="middle" font-weight="bold">龍</text>
-  <text x="100" y="78" font-family="serif" font-size="6" fill="#FFD700" 
-        text-anchor="middle" font-weight="bold">盤</text>
-  <text x="100" y="108" font-family="serif" font-size="6" fill="#FFD700" 
-        text-anchor="middle" font-weight="bold">神</text>
-  <text x="100" y="138" font-family="serif" font-size="6" fill="#FFD700" 
-        text-anchor="middle" font-weight="bold">杖</text>
-  
   <!-- Top ornament -->
   <circle cx="100" cy="18" r="5" 
           fill="url(#dragonGrad)" stroke="#B8860B" stroke-width="1"/>
@@ -132,4 +122,4 @@
   <circle cx="75" cy="140" r="2" fill="#FFD700" opacity="0.8">
     <animate attributeName="opacity" values="0.8;0.2;0.8" dur="1.5s" repeatCount="indefinite"/>
   </circle>
-</svg>
+</svg>

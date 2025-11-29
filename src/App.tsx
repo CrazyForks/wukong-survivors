@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAppStore } from "./store";
 import Home from "./pages/Home";
 import MapSelect from "./pages/MapSelect";
@@ -11,7 +11,6 @@ import _ from "lodash";
 const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<Screen>("home");
   const [gameKey, setGameKey] = useState("");
-
   useEffect(() => {
     useAppStore.getState().checkUnlocks();
   }, [currentScreen]);
@@ -25,20 +24,17 @@ const App: React.FC = () => {
     setCurrentScreen("home");
   }, []);
 
-  // Screen components mapping for better maintainability
-  const screenComponents = useMemo(
-    () => ({
-      mapSelect: (
-        <MapSelect onSelect={handleMapSelected} onBack={handleBackToHome} />
-      ),
-      shop: <Shop onBack={handleBackToHome} />,
-      game: <Game key={gameKey} onBack={handleBackToHome} />,
-      home: <Home changeScreen={setCurrentScreen} />,
-    }),
-    [gameKey, handleMapSelected, handleBackToHome],
-  );
+  if (currentScreen === "mapSelect") {
+    return <MapSelect onSelect={handleMapSelected} onBack={handleBackToHome} />;
+  }
+  if (currentScreen === "shop") {
+    return <Shop onBack={handleBackToHome} />;
+  }
+  if (currentScreen === "game") {
+    return <Game key={gameKey} onBack={handleBackToHome} />;
+  }
 
-  return screenComponents[currentScreen] || screenComponents.home;
+  return <Home changeScreen={setCurrentScreen} />;
 };
 
 export default App;

@@ -36,7 +36,7 @@ export class Player {
   public critRate: number;
   public expBonus: number;
   public reviveCount: number;
-  private scene: GameScene;
+  public scene: GameScene;
 
   /**
    * Create a new player instance

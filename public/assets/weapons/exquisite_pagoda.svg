@@ -82,14 +82,6 @@
   <!-- Buddhist symbols on tiers -->
   <text x="100" y="167" font-family="serif" font-size="7" fill="#8B0000" 
         text-anchor="middle" font-weight="bold">卍</text>
-  <text x="100" y="147" font-family="serif" font-size="6" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">佛</text>
-  <text x="100" y="127" font-family="serif" font-size="6" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">法</text>
-  <text x="100" y="107" font-family="serif" font-size="5" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">寶</text>
-  <text x="100" y="87" font-family="serif" font-size="5" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">塔</text>
   
   <!-- Decorative bells on corners -->
   <ellipse cx="52" cy="168" rx="3" ry="4" 
@@ -144,4 +136,4 @@
   <circle cx="165" cy="90" r="2" fill="#FFD700" opacity="0.8">
     <animate attributeName="opacity" values="0.2;0.8;0.2" dur="1.5s" repeatCount="indefinite"/>
   </circle>
-</svg>
+</svg>

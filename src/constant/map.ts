@@ -154,4 +154,6 @@ export const DEFAULT_SAVE: GameSave = {
   armor: 0,
   luck: 0,
   speed: 0,
+  musicVolume: 1,
+  musicEnabled: true,
 };

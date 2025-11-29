@@ -10,21 +10,11 @@ import { useSaveStore } from "../store";
 import i18n from "../i18n";
 import { scaleManager } from "./ScaleManager";
 
-interface RewardButton {
-  background: Phaser.GameObjects.Rectangle;
-  icon: Phaser.GameObjects.Text;
-  nameText: Phaser.GameObjects.Text;
-  descText: Phaser.GameObjects.Text;
-  rarityText: Phaser.GameObjects.Text;
-  option: RewardOption;
-}
-
 export class RewardSelectionUI {
   private scene: Phaser.Scene;
   private uiElements: Phaser.GameObjects.GameObject[] = [];
   private overlay: Phaser.GameObjects.Rectangle | null = null;
   private currentOptions: RewardOption[] = [];
-  private buttons: RewardButton[] = [];
   private refreshCost: number = 10; // Refresh cost in gold
   private onSelectCallback?: (option: RewardOption) => void;
 
@@ -65,13 +55,19 @@ export class RewardSelectionUI {
 
     // Title
     const title = this.scene.add
-      .text(centerX, centerY - 220, i18n.t("rewards.title"), {
-        fontSize: scaleManager.getTitleSize(),
-        color: "#ffd700",
-        fontStyle: "bold",
-        stroke: "#000000",
-        strokeThickness: 6,
-      })
+      .text(
+        centerX,
+        centerY - scaleManager.getUIElementSize(220),
+        i18n.t("rewards.title"),
+        {
+          fontSize: scaleManager.getTitleSize(),
+          fontFamily: scaleManager.getDefaultFont(),
+          color: "#ffd700",
+          fontStyle: "bold",
+          stroke: "#000000",
+          strokeThickness: 6,
+        },
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(scaleManager.getZIndex());
@@ -116,11 +112,13 @@ export class RewardSelectionUI {
   }
 
   private createOptionButtons(centerX: number, centerY: number): void {
-    this.buttons = [];
+    const minWidth = Math.floor(
+      (this.scene.cameras.main.width - 40) / MAX_SELECT_SIZE,
+    );
 
-    const buttonWidth = 280;
-    const buttonHeight = 180;
-    const spacing = 30;
+    const buttonWidth = Math.min(minWidth, scaleManager.getUIElementSize(280));
+    const buttonHeight = scaleManager.getUIElementSize(180);
+    const spacing = scaleManager.getUIElementSize(30);
     const startX =
       centerX -
       (buttonWidth * this.currentOptions.length +
@@ -130,17 +128,9 @@ export class RewardSelectionUI {
 
     this.currentOptions.forEach((option, index) => {
       const x = startX + index * (buttonWidth + spacing) + buttonWidth / 2;
-      const y = centerY - 20;
+      const y = centerY - scaleManager.getUIElementSize(20);
 
-      const button = this.createOptionButton(
-        option,
-        x,
-        y,
-        buttonWidth,
-        buttonHeight,
-        depth,
-      );
-      this.buttons.push(button);
+      this.createOptionButton(option, x, y, buttonWidth, buttonHeight, depth);
     });
   }
 
@@ -151,7 +141,7 @@ export class RewardSelectionUI {
     width: number,
     height: number,
     depth: number,
-  ): RewardButton {
+  ) {
     // Set color based on rarity
     const rarity = option.data.rarity;
     const color = RARITY_COLORS[rarity];
@@ -170,8 +160,9 @@ export class RewardSelectionUI {
 
     // Icon (using emoji instead of images)
     const icon = this.scene.add
-      .text(x, y - 50, isWeapon ? "⚔️" : "🧪", {
-        fontSize: scaleManager.getTitleSize(),
+      .text(x, y - scaleManager.getUIElementSize(60), isWeapon ? "⚔️" : "🧪", {
+        fontSize: scaleManager.getNameSize(),
+        fontFamily: scaleManager.getDefaultFont(),
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -189,8 +180,9 @@ export class RewardSelectionUI {
 
     // Name
     const nameText = this.scene.add
-      .text(x, y, name, {
+      .text(x, y - scaleManager.getUIElementSize(10), name, {
         fontSize: scaleManager.getNameSize(),
+        fontFamily: scaleManager.getDefaultFont(),
         color: "#ffffff",
         fontStyle: "bold",
         align: "center",
@@ -202,27 +194,38 @@ export class RewardSelectionUI {
 
     this.uiElements.push(nameText);
 
-    // Description
-    const descText = this.scene.add
-      .text(x, y + 35, description, {
-        fontSize: scaleManager.getDescSize(),
-        color: "#cccccc",
-        align: "center",
-        wordWrap: { width: width - 20 },
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(depth + 1);
+    let descText: Phaser.GameObjects.Text | null = null;
 
-    this.uiElements.push(descText);
+    if (!scaleManager.isMobile()) {
+      // Description
+      descText = this.scene.add
+        .text(x, y + scaleManager.getUIElementSize(30), description, {
+          fontSize: scaleManager.getDescSize(),
+          fontFamily: scaleManager.getDefaultFont(),
+          color: "#cccccc",
+          align: "center",
+          wordWrap: { width: width - 20 },
+        })
+        .setOrigin(0.5)
+        .setScrollFactor(0)
+        .setDepth(depth + 1);
+
+      this.uiElements.push(descText);
+    }
 
     // Rarity text
     const rarityText = this.scene.add
-      .text(x, y + 70, i18n.t(`rewards.rarity.${rarity}`), {
-        fontSize: scaleManager.getDescSize(),
-        color: `#${color.toString(16).padStart(6, "0")}`,
-        fontStyle: "bold",
-      })
+      .text(
+        x,
+        y + scaleManager.getUIElementSize(70),
+        i18n.t(`rewards.rarity.${rarity}`),
+        {
+          fontSize: scaleManager.getDescSize(),
+          fontFamily: scaleManager.getDefaultFont(),
+          color: `#${color.toString(16).padStart(6, "0")}`,
+          fontStyle: "bold",
+        },
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(depth + 1);
@@ -230,7 +233,12 @@ export class RewardSelectionUI {
     this.uiElements.push(rarityText);
 
     // Store all text elements for animation
-    const allElements = [background, icon, nameText, descText, rarityText];
+
+    const allElements = [background, icon, nameText, rarityText];
+
+    if (descText) {
+      allElements.push(descText);
+    }
 
     // Mouse hover effects
     background.on("pointerover", () => {
@@ -258,24 +266,15 @@ export class RewardSelectionUI {
     background.on("pointerdown", () => {
       this.selectOption(option);
     });
-
-    return {
-      background,
-      icon,
-      nameText,
-      descText,
-      rarityText,
-      option,
-    };
   }
 
   private createRefreshButton(centerX: number, centerY: number): void {
     const gold = useSaveStore.getState().totalGold;
     const canRefresh = gold >= this.refreshCost;
 
-    const buttonY = centerY + 140;
-    const buttonWidth = 200;
-    const buttonHeight = 50;
+    const buttonY = centerY + scaleManager.getUIElementSize(140);
+    const buttonWidth = scaleManager.getUIElementSize(200);
+    const buttonHeight = scaleManager.getUIElementSize(50);
 
     const refreshBg = this.scene.add
       .rectangle(
@@ -298,6 +297,7 @@ export class RewardSelectionUI {
         i18n.t("rewards.refreshCost", { cost: this.refreshCost }),
         {
           fontSize: scaleManager.getNameSize(),
+          fontFamily: scaleManager.getDefaultFont(),
           color: canRefresh ? "#ffffff" : "#666666",
           fontStyle: "bold",
         },
@@ -334,10 +334,11 @@ export class RewardSelectionUI {
       const hintText = this.scene.add
         .text(
           centerX,
-          centerY + 200,
+          centerY + scaleManager.getUIElementSize(200),
           i18n.t("rewards.craftHint", { count: availableCrafts.length }),
           {
             fontSize: scaleManager.getDescSize(),
+            fontFamily: scaleManager.getDefaultFont(),
             color: "#ffd700",
             fontStyle: "italic",
           },
@@ -397,7 +398,6 @@ export class RewardSelectionUI {
     });
 
     this.uiElements = [];
-    this.buttons = [];
     this.currentOptions = [];
     this.refreshCost = 10; // Reset refresh cost
   }

@@ -65,18 +65,6 @@
   <path d="M 108 95 Q 105 98, 108 101" 
         stroke="#B8860B" stroke-width="1" fill="none" opacity="0.7"/>
   
-  <!-- Ancient inscriptions -->
-  <text x="100" y="50" font-family="serif" font-size="8" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">定</text>
-  <text x="100" y="75" font-family="serif" font-size="8" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">海</text>
-  <text x="100" y="100" font-family="serif" font-size="8" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">神</text>
-  <text x="100" y="125" font-family="serif" font-size="8" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">針</text>
-  <text x="100" y="150" font-family="serif" font-size="8" fill="#8B0000" 
-        text-anchor="middle" font-weight="bold">鐵</text>
-  
   <!-- Bottom base - weighted -->
   <ellipse cx="100" cy="180" rx="16" ry="8" 
            fill="url(#goldMetalGrad)" stroke="#B8860B" stroke-width="1.5"/>
@@ -120,4 +108,4 @@
     <animate attributeName="r" values="45;55;45" dur="3s" repeatCount="indefinite"/>
     <animate attributeName="opacity" values="0.3;0;0.3" dur="3s" repeatCount="indefinite"/>
   </circle>
-</svg>
+</svg>

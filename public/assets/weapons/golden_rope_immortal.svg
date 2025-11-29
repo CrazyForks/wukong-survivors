@@ -70,12 +70,6 @@
   <circle cx="70" cy="145" r="8" fill="url(#ropeGrad)" stroke="#B8860B" stroke-width="1"/>
   <circle cx="100" cy="55" r="7" fill="url(#ropeGrad)" stroke="#B8860B" stroke-width="1"/>
   
-  <!-- Mystical runes on rope -->
-  <text x="130" y="95" font-family="serif" font-size="8" fill="#8B0000" 
-        font-weight="bold">縛</text>
-  <text x="72" y="95" font-family="serif" font-size="8" fill="#8B0000" 
-        font-weight="bold">仙</text>
-  
   <!-- Energy sparkles -->
   <circle cx="160" cy="70" r="2" fill="#FFFF00" opacity="0.8">
     <animate attributeName="opacity" values="0.8;0.2;0.8" dur="1.5s" repeatCount="indefinite"/>
@@ -94,4 +88,4 @@
   <path d="M 35 160 Q 33 163, 31 166" 
         stroke="#FFD700" stroke-width="1.5" fill="none" opacity="0.4" 
         stroke-linecap="round"/>
-</svg>
+</svg>
