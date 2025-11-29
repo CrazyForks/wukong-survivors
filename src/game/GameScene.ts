@@ -55,7 +55,7 @@ export class GameScene extends Phaser.Scene {
   private expBar?: Phaser.GameObjects.Rectangle;
   private levelText?: Phaser.GameObjects.Text;
   private timeText?: Phaser.GameObjects.Text;
-  private killText?: Phaser.GameObjects.Text;
+  private goldText?: Phaser.GameObjects.Text;
   private closeButton?: Phaser.GameObjects.Rectangle;
   private closeButtonText?: Phaser.GameObjects.Text;
   private killsSinceLastReward: number = 0;
@@ -361,11 +361,11 @@ export class GameScene extends Phaser.Scene {
     this.timeText?.setFontSize(scaleManager.getNameSize());
 
     // Center the kill count
-    this.killText?.setPosition(
+    this.goldText?.setPosition(
       timeX,
       padding + barHeight + scaleManager.getUIElementSize(5),
     );
-    this.killText?.setFontSize(scaleManager.getDescSize());
+    this.goldText?.setFontSize(scaleManager.getDescSize());
 
     const buttonHeight = scaleManager.getUIElementSize(40);
     const buttonWidth = scaleManager.getUIElementSize(60);
@@ -500,10 +500,10 @@ export class GameScene extends Phaser.Scene {
     this.timeText.setOrigin(0.5, 0);
 
     // Kill count
-    this.killText = this.add.text(
+    this.goldText = this.add.text(
       timeX,
       padding + barHeight + scaleManager.getUIElementSize(5),
-      `${i18n.t("stats.kills")}: 0`,
+      `${i18n.t("stats.gold")}: ${useSaveStore.getState().totalGold}`,
       {
         fontSize: scaleManager.getDescSize(),
         fontFamily: scaleManager.getDefaultFont(),
@@ -512,7 +512,7 @@ export class GameScene extends Phaser.Scene {
         strokeThickness: 2,
       },
     );
-    this.killText.setOrigin(0.5, 0);
+    this.goldText.setOrigin(0.5, 0);
 
     this.killCount = 0;
 
@@ -566,7 +566,7 @@ export class GameScene extends Phaser.Scene {
       this.expBar,
       this.levelText,
       this.timeText,
-      this.killText,
+      this.goldText,
       this.closeButton,
       this.closeButtonText,
     ]);
@@ -635,7 +635,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Update kill count
-    this.killText?.setText(`${i18n.t("stats.kills")}: ${this.killCount}`);
+    this.goldText?.setText(
+      `${i18n.t("stats.gold")}: ${useSaveStore.getState().totalGold}`,
+    );
   }
 
   public update(time: number, delta: number): void {
@@ -1209,6 +1211,12 @@ export class GameScene extends Phaser.Scene {
     return result;
   }
 
+  private getEndGameDesc() {
+    return `${i18n.t("stats.survivalTime")}: ${formatTime(useAppStore.getState().getSelectMap().gameTime - this.gameTime)}\n${i18n.t(
+      "stats.kills",
+    )}: ${this.killCount}\n${i18n.t("stats.level")}: ${this.player.level}\n${i18n.t("stats.gold")}: ${useSaveStore.getState().totalGold}`;
+  }
+
   public showVictory(): void {
     if (this.isGameOver) return;
     this.isGameOver = true;
@@ -1227,14 +1235,10 @@ export class GameScene extends Phaser.Scene {
     const selectedMap = useAppStore.getState().getSelectMap();
     useSaveStore.getState().completeChapter(selectedMap.id);
 
-    const desc = `${i18n.t("stats.kills")}: ${this.killCount}\n${i18n.t(
-      "stats.level",
-    )}: ${this.player.level}`;
-
     this.showModal({
       title: i18n.t("game.chapterComplete"),
       titleColor: "#00ff00",
-      description: desc,
+      description: this.getEndGameDesc(),
       cancelText: i18n.t("game.backToHome"),
       onCancel: () => {
         this.audioManager?.stopMusic();
@@ -1262,14 +1266,10 @@ export class GameScene extends Phaser.Scene {
         useAppStore.getState().getSelectMap().gameTime - this.gameTime,
       );
 
-    const desc = `${i18n.t("stats.survivalTime")}: ${formatTime(this.gameTime)}\n${i18n.t(
-      "stats.kills",
-    )}: ${this.killCount}\n${i18n.t("stats.level")}: ${this.player.level}`;
-
     this.showModal({
       title: i18n.t("game.gameOver"),
       titleColor: "#ff0000",
-      description: desc,
+      description: this.getEndGameDesc(),
       cancelText: i18n.t("game.backToHome"),
       onCancel: () => {
         this.audioManager?.stopMusic();
