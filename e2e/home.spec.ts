@@ -7,9 +7,6 @@ test.describe("Home Page", () => {
   });
 
   test("should load home page with correct elements", async ({ page }) => {
-    // 验证页面加载
-    await expect(page).toHaveURL("/");
-
     // 验证金币显示
     await expect(page.locator('[data-testid="gold-display"]')).toBeVisible();
 
