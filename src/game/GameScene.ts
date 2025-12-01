@@ -361,26 +361,21 @@ export class GameScene extends Phaser.Scene {
     this.timeText?.setFontSize(scaleManager.getNameSize());
 
     // Center the kill count
-    this.goldText?.setPosition(
-      timeX,
-      padding + barHeight + scaleManager.getUIElementSize(5),
-    );
+    const goldTextY = padding + barHeight + scaleManager.getUIElementSize(5);
+    this.goldText?.setPosition(timeX, goldTextY);
     this.goldText?.setFontSize(scaleManager.getDescSize());
 
     const buttonHeight = scaleManager.getUIElementSize(40);
     const buttonWidth = scaleManager.getUIElementSize(60);
-    const x = this.cameras.main.width - padding - buttonWidth / 2;
-    const y = padding + buttonHeight / 2;
+    const x = scaleManager.isMobile()
+      ? timeX
+      : this.cameras.main.width - padding - buttonWidth / 2;
+    const y = scaleManager.isMobile()
+      ? goldTextY + expBarHeight * 2 + padding
+      : padding + buttonHeight / 2;
 
     this.closeButton?.setPosition(x, y);
     this.closeButtonText?.setPosition(x, y);
-    if (scaleManager.isMobile()) {
-      this.closeButton?.setVisible(false);
-      this.closeButtonText?.setVisible(false);
-    } else {
-      this.closeButton?.setVisible(true);
-      this.closeButtonText?.setVisible(true);
-    }
   }
 
   private createBackground(): void {
@@ -499,10 +494,12 @@ export class GameScene extends Phaser.Scene {
     );
     this.timeText.setOrigin(0.5, 0);
 
+    const goldTextY = padding + barHeight + scaleManager.getUIElementSize(5);
+
     // Kill count
     this.goldText = this.add.text(
       timeX,
-      padding + barHeight + scaleManager.getUIElementSize(5),
+      goldTextY,
       `${i18n.t("stats.gold")}: ${useSaveStore.getState().totalGold}`,
       {
         fontSize: scaleManager.getDescSize(),
@@ -518,8 +515,12 @@ export class GameScene extends Phaser.Scene {
 
     const buttonHeight = scaleManager.getUIElementSize(40);
     const buttonWidth = scaleManager.getUIElementSize(60);
-    const x = this.cameras.main.width - padding - buttonWidth / 2;
-    const y = padding + buttonHeight / 2;
+    const x = scaleManager.isMobile()
+      ? timeX
+      : this.cameras.main.width - padding - buttonWidth / 2;
+    const y = scaleManager.isMobile()
+      ? goldTextY + expBarHeight * 2 + buttonHeight / 2
+      : padding + buttonHeight / 2;
     // Back to menu button
     this.closeButton = this.add
       .rectangle(x, y, buttonWidth, buttonHeight, 0x333333, 0.7)
@@ -550,14 +551,6 @@ export class GameScene extends Phaser.Scene {
     this.closeButton.on("pointerdown", () => {
       this.endGame();
     });
-
-    if (scaleManager.isMobile()) {
-      this.closeButton.setVisible(false);
-      this.closeButtonText.setVisible(false);
-    } else {
-      this.closeButton.setVisible(true);
-      this.closeButtonText.setVisible(true);
-    }
 
     this.uiContainer.add([
       this.healthBarBg,
