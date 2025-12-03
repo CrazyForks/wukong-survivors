@@ -3,7 +3,7 @@
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![构建状态](https://img.shields.io/github/actions/workflow/status/nusr/survivor-game/deploy.yml?branch=main)](https://github.com/nusr/survivor-game/actions/workflows/deploy.yml)
 
-[English](./README.md) | [中文](./README_ZH.md)
+[English](./README.md) | 中文
 
 ## 🎮 项目概述
 
@@ -11,9 +11,13 @@
 
 游戏支持 PC、移动设备和平板电脑。
 
-[在线玩](https://nusr.github.io/wukong-survivors/)
+![GIF](./public/assets/demo.gif)
 
-![录屏](./public/assets/demo.gif)
+[在线试玩](https://nusr.github.io/wukong-survivors/)
+
+移动端设备扫描下面的二维码即可开始游戏。
+
+![Mobile](./public/assets/mobile.png)
 
 ### ✨ 关键特性
 
