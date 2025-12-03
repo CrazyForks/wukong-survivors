@@ -148,7 +148,6 @@ export const DEFAULT_SAVE: GameSave = {
   totalPlayTime: 0,
   completedChapters: [],
   ownedWeapons: ["golden_staff"],
-  language: "en-US",
   attack: 0,
   health: 0,
   armor: 0,

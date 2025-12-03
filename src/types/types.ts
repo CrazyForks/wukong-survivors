@@ -46,7 +46,7 @@ export type GameSave = {
   bestSurvivalTime: number;
   completedChapters: MapType[];
   ownedWeapons: WeaponType[];
-  language: Language;
+  language?: Language;
   musicVolume: number;
   musicEnabled: boolean;
 } & Record<PermanentUpgradeType, number>;

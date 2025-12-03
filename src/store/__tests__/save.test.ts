@@ -259,7 +259,6 @@ describe("SaveStore", () => {
       expect(state.totalGold).toBe(DEFAULT_SAVE.totalGold);
       expect(state.totalKills).toBe(DEFAULT_SAVE.totalKills);
       expect(state.totalPlayTime).toBe(DEFAULT_SAVE.totalPlayTime);
-      expect(state.language).toBe(DEFAULT_SAVE.language);
     });
   });
 

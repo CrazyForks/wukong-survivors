@@ -89,7 +89,6 @@ function I18nConfig() {
 
       currentLanguage = getSelectedLang(lang);
       await i18n.changeLanguage(currentLanguage);
-      useSaveStore.getState().setLanguage(currentLanguage);
       return currentLanguage;
     },
     t: i18n.t,
