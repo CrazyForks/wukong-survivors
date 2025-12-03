@@ -2,9 +2,9 @@ import Phaser from "phaser";
 import { Player } from "./player";
 import { Enemy } from "./enemy";
 import { scaleManager } from "./ScaleManager";
-import type { WeaponType } from "../types";
+import type { WeaponType, WeaponSynergyBonus } from "../types";
 import i18n from "../i18n";
-import { MAX_SELECT_SIZE } from "../constant";
+import { MAX_SELECT_SIZE, WEAPON_SYNERGIES } from "../constant";
 
 /**
  * Configuration interface for weapon creation
@@ -64,6 +64,13 @@ export abstract class Weapon {
     this.lastFired = 0;
     this.type = config.type;
     this.projectiles = scene.physics.add.group();
+
+    // Validate that the weapon texture exists
+    if (!scene.textures.exists(config.type)) {
+      console.error(
+        `Weapon texture '${config.type}' not found. Please ensure the SVG file is preloaded correctly.`,
+      );
+    }
   }
 
   /**
@@ -182,6 +189,7 @@ export abstract class Weapon {
     textureName: string,
     size: number = 24,
   ): ProjectileSprite {
+    // Create projectile with the specified texture
     const projectileSize = scaleManager.getSpriteSize(size);
     const projectile = this.projectiles.create(
       x,
@@ -1228,7 +1236,20 @@ export class GoldenRope extends Weapon {
       .slice(0, this.maxTargets);
 
     targets.forEach((target) => {
-      // Rope binding effect
+      // Create projectile using the weapon's SVG texture
+      const projectile = this.createProjectile(
+        playerPos.x,
+        playerPos.y,
+        this.type, // This uses the "golden_rope" SVG texture
+        24, // Size of the rope projectile
+      );
+      projectile.damage = this.damage;
+      projectile.piercing = 0;
+
+      // Move projectile instantly to target
+      projectile.setPosition(target.sprite.x, target.sprite.y);
+
+      // Create visual rope effect between player and target
       const rope = this.scene.add.line(
         0,
         0,
@@ -1245,7 +1266,6 @@ export class GoldenRope extends Weapon {
       let originalSpeed: number;
       if (target.sprite.body && "speed" in target.sprite.body) {
         originalSpeed = target.sprite.body.speed;
-
         target.sprite.body.speed = originalSpeed * 0.3;
       }
 
@@ -1253,6 +1273,7 @@ export class GoldenRope extends Weapon {
 
       this.scene.time.delayedCall(this.bindDuration, () => {
         rope.destroy();
+        projectile.destroy();
         if (
           !target.isDead &&
           target.sprite.body &&
@@ -2055,7 +2076,21 @@ export class GoldenRopeImmortal extends Weapon {
       );
 
       if (distance <= this.chainLength) {
-        // Create rope effect
+        // Create projectile using the weapon's SVG texture
+        const projectile = this.createProjectile(
+          playerPos.x,
+          playerPos.y,
+          this.type, // This uses the "golden_rope_immortal" SVG texture
+          32, // Size of the rope projectile
+        );
+        projectile.damage = this.damage;
+        projectile.piercing = 0;
+
+        // Move projectile instantly to target
+        projectile.setPosition(enemy.sprite.x, enemy.sprite.y);
+        projectile.setActive(false).setVisible(false);
+
+        // Create visual rope effect between player and target
         const graphics = this.scene.add.graphics();
         graphics.lineStyle(3, 0xffd700, 0.9);
         graphics.lineBetween(
@@ -2091,7 +2126,10 @@ export class GoldenRopeImmortal extends Weapon {
               enemy.speed = originalSpeed;
             }
             damageInterval.remove();
+            projectile.destroy(); // Destroy the projectile when the effect ends
           });
+        } else {
+          projectile.destroy(); // Destroy the projectile if no effect is applied
         }
 
         this.scene.tweens.add({
@@ -3114,49 +3152,11 @@ export class WeaponManager {
   private scene: Phaser.Scene;
   private player: Player;
   public weapons: Weapon[];
-  private availableWeapons: WeaponClass[];
 
   constructor(scene: Phaser.Scene, player: Player) {
     this.scene = scene;
     this.player = player;
     this.weapons = [];
-    this.availableWeapons = [
-      GoldenStaff,
-      RuyiStaff,
-      FireLance,
-      WindTamer,
-      VioletBell,
-      FireproofCloak,
-      TwinBlades,
-      Mace,
-      BullHorns,
-      ThunderDrum,
-      IceNeedle,
-      WindFireWheels,
-      JadePurityBottle,
-      GoldenRope,
-      PlantainFan,
-      ThreePointedBlade,
-      NineRingStaff,
-      CrescentBlade,
-      IronCudgel,
-      SevenStarSword,
-      GinsengFruit,
-      HeavenEarthCircle,
-      RedArmillarySash,
-      PurpleGoldGourd,
-      GoldenRopeImmortal,
-      DemonRevealingMirror,
-      SeaCalmingNeedle,
-      EightTrigramsFurnace,
-      DragonStaff,
-      SevenTreasureTree,
-      ImmortalSlayingBlade,
-      DiamondSnare,
-      ExquisitePagoda,
-      NineToothRake,
-      DragonScaleSword,
-    ];
   }
 
   public update(time: number, enemies: Enemy[]): void {
@@ -3204,10 +3204,7 @@ export class WeaponManager {
 
     // New weapon options
     Object.entries(WEAPON_MAP).forEach(([type, weaponClass]) => {
-      if (
-        this.availableWeapons.includes(weaponClass) &&
-        !this.hasWeapon(weaponClass)
-      ) {
+      if (!this.hasWeapon(weaponClass)) {
         options.push({
           type: "new",
           weaponClass: weaponClass,
@@ -3231,125 +3228,6 @@ export class WeaponManager {
     this.weapons = [];
   }
 }
-
-// Weapon Synergy System - Weapon combination effect system
-export interface WeaponSynergyBonus {
-  id: string;
-  name: string;
-  description: string;
-  weapons: WeaponType[];
-  effects: {
-    damageBonus?: number;
-    attackSpeedBonus?: number;
-    rangeBonus?: number;
-    critRateBonus?: number;
-    critDamageBonus?: number;
-    armorBonus?: number;
-    allStatsBonus?: number;
-    healthRegenBonus?: number;
-    controlDurationBonus?: number;
-  };
-}
-
-export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
-  {
-    id: "fire_combo",
-    name: "Blazing Power",
-    description: "Fire Lance + Wind Fire Wheels = Fire damage + 30%",
-    weapons: ["fire_lance", "wind_fire_wheels"],
-    effects: {
-      damageBonus: 0.3,
-    },
-  },
-  {
-    id: "staff_master",
-    name: "Staff Master",
-    description:
-      "Golden Staff + Ruyi Golden Cudgel + Sea Calming Needle = Attack speed + 30%",
-    weapons: ["golden_staff", "ruyi_staff", "sea_calming_needle"],
-    effects: {
-      attackSpeedBonus: 0.3,
-    },
-  },
-  {
-    id: "storm_power",
-    name: "Storm Power",
-    description: "Wind Tamer + Plantain Fan = Range + 50%",
-    weapons: ["wind_tamer", "plantain_fan"],
-    effects: {
-      rangeBonus: 0.5,
-    },
-  },
-  {
-    id: "blade_resonance",
-    name: "Blade Resonance",
-    description: "Three Pointed Blade + Seven Star Sword = Critical rate + 15%",
-    weapons: ["three_pointed_blade", "seven_star_sword"],
-    effects: {
-      critRateBonus: 0.15,
-    },
-  },
-  {
-    id: "buddhist_guardian",
-    name: "Buddhist Guardian",
-    description: "Nine Ring Staff + Demon Mace = Armor + 10",
-    weapons: ["nine_ring_staff", "mace"],
-    effects: {
-      armorBonus: 10,
-    },
-  },
-  {
-    id: "heavy_weapons_master",
-    name: "Heavy Weapons Master",
-    description: "Crescent Blade + Iron Cudgel = Knockback distance + 50%",
-    weapons: ["crescent_blade", "iron_cudgel"],
-    effects: {
-      controlDurationBonus: 0.5,
-    },
-  },
-  {
-    id: "immortal_protection",
-    name: "Immortal Protection",
-    description: "Ginseng Fruit + Any weapon = Health regeneration + 5/sec",
-    weapons: ["ginseng_fruit"],
-    effects: {
-      healthRegenBonus: 5,
-    },
-  },
-  {
-    id: "nezha_trinity",
-    name: "Nezha's Trinity",
-    description:
-      "Heaven Earth Circle + Red Armillary Sash + Wind Fire Wheels = All stats + 10%",
-    weapons: ["heaven_earth_circle", "red_armillary_sash", "wind_fire_wheels"],
-    effects: {
-      allStatsBonus: 0.1,
-    },
-  },
-  {
-    id: "binding_mastery",
-    name: "Binding Mastery",
-    description: "Golden Rope + Golden Rope Immortal = Control duration + 50%",
-    weapons: ["golden_rope", "golden_rope_immortal"],
-    effects: {
-      controlDurationBonus: 0.5,
-    },
-  },
-  {
-    id: "absorption_master",
-    name: "Absorption Master",
-    description: "Purple Gold Gourd + Jade Clear Bottle = Damage +25%",
-    weapons: ["purple_gold_gourd", "jade_purity_bottle"],
-    effects: { damageBonus: 0.25 },
-  },
-  {
-    id: "weakness_detection",
-    name: "Weakness Detection",
-    description: "Demon Mirror + any attack weapon = Critical damage +30%",
-    weapons: ["demon_revealing_mirror"],
-    effects: { critDamageBonus: 0.3 },
-  },
-];
 
 export class WeaponSynergyManager {
   private activeSynergies: Set<string> = new Set();

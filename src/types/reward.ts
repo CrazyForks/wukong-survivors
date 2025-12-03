@@ -110,3 +110,21 @@ export interface GameProgress {
   killsSinceLastReward: number; // 距离上次奖励的击杀数
   totalRewardCount: number; // 总共获得的奖励次数
 }
+
+export interface WeaponSynergyBonus {
+  id: string;
+  name: string;
+  description: string;
+  weapons: WeaponType[];
+  effects: {
+    damageBonus?: number;
+    attackSpeedBonus?: number;
+    rangeBonus?: number;
+    critRateBonus?: number;
+    critDamageBonus?: number;
+    armorBonus?: number;
+    allStatsBonus?: number;
+    healthRegenBonus?: number;
+    controlDurationBonus?: number;
+  };
+}
