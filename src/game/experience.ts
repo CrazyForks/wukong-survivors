@@ -1,62 +1,96 @@
 import Phaser from "phaser";
 import { Player } from "./player";
 import { scaleManager } from "./ScaleManager";
+import { GEM_MAP } from "../constant";
+import { useSaveStore } from "../store/save";
 
 interface Position {
   x: number;
   y: number;
 }
 
-interface GemSprite extends Phaser.Physics.Arcade.Sprite {
-  gemRef?: ExperienceGem;
+export type CollectibleType = "coin" | "gem";
+
+interface CollectibleSprite extends Phaser.Physics.Arcade.Sprite {
+  collectibleRef?: CollectibleItem;
 }
 
-// Experience gem class
-export class ExperienceGem {
-  public sprite: GemSprite;
+// Collectible item base class
+export class CollectibleItem {
+  public sprite: CollectibleSprite;
+  public type: CollectibleType;
   public value: number;
   private scene: Phaser.Scene;
   private magnetized: boolean;
   private collectRadius: number;
   private magnetRadius: number;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, value: number) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    type: CollectibleType,
+    value: number = 0,
+  ) {
     this.scene = scene;
+    this.type = type;
     this.value = value;
     this.magnetized = false;
     this.collectRadius = scaleManager.scaleValue(30);
     this.magnetRadius = scaleManager.scaleValue(150);
 
-    // Determine texture based on value
-    let textureName = "gem-low"; // Green - low value
-    if (value >= 5) {
-      textureName = "gem-high"; // Blue - high value
-    } else if (value >= 3) {
-      textureName = "gem-medium"; // Purple - medium value
+    // Determine texture based on type and value
+    let textureName: string;
+    if (type === "coin") {
+      textureName = GEM_MAP.coin;
+    } else {
+      // Gem texture based on value
+      if (value >= 5) {
+        textureName = GEM_MAP.gemHigh;
+      } else if (value >= 3) {
+        textureName = GEM_MAP.gemMedium;
+      } else {
+        textureName = GEM_MAP.gemLow;
+      }
     }
 
-    // Create experience gem sprite using loaded texture with responsive scaling
-    const gemSize = scaleManager.getSpriteSize(32);
-    this.sprite = scene.physics.add.sprite(x, y, textureName) as GemSprite;
-    this.sprite.setDisplaySize(gemSize, gemSize);
+    // Create sprite with responsive scaling
+    const itemSize = scaleManager.getSpriteSize(32);
+    this.sprite = scene.physics.add.sprite(
+      x,
+      y,
+      textureName,
+    ) as CollectibleSprite;
+    this.sprite.setDisplaySize(itemSize, itemSize);
     // Set collision body to match sprite size
-    this.sprite.body?.setSize(gemSize, gemSize);
+    this.sprite.body?.setSize(itemSize, itemSize);
 
-    this.sprite.gemRef = this;
+    this.sprite.collectibleRef = this;
   }
 
-  public update(playerPos: Position): boolean {
+  public update(
+    playerPos: Position,
+    collectRangeBonus: number = 0,
+    magnetBonus: number = 0,
+  ): boolean {
     const dx = playerPos.x - this.sprite.x;
     const dy = playerPos.y - this.sprite.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
+    const collectBonusFactor = 1 + collectRangeBonus;
+    const magnetBonusFactor = 1 + magnetBonus;
+
+    // Adjust ranges based on bonuses
+    const adjustedCollectRadius = this.collectRadius * collectBonusFactor;
+    const adjustedMagnetRadius = this.magnetRadius * magnetBonusFactor;
+
     // Collected
-    if (distance < this.collectRadius) {
+    if (distance < adjustedCollectRadius) {
       return true; // Return true to indicate collection
     }
 
     // Magnetic attraction
-    if (distance < this.magnetRadius) {
+    if (distance < adjustedMagnetRadius) {
       this.magnetized = true;
     }
 
@@ -79,6 +113,11 @@ export class ExperienceGem {
         this.sprite.destroy();
       },
     });
+
+    // Handle coin collection immediately
+    if (this.type === "coin") {
+      useSaveStore.getState().addGold(1);
+    }
   }
 
   public destroy(): void {
@@ -92,38 +131,48 @@ export class ExperienceGem {
 export class ExperienceManager {
   private scene: Phaser.Scene;
   private player: Player;
-  private gems: ExperienceGem[];
+  private collectibles: CollectibleItem[] = [];
 
   constructor(scene: Phaser.Scene, player: Player) {
     this.scene = scene;
     this.player = player;
-    this.gems = [];
   }
 
+  // Update all collectibles (gems and coins)
   public update(): void {
     const playerPos = this.player.getPosition();
-
-    // Update all gems
-    this.gems = this.gems.filter((gem) => {
-      const shouldCollect = gem.update(playerPos);
-
-      if (shouldCollect) {
-        this.player.addExperience(gem.value);
-        gem.collect();
-        return false; // Remove from array
+    const collectRangeBonus = this.player?.collectRangeBonus || 0;
+    const magnetBonus = this.player?.magnetBonus || 0;
+    for (let i = this.collectibles.length - 1; i >= 0; i--) {
+      const collectible = this.collectibles[i];
+      if (collectible.update(playerPos, collectRangeBonus, magnetBonus)) {
+        // Item collected
+        if (collectible.type === "gem") {
+          this.player.addExperience(collectible.value);
+        }
+        collectible.collect();
+        this.collectibles.splice(i, 1);
       }
-
-      return true;
-    });
+    }
   }
 
+  // Spawn a gem at specified position with given value
   public spawnGem(x: number, y: number, value: number): void {
-    const gem = new ExperienceGem(this.scene, x, y, value);
-    this.gems.push(gem);
+    const gem = new CollectibleItem(this.scene, x, y, "gem", value);
+    this.collectibles.push(gem);
   }
 
+  // Spawn a gold coin at specified position
+  public spawnCoin(x: number, y: number): void {
+    const coin = new CollectibleItem(this.scene, x, y, "coin");
+    this.collectibles.push(coin);
+  }
+
+  // Clear all collectibles
   public clear(): void {
-    this.gems.forEach((gem) => gem.destroy());
-    this.gems = [];
+    for (const collectible of this.collectibles) {
+      collectible.destroy();
+    }
+    this.collectibles = [];
   }
 }

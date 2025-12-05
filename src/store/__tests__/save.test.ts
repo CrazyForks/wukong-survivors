@@ -205,25 +205,6 @@ describe("SaveStore", () => {
     });
   });
 
-  describe("Weapons", () => {
-    it("should add weapon to owned weapons", () => {
-      const weaponId = "sword" as any;
-      useSaveStore.getState().addWeapon(weaponId);
-
-      expect(useSaveStore.getState().ownedWeapons).toContain(weaponId);
-    });
-
-    it("should not add duplicate weapons", () => {
-      const weaponId = "sword" as any;
-      useSaveStore.getState().addWeapon(weaponId);
-      useSaveStore.getState().addWeapon(weaponId);
-
-      const weapons = useSaveStore.getState().ownedWeapons;
-      const count = weapons.filter((w) => w === weaponId).length;
-      expect(count).toBe(1);
-    });
-  });
-
   describe("Chapters", () => {
     it("should complete chapter", () => {
       const mapId = "map1" as any;

@@ -6,7 +6,7 @@ import {
   getAvailableCrafts,
 } from "../util";
 import type { RewardOption } from "../types";
-import { useSaveStore } from "../store";
+import { useAppStore, useSaveStore } from "../store";
 import i18n from "../i18n";
 import { scaleManager } from "./ScaleManager";
 
@@ -340,7 +340,7 @@ export class RewardSelectionUI {
 
   private createCraftHint(centerX: number, centerY: number): void {
     // Check if there are craft able weapons
-    const ownedWeapons = useSaveStore.getState().ownedWeapons || [];
+    const ownedWeapons = useAppStore.getState().ownedWeapons || [];
     const availableCrafts = getAvailableCrafts(ownedWeapons);
 
     if (availableCrafts.length > 0) {

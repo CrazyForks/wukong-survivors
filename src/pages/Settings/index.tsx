@@ -4,6 +4,8 @@ import {
   useEnableAutoSelect,
   useEnableUnlockAll,
   useSaveStore,
+  useMusicEnabled,
+  useMusicVolume,
 } from "../../store";
 import styles from "./index.module.css";
 
@@ -11,6 +13,8 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
   const [t] = useTranslation();
   const enableAutoSelect = useEnableAutoSelect();
   const enableUnlockAll = useEnableUnlockAll();
+  const musicEnabled = useMusicEnabled();
+  const musicVolume = useMusicVolume();
   return (
     <div className="center-container">
       <button
@@ -33,7 +37,9 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
           name="auto-select"
           checked={enableAutoSelect}
           onChange={(e) =>
-            useSaveStore.getState().setAutoSelectEnabled(e.target.checked)
+            useSaveStore
+              .getState()
+              .setAutoSelectEnabled(Boolean(e.target.checked))
           }
         />
       </div>
@@ -45,8 +51,38 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
           name="unlock-all"
           checked={enableUnlockAll}
           onChange={(e) =>
-            useSaveStore.getState().setUnlockAllEnabled(e.target.checked)
+            useSaveStore
+              .getState()
+              .setUnlockAllEnabled(Boolean(e.target.checked))
           }
+        />
+      </div>
+      <div className={styles.list}>
+        <label htmlFor="enable-music">{t("settings.enableMusic")}</label>
+        <input
+          type="checkbox"
+          id="enable-music"
+          name="enable-music"
+          checked={musicEnabled}
+          onChange={(e) =>
+            useSaveStore.getState().setMusicEnabled(Boolean(e.target.checked))
+          }
+        />
+      </div>
+      <div className={styles.list}>
+        <label htmlFor="music-volume">{`${t("settings.musicVolume")}: ${musicVolume}`}</label>
+        <input
+          type="range"
+          id="music-volume"
+          name="music-volume"
+          min="0"
+          max="1"
+          value={musicVolume}
+          step="0.01"
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            useSaveStore.getState().setMusicVolume(value);
+          }}
         />
       </div>
     </div>

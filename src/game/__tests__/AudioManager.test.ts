@@ -78,7 +78,7 @@ describe("AudioManager", () => {
 
       expect(mockScene.sound.add).toHaveBeenCalledWith(
         SoundEffect.PLAYER_HIT,
-        expect.objectContaining({ volume: 1 }),
+        expect.objectContaining({ volume: 0.5 }),
       );
       expect(currentMockSound.play).toHaveBeenCalled();
     });
@@ -88,7 +88,7 @@ describe("AudioManager", () => {
 
       expect(mockScene.sound.add).toHaveBeenCalledWith(
         SoundEffect.PLAYER_HIT,
-        expect.objectContaining({ volume: 1 }),
+        expect.objectContaining({ volume: 0.5 }),
       );
     });
 

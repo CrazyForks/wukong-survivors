@@ -424,6 +424,10 @@
             "name": "Resurrection Pill",
             "description": "Revive once at full health upon death"
         },
+        "universe_bag": {
+            "name": "Universe Bag",
+            "description": "Increase magnet range by 50%"
+        },
         "title": "Elixir"
     },
     "enemies": {
@@ -475,7 +479,9 @@
         "chooseLanguage": "Choose a language",
         "title": "Settings",
         "autoSelect": "Game auto hosting(random select weapon and elixir)",
-        "unlockAll": "Unlock all characters and chapters"
+        "unlockAll": "Unlock all characters and chapters",
+        "enableMusic": "Enable music",
+        "musicVolume": "Music volume"
     },
     "wiki": {
         "title": "Wiki"

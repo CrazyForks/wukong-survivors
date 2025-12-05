@@ -3,7 +3,6 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { DEFAULT_SAVE, PERMANENT_UPGRADES, MAPS } from "../constant";
 import type {
   GameSave,
-  WeaponType,
   PermanentUpgradeType,
   MapType,
   Language,
@@ -25,7 +24,6 @@ interface SaveStore extends GameSave {
   resetPermanentUpgrades: () => void;
   setLanguage: (language: Language) => void;
   resetAll: () => void;
-  addWeapon: (weaponId: WeaponType) => void;
   completeChapter: (map: MapType[]) => void;
   setMusicVolume: (volume: number) => void;
   setMusicEnabled: (enabled: boolean) => void;
@@ -37,7 +35,6 @@ interface SaveStore extends GameSave {
 export const useSaveStore = create<SaveStore>()(
   persist(
     (set, get) => ({
-      // Initial state
       ...DEFAULT_SAVE,
       setAutoSelectEnabled(enabled) {
         set({ enableAutoSelect: enabled });
@@ -152,15 +149,6 @@ export const useSaveStore = create<SaveStore>()(
 
         useAppStore.getState().checkUnlocks();
       },
-
-      // Add weapon to owned weapons
-      addWeapon: (weaponId) => {
-        const { ownedWeapons } = get();
-
-        if (!ownedWeapons.includes(weaponId)) {
-          set({ ownedWeapons: [...ownedWeapons, weaponId] });
-        }
-      },
     }),
     {
       name: SAVE_KEY,
@@ -183,6 +171,8 @@ const getCompletedChapters = (state: GameSave) => state.completedChapters;
 const getLanguage = (state: GameSave) => state.language;
 const getEnableAutoSelect = (state: GameSave) => state.enableAutoSelect;
 const getEnableUnlockAll = (state: GameSave) => state.enableUnlockAll;
+const getMusicEnabled = (state: GameSave) => state.musicEnabled;
+const getMusicVolume = (state: GameSave) => state.musicVolume;
 
 const getShopLevel = (state: GameSave) => ({
   attack: state.attack,
@@ -208,3 +198,5 @@ export const useEnableAutoSelect = () =>
   useSaveStore(useShallow(getEnableAutoSelect));
 export const useEnableUnlockAll = () =>
   useSaveStore(useShallow(getEnableUnlockAll));
+export const useMusicEnabled = () => useSaveStore(useShallow(getMusicEnabled));
+export const useMusicVolume = () => useSaveStore(useShallow(getMusicVolume));

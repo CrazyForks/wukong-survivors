@@ -452,6 +452,10 @@
             "name": "Pílula de Ressurreição",
             "description": "Ressuscita com vida cheia uma vez após a morte"
         },
+        "universe_bag": {
+            "name": "Saco do Universo",
+            "description": "Aumentar o alcance do imã em 50%"
+        },
         "title": "Elíxir"
     },
     "enemies": {
@@ -503,7 +507,9 @@
         "chooseLanguage": "Escolher idioma",
         "title": "Configurações",
         "autoSelect": "Hospedagem automática do jogo (seleciona arma e elixir aleatoriamente)",
-        "unlockAll": "Desbloquear todos os personagens e capítulos"
+        "unlockAll": "Desbloquear todos os personagens e capítulos",
+        "enableMusic": "Ativar música",
+        "musicVolume": "Volume da música"
     },
     "wiki": {
         "title": "Wiki"

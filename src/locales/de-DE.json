@@ -424,6 +424,10 @@
             "name": "Wiederauferstehungs Tablette",
             "description": "Wiederauferstehung mit voller Gesundheit nach Tod einmal"
         },
+        "universe_bag": {
+            "name": "Universum-Tasche",
+            "description": "Magnetbereich um 50% erhöhen"
+        },
         "title": "Elixier"
     },
     "enemies": {
@@ -475,7 +479,9 @@
         "chooseLanguage": "Sprache auswählen",
         "title": "Einstellungen",
         "autoSelect": "Spielautomatisierung (zufällige Auswahl von Waffe und Elixiere)",
-        "unlockAll": "Alle Charaktere und Kapitel freischalten"
+        "unlockAll": "Alle Charaktere und Kapitel freischalten",
+        "enableMusic": "Musik aktivieren",
+        "musicVolume": "Musikvolume"
     },
     "wiki": {
         "title": "Wiki"

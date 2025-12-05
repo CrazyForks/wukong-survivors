@@ -1,5 +1,4 @@
 import type { EnemyType } from "./characters";
-import type { WeaponType } from "./reward";
 
 export type MapType =
   | "chapter1"
@@ -45,7 +44,6 @@ export type GameSave = {
   totalPlayTime: number;
   bestSurvivalTime: number;
   completedChapters: MapType[];
-  ownedWeapons: WeaponType[];
   language?: Language;
   musicVolume: number;
   musicEnabled: boolean;

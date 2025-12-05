@@ -1,5 +1,11 @@
 import { create } from "zustand";
-import type { CharacterType, MapType, CharacterData, GameMap } from "../types";
+import type {
+  CharacterType,
+  MapType,
+  CharacterData,
+  GameMap,
+  WeaponType,
+} from "../types";
 import { useSaveStore } from "./save";
 import { useShallow } from "zustand/react/shallow";
 import { CHARACTERS_DATA } from "../constant";
@@ -10,6 +16,7 @@ type States = {
   selectedMapId: MapType;
   unlockedCharacterIds: CharacterType[];
   unlockedMapIds: MapType[];
+  ownedWeapons: WeaponType[];
 };
 
 type Actions = {
@@ -18,6 +25,7 @@ type Actions = {
   getSelectCharacter: () => CharacterData;
   getSelectMap: () => GameMap;
   checkUnlocks: () => void;
+  addWeapon: (weaponId: WeaponType) => void;
 };
 
 type Store = States & Actions;
@@ -96,6 +104,14 @@ export const useAppStore = create<Store>((set, get) => {
     selectedMapId: "chapter1",
     unlockedCharacterIds: [],
     unlockedMapIds: [],
+    ownedWeapons: [],
+    addWeapon: (weaponId) => {
+      const { ownedWeapons } = get();
+
+      if (!ownedWeapons.includes(weaponId)) {
+        set({ ownedWeapons: [...ownedWeapons, weaponId] });
+      }
+    },
     selectCharacter: (characterId: CharacterType) => {
       const { unlockedCharacterIds } = get();
       if (unlockedCharacterIds.includes(characterId)) {

@@ -49,7 +49,8 @@ export type ElixirType =
   | "spirit_mushroom" // 灵芝：增加经验获取
   | "soul_bead" // 舍利子：增加暴击率
   | "inner_elixir" // 内丹：全属性提升
-  | "resurrection_pill"; // 还魂丹：死亡时复活一次
+  | "resurrection_pill" // 还魂丹：死亡时复活一次
+  | "universe_bag"; // 乾坤袋：增加磁吸范围
 
 // 武器品质
 export type WeaponRarity = "common" | "rare" | "epic" | "legendary";
@@ -81,7 +82,8 @@ export interface ElixirData {
       | "exp"
       | "crit"
       | "all"
-      | "revive";
+      | "revive"
+      | "magnet"; // 磁吸范围
     value: number;
   };
 }
@@ -105,6 +107,7 @@ export interface GameProgress {
     speedBonus: number;
     expBonus: number;
     critBonus: number;
+    magnetBonus: number; // 磁吸范围加成
     hasRevive: boolean;
   };
   killsSinceLastReward: number; // 距离上次奖励的击杀数

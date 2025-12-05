@@ -452,6 +452,10 @@
             "name": "Pilule de Résurrection",
             "description": "Ressuscite avec la santé complète une fois après la mort"
         },
+        "universe_bag": {
+            "name": "Sac de l'Univers",
+            "description": "Augmente la portée du aimant de 50%"
+        },
         "title": "Élixir"
     },
     "enemies": {
@@ -503,7 +507,9 @@
         "chooseLanguage": "Choisir une langue",
         "title": "Paramètres",
         "autoSelect": "Hébergement automatique du jeu (sélection aléatoire d'arme et d'élixir)",
-        "unlockAll": "Déverrouiller tous les personnages et chapitres"
+        "unlockAll": "Déverrouiller tous les personnages et chapitres",
+        "enableMusic": "Activer la musique",
+        "musicVolume": "Volume de la musique"
     },
     "wiki": {
         "title": "Wiki"

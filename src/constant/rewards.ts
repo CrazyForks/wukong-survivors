@@ -472,11 +472,21 @@ export const ELIXIRS: Record<ElixirType, ElixirData> = {
   resurrection_pill: {
     id: "resurrection_pill",
     name: "还魂丹",
-    description: "死亡时满血复活一次",
+    description: "死亡时自动复活一次",
     rarity: "legendary",
     effect: {
       type: "revive",
       value: 1,
+    },
+  },
+  universe_bag: {
+    id: "universe_bag",
+    name: "乾坤袋",
+    description: "显著增加金币和宝石的磁吸范围",
+    rarity: "epic",
+    effect: {
+      type: "magnet",
+      value: 1.5, // 50%磁吸范围加成
     },
   },
 };
@@ -730,3 +740,10 @@ export const WEAPON_SYNERGIES: WeaponSynergyBonus[] = [
     effects: { critDamageBonus: 0.3 },
   },
 ];
+
+export const GEM_MAP = {
+  gemLow: "gem-low",
+  gemMedium: "gem-medium",
+  gemHigh: "gem-high",
+  coin: "coin",
+};

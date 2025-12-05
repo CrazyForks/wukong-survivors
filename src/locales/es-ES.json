@@ -452,6 +452,10 @@
             "name": "Pastilla de Resurrección",
             "description": "Revive una vez con toda la vida al morir"
         },
+        "universe_bag": {
+            "name": "Bolsa del Universo",
+            "description": "Aumenta el rango del imán en un 50%"
+        },
         "title": "Elixir"
     },
     "enemies": {
@@ -503,7 +507,9 @@
         "chooseLanguage": "Seleccionar idioma",
         "title": "Configuración",
         "autoSelect": "Hosting automático del juego (selección aleatoria de arma y elixir)",
-        "unlockAll": "Desbloquear todos los personajes y capítulos"
+        "unlockAll": "Desbloquear todos los personajes y capítulos",
+        "enableMusic": "Activar música",
+        "musicVolume": "Volumen de música"
     },
     "wiki": {
         "title": "Wiki"

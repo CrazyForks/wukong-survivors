@@ -449,8 +449,12 @@
             "description": "모든 스탯 5% 증가"
         },
         "resurrection_pill": {
-            "name": "부활단",
-            "description": "죽을 때 최대 체력으로 한 번 부활"
+            "name": "부활환",
+            "description": "죽을 때 최대 체력으로 한 번 부활합니다"
+        },
+        "universe_bag": {
+            "name": "건곤대",
+            "description": "자석 범위 50% 증가"
         },
         "title": "엘릭서"
     },
@@ -503,7 +507,9 @@
         "chooseLanguage": "언어 선택",
         "title": "설정",
         "autoSelect": "게임 자동 호스팅 (무기와 엘릭서를 무작위로 선택)",
-        "unlockAll": "모든 캐릭터와 챕터 잠금 해제"
+        "unlockAll": "모든 캐릭터와 챕터 잠금 해제",
+        "enableMusic": "음악 활성화",
+        "musicVolume": "음악 볼륨"
     },
     "wiki": {
         "title": "위키"

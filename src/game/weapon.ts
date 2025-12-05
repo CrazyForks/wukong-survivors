@@ -1952,6 +1952,7 @@ export class RedArmillarySash extends Weapon {
 export class PurpleGoldGourd extends Weapon {
   private absorbRadius: number;
   private absorbDuration: number;
+  private collectRangeBonus: number;
 
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player, {
@@ -1961,6 +1962,8 @@ export class PurpleGoldGourd extends Weapon {
     });
     this.absorbRadius = scaleManager.scaleValue(180);
     this.absorbDuration = 2000;
+    this.collectRangeBonus = 0;
+    this.applyCollectRangeBonus();
   }
 
   protected fire(enemies: Enemy[]): void {
@@ -2026,6 +2029,24 @@ export class PurpleGoldGourd extends Weapon {
     this.absorbRadius += scaleManager.scaleValue(20);
     if (this.level >= 3) this.absorbDuration = 1500;
     if (this.level >= 5) this.coolDown = 2800;
+
+    // Increase collect range bonus with each level
+    this.updateCollectRangeBonus();
+  }
+
+  private updateCollectRangeBonus(): void {
+    // Remove old bonus
+    this.player.collectRangeBonus -= this.collectRangeBonus;
+
+    // Calculate new bonus: 5% per level (0.05 * level)
+    this.collectRangeBonus = 0.05 * this.level;
+
+    // Apply new bonus
+    this.applyCollectRangeBonus();
+  }
+
+  private applyCollectRangeBonus(): void {
+    this.player.collectRangeBonus += this.collectRangeBonus;
   }
 }
 
@@ -2689,6 +2710,7 @@ export class ImmortalSlayingBlade extends Weapon {
 export class DiamondSnare extends Weapon {
   private snareSpeed: number;
   private armorBreak: number;
+  private collectRangeBonus: number;
 
   constructor(scene: Phaser.Scene, player: Player) {
     super(scene, player, {
@@ -2698,6 +2720,8 @@ export class DiamondSnare extends Weapon {
     });
     this.snareSpeed = 500;
     this.armorBreak = 0.5; // Ignore 50% defense
+    this.collectRangeBonus = 0;
+    this.applyCollectRangeBonus();
   }
 
   protected fire(enemies: Enemy[]): void {
@@ -2749,6 +2773,24 @@ export class DiamondSnare extends Weapon {
     if (this.level >= 2) this.armorBreak = 0.6;
     if (this.level >= 3) this.armorBreak = 0.7;
     if (this.level >= 5) this.armorBreak = 1.0; // Level 5 ignores all defense
+
+    // Increase collect range bonus with each level
+    this.updateCollectRangeBonus();
+  }
+
+  private updateCollectRangeBonus(): void {
+    // Remove old bonus
+    this.player.collectRangeBonus -= this.collectRangeBonus;
+
+    // Calculate new bonus: 5% per level (0.05 * level)
+    this.collectRangeBonus = 0.05 * this.level;
+
+    // Apply new bonus
+    this.applyCollectRangeBonus();
+  }
+
+  private applyCollectRangeBonus(): void {
+    this.player.collectRangeBonus += this.collectRangeBonus;
   }
 }
 

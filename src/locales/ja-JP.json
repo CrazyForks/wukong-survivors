@@ -448,6 +448,10 @@
       "name": "還魂丹",
       "description": "死亡時に全回復で復活"
     },
+    "universe_bag": {
+      "name": "乾坤袋",
+      "description": "磁石の範囲を50%増加"
+    },
     "title": "エリクサー"
   },
   "enemies": {
@@ -499,7 +503,9 @@
     "chooseLanguage": "言語を選択",
     "title": "設定",
     "autoSelect": "ゲーム自動ホスティング(武器とエリクサーをランダム選択)",
-    "unlockAll": "すべてのキャラクターと章を解放"
+    "unlockAll": "すべてのキャラクターと章を解放",
+    "enableMusic": "音楽を有効にする",
+    "musicVolume": "音楽の音量"
   },
   "wiki": {
     "title": "ウィキ"

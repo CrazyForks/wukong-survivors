@@ -456,6 +456,10 @@
       "name": "还魂丹",
       "description": "死亡时满血复活一次"
     },
+    "universe_bag": {
+      "name": "乾坤袋",
+      "description": "增加50%磁吸范围"
+    },
     "title": "丹药"
   },
   "enemies": {
@@ -507,7 +511,9 @@
     "chooseLanguage": "选择语言",
     "title": "设置",
     "autoSelect": "游戏自动托管（随机选择武器和仙丹）",
-    "unlockAll": "解锁所有角色和章节"
+    "unlockAll": "解锁所有角色和章节",
+    "enableMusic": "启用音乐",
+    "musicVolume": "音乐音量"
   },
   "wiki": {
     "title": "百科"

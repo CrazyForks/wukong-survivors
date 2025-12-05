@@ -36,6 +36,8 @@ export class Player {
   public critRate: number;
   public expBonus: number;
   public reviveCount: number;
+  public collectRangeBonus: number;
+  public magnetBonus: number;
   public scene: GameScene;
 
   /**
@@ -73,6 +75,8 @@ export class Player {
     this.critRate = 0;
     this.expBonus = 0;
     this.reviveCount = 0;
+    this.collectRangeBonus = 0;
+    this.magnetBonus = 0;
 
     // Set camera to follow with responsive zoom
     scene.cameras.main.startFollow(this.sprite);

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { ExperienceGem, ExperienceManager } from "../experience";
+import { CollectibleItem, ExperienceManager } from "../experience";
 // Mock Phaser
 const mockScene = {
   physics: {
@@ -50,28 +50,33 @@ vi.mock("../ScaleManager", () => ({
   },
 }));
 
-describe("ExperienceGem", () => {
+describe("CollectibleItem", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("should create a gem with correct texture based on value", () => {
-    new ExperienceGem(mockScene, 0, 0, 1);
+    new CollectibleItem(mockScene, 0, 0, "gem", 1);
     expect(mockScene.physics.add.sprite).toHaveBeenCalledWith(0, 0, "gem-low");
 
-    new ExperienceGem(mockScene, 0, 0, 3);
+    new CollectibleItem(mockScene, 0, 0, "gem", 3);
     expect(mockScene.physics.add.sprite).toHaveBeenCalledWith(
       0,
       0,
       "gem-medium",
     );
 
-    new ExperienceGem(mockScene, 0, 0, 5);
+    new CollectibleItem(mockScene, 0, 0, "gem", 5);
     expect(mockScene.physics.add.sprite).toHaveBeenCalledWith(0, 0, "gem-high");
   });
 
+  it("should create a coin with correct texture", () => {
+    new CollectibleItem(mockScene, 0, 0, "coin");
+    expect(mockScene.physics.add.sprite).toHaveBeenCalledWith(0, 0, "coin");
+  });
+
   it("should update and detect collection within collect radius", () => {
-    const gem = new ExperienceGem(mockScene, 100, 100, 1);
+    const gem = new CollectibleItem(mockScene, 100, 100, "gem", 1);
     const playerPos = { x: 100, y: 110 }; // Within 30 pixels
 
     const collected = gem.update(playerPos);
@@ -79,7 +84,7 @@ describe("ExperienceGem", () => {
   });
 
   it("should not collect when outside collect radius", () => {
-    const gem = new ExperienceGem(mockScene, 100, 100, 1);
+    const gem = new CollectibleItem(mockScene, 100, 100, "gem", 1);
     const playerPos = { x: 200, y: 200 }; // Far away
 
     const collected = gem.update(playerPos);
@@ -87,7 +92,7 @@ describe("ExperienceGem", () => {
   });
 
   it("should activate magnetization within magnet radius", () => {
-    const gem = new ExperienceGem(mockScene, 100, 100, 1);
+    const gem = new CollectibleItem(mockScene, 100, 100, "gem", 1);
     const playerPos = { x: 200, y: 100 }; // Within 150 pixels
 
     gem.update(playerPos);
@@ -96,8 +101,53 @@ describe("ExperienceGem", () => {
     expect(gem.sprite.setVelocity).toHaveBeenCalled();
   });
 
+  it("should increase magnet radius with magnet bonus", () => {
+    const gem = new CollectibleItem(mockScene, 100, 100, "gem", 1);
+    const playerPos = { x: 250, y: 100 }; // Outside base 150 pixels, but within 225 with 50% bonus
+
+    // First update without bonus - should not magnetize
+    gem.update(playerPos);
+    expect(gem.sprite.setVelocity).not.toHaveBeenCalled();
+
+    // Second update with 50% magnet bonus - should magnetize
+    gem.update(playerPos, 0, 0.5);
+    gem.update(playerPos, 0, 0.5);
+    expect(gem.sprite.setVelocity).toHaveBeenCalled();
+  });
+
+  it("should increase collect radius with collect bonus", () => {
+    const gem = new CollectibleItem(mockScene, 100, 100, "gem", 1);
+    const playerPos = { x: 140, y: 100 }; // Outside base 30 pixels, but within 45 with 50% bonus
+
+    // First update without bonus - should not collect
+    const collectedWithoutBonus = gem.update(playerPos);
+    expect(collectedWithoutBonus).toBe(false);
+
+    // Second update with 50% collect bonus - should collect
+    const collectedWithBonus = gem.update(playerPos, 0.5, 0);
+    expect(collectedWithBonus).toBe(true);
+  });
+
+  it("should apply both collect and magnet bonuses independently", () => {
+    const gem = new CollectibleItem(mockScene, 100, 100, "gem", 1);
+    const playerPos = { x: 140, y: 100 }; // Within collect bonus range but outside base collect range
+    const playerPosMagnet = { x: 250, y: 100 }; // Within magnet bonus range but outside base magnet range
+
+    // Test collect bonus
+    const collectedWithBonus = gem.update(playerPos, 0.5, 0);
+    expect(collectedWithBonus).toBe(true);
+
+    // Create new gem for magnet test
+    const gem2 = new CollectibleItem(mockScene, 100, 100, "gem", 1);
+
+    // Test magnet bonus
+    gem2.update(playerPosMagnet, 0, 0.5);
+    gem2.update(playerPosMagnet, 0, 0.5);
+    expect(gem2.sprite.setVelocity).toHaveBeenCalled();
+  });
+
   it("should play collection animation", () => {
-    const gem = new ExperienceGem(mockScene, 100, 100, 1);
+    const gem = new CollectibleItem(mockScene, 100, 100, "gem", 1);
     gem.collect();
 
     expect(mockScene.tweens.add).toHaveBeenCalledWith(
@@ -111,7 +161,7 @@ describe("ExperienceGem", () => {
   });
 
   it("should destroy sprite", () => {
-    const gem = new ExperienceGem(mockScene, 100, 100, 1);
+    const gem = new CollectibleItem(mockScene, 100, 100, "gem", 1);
     gem.destroy();
 
     expect(gem.sprite.destroy).toHaveBeenCalled();

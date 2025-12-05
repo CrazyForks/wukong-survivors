@@ -38,7 +38,7 @@ export class AudioManager {
   public playSfx(effect: SoundEffect): void {
     const { musicEnabled, musicVolume } = useSaveStore.getState();
 
-    if (!musicEnabled || this.isPlayerSoundEnabled) return;
+    if (!musicEnabled || this.isPlayerSoundEnabled || musicVolume === 0) return;
     this.isPlayerSoundEnabled = true;
 
     try {

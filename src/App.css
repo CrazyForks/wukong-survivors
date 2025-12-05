@@ -36,7 +36,7 @@ body {
   --background-color: #1a1a2e;
   --primary-color: #d4af37;
   --white-color: #fff;
-  --gray-color:   rgba(212, 175, 55, 0.1);
+  --gray-color: rgba(212, 175, 55, 0.1);
   --upgrade-color: #4caf50;
   --container-padding: 40px;
   --content-padding: 20px;
@@ -118,6 +118,7 @@ button.backButton {
   top: var(--container-padding);
   right: var(--container-padding);
   font-size: var(--subtitle-font-size);
+  background-color: var(--background-color);
 }
 
 .resetButton:hover {
@@ -151,7 +152,6 @@ button.resetButton {
   flex: 1;
 }
 
-
 h1 {
   color: var(--primary-color);
   font-size: var(--title-font-size);
@@ -162,7 +162,6 @@ h1 {
     0 0 20px rgba(212, 175, 55, 0.5);
   font-weight: bold;
 }
-
 
 .common-container {
   padding: var(--container-padding);
@@ -178,7 +177,7 @@ h1 {
   gap: var(--content-padding);
 }
 
-.center-container>* {
+.center-container > * {
   width: 40%;
   min-width: 300px;
 }

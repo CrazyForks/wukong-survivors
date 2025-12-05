@@ -450,7 +450,11 @@
         },
         "resurrection_pill": {
             "name": "還魂丹",
-            "description": "死亡時以滿血復活一次"
+            "description": "死亡時滿血復活一次"
+        },
+        "universe_bag": {
+            "name": "乾坤袋",
+            "description": "增加50%磁吸範圍"
         },
         "title": "丹藥"
     },
@@ -503,7 +507,9 @@
         "chooseLanguage": "選擇語言",
         "title": "設定",
         "autoSelect": "遊戲自動托管（隨機選擇武器和仙丹）",
-        "unlockAll": "解鎖所有角色和章節"
+        "unlockAll": "解鎖所有角色和章節",
+        "enableMusic": "啟用音樂",
+        "musicVolume": "音樂音量"
     },
     "wiki": {
         "title": "百科"

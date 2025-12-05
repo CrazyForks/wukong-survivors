@@ -10,8 +10,8 @@ import {
   ENEMIES_DATA,
   WEAPONS,
   EVENT_MAP,
-  START_Z_INDEX,
   PERMANENT_UPGRADES,
+  GEM_MAP,
 } from "../constant";
 import {
   getCharacterImagePath,
@@ -83,17 +83,11 @@ export class GameScene extends Phaser.Scene {
     const commonSize = scaleManager.getSpriteSize(32);
 
     // Load experience gem textures - Buddhist beads and spirit essence
-    this.load.svg("gem-low", "assets/gem-low.svg", {
-      width: commonSize,
-      height: commonSize,
-    });
-    this.load.svg("gem-medium", "assets/gem-medium.svg", {
-      width: commonSize,
-      height: commonSize,
-    });
-    this.load.svg("gem-high", "assets/gem-high.svg", {
-      width: commonSize,
-      height: commonSize,
+    Object.values(GEM_MAP).forEach((gem) => {
+      this.load.svg(gem, `assets/${gem}.svg`, {
+        width: commonSize,
+        height: commonSize,
+      });
     });
 
     const selectedCharacter = useAppStore.getState().getSelectCharacter();
@@ -260,10 +254,7 @@ export class GameScene extends Phaser.Scene {
       this.weaponManager.getWeaponById(startingWeaponId);
     this.weaponManager.addWeapon(StartingWeaponClass);
 
-    // Save starting weapon to owned weapons if not already there
-    if (!useSaveStore.getState().ownedWeapons.includes(startingWeaponId)) {
-      useSaveStore.getState().addWeapon(startingWeaponId);
-    }
+    useAppStore.getState().addWeapon(startingWeaponId);
 
     // Create experience manager
     this.experienceManager = new ExperienceManager(this, this.player);
@@ -409,12 +400,18 @@ export class GameScene extends Phaser.Scene {
     graphics.setDepth(-1);
   }
 
+  private collectRangeIndicator?: Phaser.GameObjects.Graphics;
+
   private createUI(): void {
     // UI container (fixed on screen)
     this.uiContainer = this.add
       .container(0, 0)
       .setScrollFactor(0)
       .setDepth(scaleManager.getZIndex());
+
+    // Create collect range indicator
+    this.collectRangeIndicator = this.add.graphics();
+    this.collectRangeIndicator.setDepth(scaleManager.getZIndex() - 1);
 
     // Responsive UI sizing
     const barWidth = scaleManager.getUIElementSize(200);
@@ -594,7 +591,47 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  private updateCollectRangeIndicator(): void {
+    if (!this.collectRangeIndicator) return;
+
+    // Clear previous indicator
+    this.collectRangeIndicator.clear();
+
+    const playerPos = this.player.getPosition();
+    const baseCollectRadius = scaleManager.scaleValue(30);
+    const baseMagnetRadius = scaleManager.scaleValue(150);
+
+    // Calculate adjusted ranges
+    const collectBonusFactor = 1 + this.player.collectRangeBonus;
+    const magnetBonusFactor = 1 + this.player.magnetBonus;
+
+    const adjustedCollectRadius = baseCollectRadius * collectBonusFactor;
+    const adjustedMagnetRadius = baseMagnetRadius * magnetBonusFactor;
+
+    // Only draw if there's a bonus or if magnet radius is increased
+    if (this.player.collectRangeBonus > 0 || this.player.magnetBonus > 0) {
+      // Draw collect radius (inner circle)
+      this.collectRangeIndicator.lineStyle(2, 0xffd700, 0.5);
+      this.collectRangeIndicator.strokeCircle(
+        playerPos.x,
+        playerPos.y,
+        adjustedCollectRadius,
+      );
+
+      // Draw magnet radius (outer circle)
+      this.collectRangeIndicator.lineStyle(2, 0x9932cc, 0.3);
+      this.collectRangeIndicator.strokeCircle(
+        playerPos.x,
+        playerPos.y,
+        adjustedMagnetRadius,
+      );
+    }
+  }
+
   private updateUI(): void {
+    // Update collect range indicator
+    this.updateCollectRangeIndicator();
+
     // Update health bar
     const healthPercent = this.player.health / this.player.maxHealth;
     const barWidth = scaleManager.getUIElementSize(200);
@@ -714,10 +751,7 @@ export class GameScene extends Phaser.Scene {
               this.killCount++;
               this.killsSinceLastReward++;
               this.checkRewardTrigger();
-              // Drop gold coin (10% chance)
-              if (Math.random() < 0.1) {
-                this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
-              }
+              this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
             }
 
             projectile.piercing--;
@@ -747,10 +781,7 @@ export class GameScene extends Phaser.Scene {
               this.killCount++;
               this.killsSinceLastReward++;
               this.checkRewardTrigger();
-              // Drop gold coin (10% chance)
-              if (Math.random() < 0.1) {
-                this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
-              }
+              this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
             }
           }
         });
@@ -759,33 +790,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnGoldCoin(x: number, y: number): void {
-    const coin = this.add.circle(x, y, 8, 0xffd700).setDepth(START_Z_INDEX);
-    this.physics.add.existing(coin);
-
-    // Coin automatically flies towards player
-    const timer = this.time.addEvent({
-      delay: 100,
-      callback: () => {
-        const dx = this.player.sprite.x - coin.x;
-        const dy = this.player.sprite.y - coin.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < 50) {
-          timer.destroy();
-          coin.destroy();
-          useSaveStore.getState().addGold(1);
-        } else if (distance < 300) {
-          const speed = 200;
-          if (coin.body && "setVelocity" in coin.body) {
-            coin.body.setVelocity(
-              (dx / distance) * speed,
-              (dy / distance) * speed,
-            );
-          }
-        }
-      },
-      loop: true,
-    });
+    if (Math.random() >= 0.1) {
+      return;
+    }
+    this.experienceManager?.spawnCoin(x, y);
   }
 
   public spawnExperience(x: number, y: number, value: number): void {
@@ -838,7 +846,7 @@ export class GameScene extends Phaser.Scene {
       if (!this.weaponManager?.hasWeapon(WeaponClass)) {
         this.weaponManager?.addWeapon(WeaponClass);
         // Save to store
-        useSaveStore.getState().addWeapon(weaponData.id);
+        useAppStore.getState().addWeapon(weaponData.id);
       } else {
         // If already owned, upgrade it
         const weapon = this.weaponManager?.getWeapon(WeaponClass);
@@ -902,6 +910,10 @@ export class GameScene extends Phaser.Scene {
         case "revive":
           // Resurrection Pill: Revive upon death
           this.player.reviveCount += 1;
+          break;
+        case "magnet":
+          // Universe Bag: Increase magnet range
+          this.player.magnetBonus += elixir.effect.value;
           break;
       }
     }
