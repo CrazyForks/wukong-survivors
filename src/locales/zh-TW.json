@@ -16,7 +16,8 @@
         "endGameTitle": "結束",
         "endGameDesc": "你想要結束遊戲嗎？",
         "completeChapters": "完成章節",
-        "stats": "統計"
+        "stats": "統計",
+        "back": "返回"
     },
     "languages": {
         "zh-CN": "簡體中文",
@@ -155,9 +156,11 @@
             "description": "龍王三太子化身，迅捷的天界神駒"
         },
         "unlockCharacter": "選擇角色",
+        "selectCharacter": "選擇角色",
         "locked": "已鎖定",
         "unlockCondition": "解鎖條件",
-        "specialWeapon": "專屬武器"
+        "specialWeapon": "專屬武器",
+        "title": "角色"
     },
     "maps": {
         "chapter1": {
@@ -185,7 +188,8 @@
             "description": "最終挑戰，成佛之路"
         },
         "selectMap": "選擇章節",
-        "difficulty": "難度"
+        "difficulty": "難度",
+        "title": "章節"
     },
     "unlockConditions": {
         "default": "默認解鎖",
@@ -404,7 +408,8 @@
         },
         "upgrade": "升級{name}",
         "addWeapon": "添加{name}",
-        "upgradeToLevel": "{name}等級{level}"
+        "upgradeToLevel": "{name}等級{level}",
+        "title": "武器"
     },
     "elixirs": {
         "peach_of_immortality": {
@@ -446,7 +451,8 @@
         "resurrection_pill": {
             "name": "還魂丹",
             "description": "死亡時以滿血復活一次"
-        }
+        },
+        "title": "丹藥"
     },
     "enemies": {
         "wolf_minion": "狼妖",
@@ -472,7 +478,8 @@
         "celestial_guard_minion": "天兵",
         "thunder_minion": "雷妖",
         "celestial_general_elite": "天將",
-        "dragon_guardian_elite": "龍衛"
+        "dragon_guardian_elite": "龍衛",
+        "title": "敵人"
     },
     "rewards": {
         "title": "選擇獎勵",
@@ -491,5 +498,14 @@
         "resetSaveConfirm": "確定要重置所有存檔數據嗎？此操作無法撤銷。",
         "yes": "是",
         "no": "否"
+    },
+    "settings": {
+        "chooseLanguage": "選擇語言",
+        "title": "設定",
+        "autoSelect": "遊戲自動托管（隨機選擇武器和仙丹）",
+        "unlockAll": "解鎖所有角色和章節"
+    },
+    "wiki": {
+        "title": "百科"
     }
 }

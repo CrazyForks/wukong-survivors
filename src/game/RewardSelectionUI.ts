@@ -22,15 +22,23 @@ export class RewardSelectionUI {
     this.scene = scene;
   }
 
-  public show(onSelect: (option: RewardOption) => void): void {
+  public show(onSelect?: (option: RewardOption) => void): void {
+    if (!onSelect) {
+      return;
+    }
+
+    // Generate random options (mixed weapons and elixirs)
+    this.generateOptions();
+
+    if (this.currentOptions.length === 0) {
+      return;
+    }
+
     if (this.isVisible()) {
       this.hide();
     }
 
     this.onSelectCallback = onSelect;
-
-    // Generate random options (mixed weapons and elixirs)
-    this.generateOptions();
 
     // Pause game
     this.scene.physics.pause();
@@ -132,6 +140,11 @@ export class RewardSelectionUI {
 
       this.createOptionButton(option, x, y, buttonWidth, buttonHeight, depth);
     });
+
+    if (useSaveStore.getState().enableAutoSelect) {
+      const index = Math.floor(Math.random() * this.currentOptions.length);
+      this.selectOption(this.currentOptions[index]);
+    }
   }
 
   private createOptionButton(
@@ -362,7 +375,7 @@ export class RewardSelectionUI {
 
       // Restore the cost and show new UI
       this.refreshCost = newCost;
-      this.show(this.onSelectCallback!);
+      this.show(this.onSelectCallback);
     }
   }
 
@@ -375,9 +388,9 @@ export class RewardSelectionUI {
       ease: "Power2",
       onComplete: () => {
         this.hide();
-        if (this.onSelectCallback) {
-          this.onSelectCallback(option);
-        }
+
+        this.onSelectCallback?.(option);
+
         // Resume game
         this.scene.physics.resume();
       },

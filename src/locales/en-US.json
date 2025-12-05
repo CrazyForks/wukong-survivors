@@ -16,7 +16,8 @@
         "endGameTitle": "End",
         "endGameDesc": "Do you want to end the game?",
         "completeChapters": "Complete Chapters",
-        "stats": "Statistics"
+        "stats": "Statistics",
+        "back": "Back"
     },
     "languages": {
         "en-US": "English",
@@ -157,7 +158,9 @@
         "unlockCharacter": "Unlock Character",
         "locked": "Locked",
         "unlockCondition": "Unlock Condition",
-        "specialWeapon": "Special Weapon"
+        "specialWeapon": "Special Weapon",
+        "selectCharacter": "Select Character",
+        "title": "Character"
     },
     "maps": {
         "chapter1": {
@@ -185,7 +188,8 @@
             "description": "Ultimate challenge, path to enlightenment"
         },
         "selectMap": "Select Chapter",
-        "difficulty": "Difficulty"
+        "difficulty": "Difficulty",
+        "title": "Chapter"
     },
     "unlockConditions": {
         "default": "Default unlocked",
@@ -376,7 +380,8 @@
         },
         "upgrade": "Upgrade {name}",
         "addWeapon": "Add {name}",
-        "upgradeToLevel": "{name} Lv.{level}"
+        "upgradeToLevel": "{name} Lv.{level}",
+        "title": "Weapon"
     },
     "elixirs": {
         "peach_of_immortality": {
@@ -418,7 +423,8 @@
         "resurrection_pill": {
             "name": "Resurrection Pill",
             "description": "Revive once at full health upon death"
-        }
+        },
+        "title": "Elixir"
     },
     "enemies": {
         "wolf_minion": "Wolf Demon",
@@ -444,7 +450,8 @@
         "celestial_guard_minion": "Celestial Guard",
         "thunder_minion": "Thunder Demon",
         "celestial_general_elite": "Celestial General",
-        "dragon_guardian_elite": "Dragon Guardian"
+        "dragon_guardian_elite": "Dragon Guardian",
+        "title": "Enemy"
     },
     "rewards": {
         "title": "Select Reward",
@@ -463,5 +470,14 @@
         "resetSaveConfirm": "Are you sure you want to reset all save data? This cannot be undone.",
         "yes": "Yes",
         "no": "No"
+    },
+    "settings": {
+        "chooseLanguage": "Choose a language",
+        "title": "Settings",
+        "autoSelect": "Game auto hosting(random select weapon and elixir)",
+        "unlockAll": "Unlock all characters and chapters"
+    },
+    "wiki": {
+        "title": "Wiki"
     }
 }

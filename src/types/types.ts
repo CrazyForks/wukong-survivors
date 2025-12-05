@@ -49,9 +49,19 @@ export type GameSave = {
   language?: Language;
   musicVolume: number;
   musicEnabled: boolean;
+  enableAutoSelect: boolean;
+  enableUnlockAll: boolean;
 } & Record<PermanentUpgradeType, number>;
 
-export type Screen = "home" | "mapSelect" | "shop" | "game";
+export type Screen =
+  | "home"
+  | "mapSelect"
+  | "shop"
+  | "game"
+  | "characterSelect"
+  | "settings"
+  | "stats"
+  | "wiki";
 
 export type MessageType = "info" | "warning" | "error" | "success";
 

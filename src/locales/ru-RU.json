@@ -16,7 +16,8 @@
         "endGameTitle": "Завершить",
         "endGameDesc": "Хотите завершить игру?",
         "completeChapters": "Завершенные главы",
-        "stats": "Статистика"
+        "stats": "Статистика",
+        "back": "Назад"
     },
     "languages": {
         "zh-CN": "Упрощенный китайский",
@@ -157,7 +158,9 @@
         "unlockCharacter": "Разблокировать персонажа",
         "locked": "Заблокировано",
         "unlockCondition": "Условие разблокировки",
-        "specialWeapon": "Специальное оружие"
+        "specialWeapon": "Специальное оружие",
+        "selectCharacter": "Выберите персонажа",
+        "title": "Персонаж"
     },
     "maps": {
         "chapter1": {
@@ -185,7 +188,8 @@
             "description": "Окончательный вызов, путь к просветлению"
         },
         "selectMap": "Выбрать главу",
-        "difficulty": "Сложность"
+        "difficulty": "Сложность",
+        "title": "Глава"
     },
     "unlockConditions": {
         "default": "Разблокировано по умолчанию",
@@ -404,7 +408,8 @@
         },
         "upgrade": "Улучшить {name}",
         "addWeapon": "Добавить {name}",
-        "upgradeToLevel": "{name} Ур.{level}"
+        "upgradeToLevel": "{name} Ур.{level}",
+        "title": "Оружие"
     },
     "elixirs": {
         "peach_of_immortality": {
@@ -446,7 +451,8 @@
         "resurrection_pill": {
             "name": "Таблетка воскрешения",
             "description": "Воскрешает раз с полным здоровьем при смерти"
-        }
+        },
+        "title": "Эликсир"
     },
     "enemies": {
         "wolf_minion": "Волк-Демон",
@@ -472,7 +478,8 @@
         "celestial_guard_minion": "Небесный Гардиан",
         "thunder_minion": "Гром-Демон",
         "celestial_general_elite": "Небесный Генерал",
-        "dragon_guardian_elite": "Дракон-Гардиан"
+        "dragon_guardian_elite": "Дракон-Гардиан",
+        "title": "Враг"
     },
     "rewards": {
         "title": "Выбрать награду",
@@ -491,5 +498,14 @@
         "resetSaveConfirm": "Вы уверены, что хотите сбросить все данные сохранения? Это действие нельзя отменить.",
         "yes": "Да",
         "no": "Нет"
+    },
+    "settings": {
+        "chooseLanguage": "Выберите язык",
+        "title": "Настройки",
+        "autoSelect": "Автоматическое управление игрой (случайный выбор оружия и эликсира)",
+        "unlockAll": "Разблокировать всех персонажей и главы"
+    },
+    "wiki": {
+        "title": "Вики"
     }
 }

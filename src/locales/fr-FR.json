@@ -16,7 +16,8 @@
         "endGameTitle": "Quitter",
         "endGameDesc": "Voulez-vous quitter le jeu ?",
         "completeChapters": "Chapitres terminés",
-        "stats": "Statistiques"
+        "stats": "Statistiques",
+        "back": "Retour"
     },
     "languages": {
         "zh-CN": "Chinois simplifié",
@@ -157,7 +158,9 @@
         "unlockCharacter": "Débloquer un personnage",
         "locked": "Verrouillé",
         "unlockCondition": "Condition de déblocage",
-        "specialWeapon": "Arme spéciale"
+        "specialWeapon": "Arme spéciale",
+        "selectCharacter": "Sélectionner Personnage",
+        "title": "Personnage"
     },
     "maps": {
         "chapter1": {
@@ -185,7 +188,8 @@
             "description": "La dernière épreuve, le chemin de l'éveil"
         },
         "selectMap": "Sélectionner le chapitre",
-        "difficulty": "Difficulté"
+        "difficulty": "Difficulté",
+        "title": "Chapitre"
     },
     "unlockConditions": {
         "default": "Débloqué par défaut",
@@ -404,7 +408,8 @@
         },
         "upgrade": "Améliorer {name}",
         "addWeapon": "Ajouter {name}",
-        "upgradeToLevel": "{name} Niveau {level}"
+        "upgradeToLevel": "{name} Niveau {level}",
+        "title": "Arme"
     },
     "elixirs": {
         "peach_of_immortality": {
@@ -446,7 +451,8 @@
         "resurrection_pill": {
             "name": "Pilule de Résurrection",
             "description": "Ressuscite avec la santé complète une fois après la mort"
-        }
+        },
+        "title": "Élixir"
     },
     "enemies": {
         "wolf_minion": "Loup-Démon",
@@ -472,7 +478,8 @@
         "celestial_guard_minion": "Gardien Céleste",
         "thunder_minion": "Tonnerre-Démon",
         "celestial_general_elite": "Général Céleste",
-        "dragon_guardian_elite": "Gardien de Dragon"
+        "dragon_guardian_elite": "Gardien de Dragon",
+        "title": "Ennemi"
     },
     "rewards": {
         "title": "Choisir la récompense",
@@ -491,5 +498,14 @@
         "resetSaveConfirm": "Êtes-vous sûr de vouloir réinitialiser toutes les données sauvegardées ? Cette action est irréversible.",
         "yes": "Oui",
         "no": "Non"
+    },
+    "settings": {
+        "chooseLanguage": "Choisir une langue",
+        "title": "Paramètres",
+        "autoSelect": "Hébergement automatique du jeu (sélection aléatoire d'arme et d'élixir)",
+        "unlockAll": "Déverrouiller tous les personnages et chapitres"
+    },
+    "wiki": {
+        "title": "Wiki"
     }
 }

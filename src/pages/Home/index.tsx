@@ -1,47 +1,13 @@
-import React, { useState, useMemo } from "react";
+import type { Screen } from "../../types";
 import { useTranslation } from "react-i18next";
-import { CHARACTERS_DATA } from "../../constant/characters";
-import { getCharacterImagePath } from "../../util";
-import type { CharacterData, Screen } from "../../types";
-import {
-  useAppStore,
-  useSaveStore,
-  useTotalGold,
-  useUnlockedCharacters,
-  useSelectedCharacter,
-} from "../../store";
-import styles from "./index.module.css";
-import { LanguageSelect, Stats, Dialog } from "../../components";
+import { useSaveStore } from "../../store";
 
-const characterList = Object.values(CHARACTERS_DATA);
-
-interface CharacterSelectProps {
+interface HomeProps {
   changeScreen: (screen: Screen) => void;
 }
 
-const Home: React.FC<CharacterSelectProps> = ({ changeScreen }) => {
+export const Home = ({ changeScreen }: HomeProps) => {
   const [t] = useTranslation();
-  const totalGold = useTotalGold();
-  const unlockedCharacters = useUnlockedCharacters();
-  const [visible, setVisible] = useState(false);
-  const characterId = useSelectedCharacter();
-
-  const selectedCharacter = useMemo(() => {
-    return useAppStore.getState().getSelectCharacter();
-  }, [characterId]);
-
-  const handleCharacterClick = (character: CharacterData) => {
-    if (unlockedCharacters.includes(character.id)) {
-      useAppStore.getState().selectCharacter(character.id);
-    }
-  };
-
-  const handleConfirm = () => {
-    if (selectedCharacter) {
-      useAppStore.getState().selectCharacter(selectedCharacter.id);
-      changeScreen("mapSelect");
-    }
-  };
 
   const handleResetSave = () => {
     if (window.confirm(t("dialog.resetSaveConfirm"))) {
@@ -51,167 +17,62 @@ const Home: React.FC<CharacterSelectProps> = ({ changeScreen }) => {
   };
 
   return (
-    <div className={styles.characterSelect}>
-      <div className={styles.header}>
-        <div className={styles.statsPanel} data-testid="gold-display">
-          <span className={styles.statLabel}>💰 {t("stats.gold")}:</span>
-          &nbsp;
-          <span className={styles.statValue}>{totalGold}</span>
-        </div>
-        <LanguageSelect />
-      </div>
-      <div className={styles.charactersGrid} data-testid="characters-grid">
-        {characterList.map((character) => {
-          const isUnlocked = unlockedCharacters.includes(character.id);
-          const isSelected = selectedCharacter?.id === character.id;
-
-          return (
-            <div
-              key={character.id}
-              className={`${styles.characterCard} ${isUnlocked ? styles.unlocked : styles.locked} ${isSelected ? styles.selected : ""}`}
-              data-testid={`character-card-${character.id}`}
-              onClick={() => handleCharacterClick(character)}
-            >
-              <div className={styles.characterIcon}>
-                {isUnlocked ? (
-                  <img
-                    src={getCharacterImagePath(character.id)}
-                    alt={t(`characters.${character.id}.name`)}
-                    className={styles.unlockedChar}
-                    style={{
-                      color: character.color,
-                    }}
-                  />
-                ) : (
-                  <div className={styles.lockedIcon}>🔒</div>
-                )}
-              </div>
-
-              <div className={styles.characterName}>
-                {isUnlocked ? t(`characters.${character.id}.name`) : "???"}
-              </div>
-
-              {!isUnlocked && (
-                <div className={styles.unlockCondition}>
-                  {t(`unlockConditions.${character.unlockCondition.type}`, {
-                    value: character.unlockCondition.value,
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {selectedCharacter && (
-        <div className={styles.characterDetail}>
-          <h2>{t(`characters.${selectedCharacter.id}.name`)}</h2>
-          <p className={styles.description}>
-            {t(`characters.${selectedCharacter.id}.description`)}
-          </p>
-          <div className={styles.stats}>
-            <div className={styles.stat}>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
-              <span className={styles.statName}>❤️ {t("stats.level")}</span>
-              <span className={styles.statValue}>
-                {selectedCharacter.stats.baseHealth}
-              </span>
-            </div>
-            <div className={styles.stat}>
-              <span className={styles.statName}>
-                🏃 {t("upgrades.speed.name")}
-              </span>
-              <span className={styles.statValue}>
-                {selectedCharacter.stats.baseSpeed}
-              </span>
-            </div>
-            <div className={styles.stat}>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
-              <span className={styles.statName}>
-                ⚔️ {t("upgrades.attack.name")}
-              </span>
-              <span className={styles.statValue}>
-                {selectedCharacter.stats.baseDamage}
-              </span>
-            </div>
-            <div className={styles.stat}>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
-              <span className={styles.statName}>
-                🛡️ {t("upgrades.armor.name")}
-              </span>
-              <span className={styles.statValue}>
-                {selectedCharacter.stats.baseArmor}
-              </span>
-            </div>
-            <div className={styles.stat}>
-              {}
-              <span className={styles.statName}>
-                🍀 {t("upgrades.luck.name")}
-              </span>
-              <span className={styles.statValue}>
-                {selectedCharacter.stats.baseLuck}
-              </span>
-            </div>
-            {selectedCharacter.startingWeapon && (
-              <div className={styles.stat}>
-                {/* eslint-disable-next-line i18next/no-literal-string */}
-                <span className={styles.statName}>
-                  🗡️ {t("characters.specialWeapon")}
-                </span>
-                <span className={styles.statValue}>
-                  {t(`weapons.${selectedCharacter.startingWeapon}.name`)}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="button-group">
-        <button
-          className="confirmButton"
-          onClick={handleConfirm}
-          disabled={!selectedCharacter}
-          data-testid="start-button"
-        >
-          {t("game.start")}
-        </button>
-
-        <button
-          className="backButton"
-          onClick={() => {
-            changeScreen("shop");
-          }}
-          data-testid="shop-button"
-        >
-          <img src="./assets/shop.svg" alt={t("shop.title")} />
-        </button>
-
-        <button
-          className="backButton"
-          onClick={() => setVisible(true)}
-          data-testid="stats-button"
-        >
-          {t("game.stats")}
-        </button>
-
-        <button
-          className="resetButton"
-          onClick={handleResetSave}
-          data-testid="reset-save-button"
-        >
-          {t("game.resetSave")}
-        </button>
-      </div>
-      <Dialog
-        title={t("stats.title")}
-        visible={visible}
-        onCancel={() => setVisible(false)}
-        hideButtons
-        testId="stats-dialog"
+    <div className="center-container">
+      <h1 data-testid="page-title">{t("game.title")}</h1>
+      <button
+        className="confirmButton"
+        onClick={() => changeScreen("characterSelect")}
+        data-testid="start-button"
       >
-        <Stats />
-      </Dialog>
+        {t("game.start")}
+      </button>
+      <button
+        className="backButton"
+        onClick={() => {
+          changeScreen("shop");
+        }}
+        data-testid="shop-button"
+      >
+        {t("shop.title")}
+      </button>
+
+      <button
+        className="backButton"
+        onClick={() => {
+          changeScreen("stats");
+        }}
+        data-testid="stats-button"
+      >
+        {t("stats.title")}
+      </button>
+
+      <button
+        className="backButton"
+        onClick={() => {
+          changeScreen("settings");
+        }}
+        data-testid="settings-button"
+      >
+        {t("settings.title")}
+      </button>
+
+      <button
+        className="backButton"
+        onClick={() => {
+          changeScreen("wiki");
+        }}
+        data-testid="wiki-button"
+      >
+        {t("wiki.title")}
+      </button>
+
+      <button
+        className="resetButton"
+        onClick={handleResetSave}
+        data-testid="reset-save-button"
+      >
+        {t("game.resetSave")}
+      </button>
     </div>
   );
 };

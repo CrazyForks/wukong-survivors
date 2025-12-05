@@ -22,6 +22,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--background-color);
   -webkit-tap-highlight-color: transparent;
+  font-size: 14px;
+  color: var(--white-color);
 }
 
 #root {
@@ -34,8 +36,10 @@ body {
   --background-color: #1a1a2e;
   --primary-color: #d4af37;
   --white-color: #fff;
-  --gray-color: rgba(86, 28, 28, 0.3);
+  --gray-color:   rgba(212, 175, 55, 0.1);
+  --upgrade-color: #4caf50;
   --container-padding: 40px;
+  --content-padding: 20px;
   --highestZIndex: 100;
   --title-font-size: 42px;
   --subtitle-font-size: 24px;
@@ -47,6 +51,7 @@ body {
 @media (max-width: 1024px) {
   :root {
     --container-padding: 30px;
+    --content-padding: 15px;
     --title-font-size: 36px;
     --subtitle-font-size: 20px;
     --body-font-size: 15px;
@@ -57,6 +62,7 @@ body {
 /* Mobile styles (< 768px) */
 @media (max-width: 768px) {
   :root {
+    --content-padding: 10px;
     --container-padding: 20px;
     --title-font-size: 28px;
     --subtitle-font-size: 18px;
@@ -68,6 +74,7 @@ body {
 /* Small mobile styles (< 480px) */
 @media (max-width: 480px) {
   :root {
+    --content-padding: 10px;
     --container-padding: 15px;
     --title-font-size: 24px;
     --subtitle-font-size: 16px;
@@ -79,7 +86,6 @@ body {
 .resetButton,
 .backButton,
 .confirmButton {
-  flex: 1;
   padding: 10px;
   font-size: var(--button-font-size);
   border: 2px solid var(--primary-color);
@@ -89,35 +95,34 @@ body {
   cursor: pointer;
   transition: all 0.3s;
   font-weight: bold;
-  min-height: 44px;
   touch-action: manipulation;
   text-align: center;
 }
 
-@media (max-width: 768px) {
-  .resetButton,
-  .backButton,
-  .confirmButton {
-    font-size: var(--button-font-size);
-  }
-}
-
-.backButton:hover,
 .confirmButton:hover:not(:disabled) {
   background-color: rgba(212, 175, 55, 0.4);
   box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
 }
 
+button.backButton {
+  border: 2px solid var(--white-color);
+  background: unset;
+}
+
+.backButton:hover {
+  box-shadow: 0 0 20px var(--gray-color);
+}
+
+.backButton.closeButton {
+  position: absolute;
+  top: var(--container-padding);
+  right: var(--container-padding);
+  font-size: var(--subtitle-font-size);
+}
+
 .resetButton:hover {
   background: rgba(244, 67, 54, 0.5);
   box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);
-}
-
-.button-group {
-  display: flex;
-  gap: 20px;
-  justify-content: space-between;
-  flex-wrap: wrap;
 }
 
 button.resetButton {
@@ -135,10 +140,22 @@ button.resetButton {
   cursor: not-allowed;
 }
 
+.button-group {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.button-group button {
+  flex: 1;
+}
+
+
 h1 {
   color: var(--primary-color);
   font-size: var(--title-font-size);
-  padding-bottom: 20px;
+  padding-bottom: var(--content-padding);
   text-align: center;
   text-shadow:
     2px 2px 4px rgba(0, 0, 0, 0.8),
@@ -146,8 +163,22 @@ h1 {
   font-weight: bold;
 }
 
-@media (max-width: 768px) {
-  h1 {
-    padding-bottom: 15px;
-  }
+
+.common-container {
+  padding: var(--container-padding);
+  overflow-y: auto;
+}
+
+.center-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  align-items: center;
+  gap: var(--content-padding);
+}
+
+.center-container>* {
+  width: 40%;
+  min-width: 300px;
 }

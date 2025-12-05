@@ -16,7 +16,8 @@
     "endGameTitle": "終了",
     "endGameDesc": "ゲームを終了しますか？",
     "completeChapters": "クリアしたチャプター",
-    "stats": "統計"
+    "stats": "統計",
+    "back": "戻る"
   },
   "languages": {
     "en-US": "英語",
@@ -157,8 +158,10 @@
     "unlockCharacter": "キャラクター選択",
     "locked": "ロック中",
     "unlockCondition": "解放条件",
-    "specialWeapon": "専用武器"
-  },
+        "specialWeapon": "専用武器",
+        "selectCharacter": "キャラクターを選択",
+        "title": "キャラクター"
+    },
   "maps": {
     "chapter1": {
       "name": "第一回 - 狼虎の巣",
@@ -185,7 +188,8 @@
       "description": "究極の挑戦、覚醒への道"
     },
     "selectMap": "チャプター選択",
-    "difficulty": "難易度"
+    "difficulty": "難易度",
+    "title": "章"
   },
   "unlockConditions": {
     "default": "デフォルトで解放済み",
@@ -374,10 +378,6 @@
       "name": "玲瓏寶塔",
       "description": "托塔天王李靖の宝塔、万魔を鎮圧し邪悪を禁錮"
     },
-    "golden_staff": {
-      "name": "金箍棒",
-      "description": "天命人の如意神兵、自在に伸縮"
-    },
     "fireLance": {
       "name": "火尖槍",
       "description": "烈火纏う長槍、敵を焼き尽くす"
@@ -404,7 +404,8 @@
     },
     "upgrade": "{name}を強化",
     "addWeapon": "{name}を追加",
-    "upgradeToLevel": "{name} Lv.{level}"
+    "upgradeToLevel": "{name} Lv.{level}",
+    "title": "武器"
   },
   "elixirs": {
     "peach_of_immortality": {
@@ -446,7 +447,8 @@
     "resurrection_pill": {
       "name": "還魂丹",
       "description": "死亡時に全回復で復活"
-    }
+    },
+    "title": "エリクサー"
   },
   "enemies": {
     "wolf_minion": "狼妖",
@@ -472,7 +474,8 @@
     "celestial_guard_minion": "天兵",
     "thunder_minion": "雷妖",
     "celestial_general_elite": "天将",
-    "dragon_guardian_elite": "龍衛"
+    "dragon_guardian_elite": "龍衛",
+    "title": "敵"
   },
   "rewards": {
     "title": "報酬選択",
@@ -491,5 +494,14 @@
     "resetSaveConfirm": "すべてのセーブデータをリセットしますか？この操作は元に戻せません！",
     "yes": "はい",
     "no": "いいえ"
+  },
+  "settings": {
+    "chooseLanguage": "言語を選択",
+    "title": "設定",
+    "autoSelect": "ゲーム自動ホスティング(武器とエリクサーをランダム選択)",
+    "unlockAll": "すべてのキャラクターと章を解放"
+  },
+  "wiki": {
+    "title": "ウィキ"
   }
 }

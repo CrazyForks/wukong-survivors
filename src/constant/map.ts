@@ -155,4 +155,6 @@ export const DEFAULT_SAVE: GameSave = {
   speed: 0,
   musicVolume: 1,
   musicEnabled: true,
+  enableAutoSelect: false,
+  enableUnlockAll: false,
 };

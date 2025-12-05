@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { DEFAULT_SAVE, PERMANENT_UPGRADES } from "../constant";
+import { DEFAULT_SAVE, PERMANENT_UPGRADES, MAPS } from "../constant";
 import type {
   GameSave,
   WeaponType,
@@ -26,9 +26,11 @@ interface SaveStore extends GameSave {
   setLanguage: (language: Language) => void;
   resetAll: () => void;
   addWeapon: (weaponId: WeaponType) => void;
-  completeChapter: (map: MapType) => void;
+  completeChapter: (map: MapType[]) => void;
   setMusicVolume: (volume: number) => void;
   setMusicEnabled: (enabled: boolean) => void;
+  setAutoSelectEnabled: (enabled: boolean) => void;
+  setUnlockAllnabled: (enabled: boolean) => void;
 }
 
 // Create Zustand Store with persist middleware
@@ -37,6 +39,16 @@ export const useSaveStore = create<SaveStore>()(
     (set, get) => ({
       // Initial state
       ...DEFAULT_SAVE,
+      setAutoSelectEnabled(enabled) {
+        set({ enableAutoSelect: enabled });
+      },
+      setUnlockAllnabled(enabled) {
+        const { completeChapter } = get();
+        set({ enableUnlockAll: enabled });
+        if (enabled) {
+          completeChapter(MAPS.map((m) => m.id));
+        }
+      },
       setMusicVolume(volume) {
         const t = Phaser.Math.Clamp(volume, 0, 1);
         set({ musicVolume: t });
@@ -131,14 +143,12 @@ export const useSaveStore = create<SaveStore>()(
       resetAll: () => set({ ...DEFAULT_SAVE }),
 
       // Complete chapter and unlock corresponding characters
-      completeChapter: (chapter: MapType) => {
+      completeChapter: (chapters) => {
         const { completedChapters = [] } = get();
 
-        if (completedChapters.includes(chapter)) {
-          return;
-        }
+        const list = Array.from(new Set([...completedChapters, ...chapters]));
 
-        set({ completedChapters: [...completedChapters, chapter] });
+        set({ completedChapters: list });
 
         useAppStore.getState().checkUnlocks();
       },
@@ -171,6 +181,8 @@ const getTotalPlayTime = (state: GameSave) => state.totalPlayTime;
 
 const getCompletedChapters = (state: GameSave) => state.completedChapters;
 const getLanguage = (state: GameSave) => state.language;
+const getEnableAutoSelect = (state: GameSave) => state.enableAutoSelect;
+const getEnableUnlockAll = (state: GameSave) => state.enableUnlockAll;
 
 const getShopLevel = (state: GameSave) => ({
   attack: state.attack,
@@ -192,3 +204,7 @@ export const useCompletedChapters = () =>
 export const useLanguage = () => useSaveStore(useShallow(getLanguage));
 
 export const useShopLevel = () => useSaveStore(useShallow(getShopLevel));
+export const useEnableAutoSelect = () =>
+  useSaveStore(useShallow(getEnableAutoSelect));
+export const useEnableUnlockAll = () =>
+  useSaveStore(useShallow(getEnableUnlockAll));

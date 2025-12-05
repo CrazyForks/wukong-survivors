@@ -227,15 +227,15 @@ describe("SaveStore", () => {
   describe("Chapters", () => {
     it("should complete chapter", () => {
       const mapId = "map1" as any;
-      useSaveStore.getState().completeChapter(mapId);
+      useSaveStore.getState().completeChapter([mapId]);
 
       expect(useSaveStore.getState().completedChapters).toContain(mapId);
     });
 
     it("should not duplicate completed chapters", () => {
       const mapId = "map1" as any;
-      useSaveStore.getState().completeChapter(mapId);
-      useSaveStore.getState().completeChapter(mapId);
+      useSaveStore.getState().completeChapter([mapId]);
+      useSaveStore.getState().completeChapter([mapId]);
 
       const chapters = useSaveStore.getState().completedChapters || [];
       const count = chapters.filter((c) => c === mapId).length;

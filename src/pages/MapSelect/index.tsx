@@ -6,11 +6,11 @@ import { useUnlockedMaps, useSelectedMap, useAppStore } from "../../store";
 import styles from "./index.module.css";
 
 interface MapSelectProps {
-  onSelect: () => void;
+  onConfirm: () => void;
   onBack: () => void;
 }
 
-const MapSelect: React.FC<MapSelectProps> = ({ onSelect, onBack }) => {
+const MapSelect: React.FC<MapSelectProps> = ({ onConfirm, onBack }) => {
   const { t } = useTranslation();
   const unlockedMaps = useUnlockedMaps();
 
@@ -29,7 +29,7 @@ const MapSelect: React.FC<MapSelectProps> = ({ onSelect, onBack }) => {
   const handleConfirm = () => {
     if (selectedMap) {
       useAppStore.getState().selectMap(selectedMap.id);
-      onSelect();
+      onConfirm();
     }
   };
 
@@ -46,7 +46,7 @@ const MapSelect: React.FC<MapSelectProps> = ({ onSelect, onBack }) => {
   };
 
   return (
-    <div className={styles.mapSelect}>
+    <div className="common-container">
       <h1 className={styles.title} data-testid="page-title">
         {t("maps.selectMap")}
       </h1>
@@ -120,7 +120,7 @@ const MapSelect: React.FC<MapSelectProps> = ({ onSelect, onBack }) => {
           onClick={onBack}
           data-testid="back-to-home-button"
         >
-          {t("game.backToHome")}
+          {t("game.back")}
         </button>
       </div>
     </div>

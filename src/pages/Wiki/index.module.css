@@ -1,0 +1,28 @@
+.closeButton {
+    width: unset;
+}
+
+.details {
+    padding-bottom: var(--container-padding);
+}
+
+.title {
+    font-size: var(--subtitle-font-siz);
+    font-weight: bold;
+}
+
+.item {
+    padding-bottom: var(--content-padding);
+    margin-bottom: var(--content-padding);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--content-padding);
+    justify-content: space-between;
+    border-bottom: 1px solid var(--gray-color);
+}
+
+.label {
+    font-size: var(--body-font-size);
+    font-weight: bold;
+}

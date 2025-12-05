@@ -16,7 +16,8 @@
     "endGameTitle": "结束",
     "endGameDesc": "你想结束游戏吗？",
     "completeChapters": "完成的章节",
-    "stats": "统计"
+    "stats": "统计",
+    "back": "返回"
   },
   "languages": {
     "en-US": "英语",
@@ -165,8 +166,10 @@
     "unlockCharacter": "选择角色",
     "locked": "未解锁",
     "unlockCondition": "解锁条件",
-    "specialWeapon": "专属武器"
-  },
+        "specialWeapon": "专属武器",
+        "selectCharacter": "选择角色",
+        "title": "角色"
+    },
   "maps": {
     "chapter1": {
       "name": "第一回 - 狼虎之穴",
@@ -193,8 +196,9 @@
       "description": "终极挑战，觉醒之路"
     },
     "selectMap": "选择章节",
-    "difficulty": "难度"
-  },
+    "difficulty": "难度",
+        "title": "章节"
+    },
   "unlockConditions": {
     "default": "默认已解锁",
     "kills": "击败{value}个敌人",
@@ -408,46 +412,8 @@
     },
     "upgrade": "升级{name}",
     "addWeapon": "添加{name}",
-    "upgradeToLevel": "{name} 等级{level}"
-  },
-  "enemies": {
-    "wolf_minion": "狼妖",
-    "ghost_minion": "阴兵",
-    "bear_elite": "熊罴精",
-    "snake_elite": "蛇将军",
-    "rat_minion": "鼠妖",
-    "sand_minion": "沙怪",
-    "tiger_elite": "虎力士",
-    "wind_elite": "风妖统领",
-    "monk_minion": "妖僧",
-    "spider_minion": "小蜘蛛精",
-    "centipede_elite": "蜈蚣统领",
-    "scorpion_elite": "蝎子精",
-    "spider_woman_minion": "蜘蛛女妖",
-    "centipede_minion": "小蜈蚣",
-    "violet_spider_elite": "紫蜘蛛",
-    "poison_centipede_elite": "毒蜈蚣",
-    "fire_demon_minion": "火妖",
-    "bull_soldier_minion": "牛兵",
-    "fire_general_elite": "火将军",
-    "bull_captain_elite": "牛魔统领",
-    "celestial_guard_minion": "天兵",
-    "thunder_minion": "雷妖",
-    "celestial_general_elite": "天将",
-    "dragon_guardian_elite": "龙卫"
-  },
-  "rewards": {
-    "title": "选择奖励",
-    "refresh": "刷新",
-    "refreshCost": "刷新 ({cost} 💰)",
-    "craftHint": "提示：可合成 {count} 种传说武器",
-    "selectReward": "选择奖励",
-    "rarity": {
-      "common": "普通",
-      "rare": "稀有",
-      "epic": "史诗",
-      "legendary": "传说"
-    }
+    "upgradeToLevel": "{name} 等级{level}",
+    "title": "武器"
   },
   "elixirs": {
     "peach_of_immortality": {
@@ -489,11 +455,61 @@
     "resurrection_pill": {
       "name": "还魂丹",
       "description": "死亡时满血复活一次"
-    }
+    },
+    "title": "丹药"
+  },
+  "enemies": {
+    "wolf_minion": "狼妖",
+    "ghost_minion": "阴兵",
+    "bear_elite": "熊罴精",
+    "snake_elite": "蛇将军",
+    "rat_minion": "鼠妖",
+    "sand_minion": "沙怪",
+    "tiger_elite": "虎力士",
+    "wind_elite": "风妖统领",
+    "monk_minion": "妖僧",
+    "spider_minion": "小蜘蛛精",
+    "centipede_elite": "蜈蚣统领",
+    "scorpion_elite": "蝎子精",
+    "spider_woman_minion": "蜘蛛女妖",
+    "centipede_minion": "小蜈蚣",
+    "violet_spider_elite": "紫蜘蛛",
+    "poison_centipede_elite": "毒蜈蚣",
+    "fire_demon_minion": "火妖",
+    "bull_soldier_minion": "牛兵",
+    "fire_general_elite": "火将军",
+    "bull_captain_elite": "牛魔统领",
+    "celestial_guard_minion": "天兵",
+    "thunder_minion": "雷妖",
+    "celestial_general_elite": "天将",
+    "dragon_guardian_elite": "龙卫",
+    "title": "敌人"
   },
   "dialog": {
     "resetSaveConfirm": "确定要重置所有存档数据吗？此操作无法撤销",
     "yes": "是",
     "no": "否"
+  },
+  "rewards": {
+    "title": "选择奖励",
+    "refresh": "刷新",
+    "refreshCost": "刷新 ({cost} 💰)",
+    "craftHint": "提示：可打造 {count} 件传说武器",
+    "selectReward": "选择奖励",
+    "rarity": {
+      "common": "普通",
+      "rare": "稀有",
+      "epic": "史诗",
+      "legendary": "传说"
+    }
+  },
+  "settings": {
+    "chooseLanguage": "选择语言",
+    "title": "设置",
+    "autoSelect": "游戏自动托管（随机选择武器和仙丹）",
+    "unlockAll": "解锁所有角色和章节"
+  },
+  "wiki": {
+    "title": "百科"
   }
 }

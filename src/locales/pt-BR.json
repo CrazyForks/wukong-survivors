@@ -16,7 +16,8 @@
         "endGameTitle": "Sair",
         "endGameDesc": "Deseja sair do jogo?",
         "completeChapters": "Capítulos concluídos",
-        "stats": "Estatísticas"
+        "stats": "Estatísticas",
+        "back": "Voltar"
     },
     "languages": {
         "zh-CN": "Chinês simplificado",
@@ -157,7 +158,9 @@
         "unlockCharacter": "Desbloquear personagem",
         "locked": "Bloqueado",
         "unlockCondition": "Condição de desbloqueio",
-        "specialWeapon": "Arma especial"
+        "specialWeapon": "Arma especial",
+        "selectCharacter": "Selecionar Personagem",
+        "title": "Personagem"
     },
     "maps": {
         "chapter1": {
@@ -185,7 +188,8 @@
             "description": "O desafio final, o caminho da iluminação"
         },
         "selectMap": "Selecionar capítulo",
-        "difficulty": "Dificuldade"
+        "difficulty": "Dificuldade",
+        "title": "Capítulo"
     },
     "unlockConditions": {
         "default": "Desbloqueado por padrão",
@@ -404,7 +408,8 @@
         },
         "upgrade": "Melhorar {name}",
         "addWeapon": "Adicionar {name}",
-        "upgradeToLevel": "{name} Nível {level}"
+        "upgradeToLevel": "{name} Nível {level}",
+        "title": "Arma"
     },
     "elixirs": {
         "peach_of_immortality": {
@@ -446,7 +451,8 @@
         "resurrection_pill": {
             "name": "Pílula de Ressurreição",
             "description": "Ressuscita com vida cheia uma vez após a morte"
-        }
+        },
+        "title": "Elíxir"
     },
     "enemies": {
         "wolf_minion": "Lobo-Demônio",
@@ -472,7 +478,8 @@
         "celestial_guard_minion": "Guardião Celestial",
         "thunder_minion": "Trovão-Demônio",
         "celestial_general_elite": "General Celestial",
-        "dragon_guardian_elite": "Guardião de Dragão"
+        "dragon_guardian_elite": "Guardião de Dragão",
+        "title": "Inimigo"
     },
     "rewards": {
         "title": "Escolher recompensa",
@@ -491,5 +498,14 @@
         "resetSaveConfirm": "Tem certeza que deseja redefinir todos os dados salvos? Esta ação não pode ser desfeita.",
         "yes": "Sim",
         "no": "Não"
+    },
+    "settings": {
+        "chooseLanguage": "Escolher idioma",
+        "title": "Configurações",
+        "autoSelect": "Hospedagem automática do jogo (seleciona arma e elixir aleatoriamente)",
+        "unlockAll": "Desbloquear todos os personagens e capítulos"
+    },
+    "wiki": {
+        "title": "Wiki"
     }
 }

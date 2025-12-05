@@ -41,7 +41,7 @@ const Shop: React.FC<ShopProps> = ({ onBack }) => {
   };
 
   return (
-    <div className={styles.shop}>
+    <div className="common-container">
       <h1 data-testid="shop-title">{t("shop.title")}</h1>
 
       <div className={styles.goldDisplay} data-testid="shop-gold-display">
@@ -115,7 +115,7 @@ const Shop: React.FC<ShopProps> = ({ onBack }) => {
           onClick={onBack}
           data-testid="shop-back-button"
         >
-          {t("game.backToHome")}
+          {t("game.back")}
         </button>
         <button
           className="resetButton"

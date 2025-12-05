@@ -14,6 +14,7 @@ const LanguageSelect = () => {
       value={language}
       className={styles.languageSelector}
       onChange={(e) => i18n.changeLanguage(e.target.value as Language)}
+      id="select-langauge"
     >
       {SupportLanguageCodes.map((lang) => (
         <option key={lang} value={lang}>

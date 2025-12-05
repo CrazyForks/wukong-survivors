@@ -16,7 +16,8 @@
         "endGameTitle": "Finalizar",
         "endGameDesc": "¿Quieres finalizar el juego?",
         "completeChapters": "Capítulos Completados",
-        "stats": "Estadísticas"
+        "stats": "Estadísticas",
+        "back": "Volver"
     },
     "languages": {
         "zh-CN": "Chino Simplificado",
@@ -157,7 +158,9 @@
         "unlockCharacter": "Desbloquear personaje",
         "locked": "Bloqueado",
         "unlockCondition": "Condición de Desbloqueo",
-        "specialWeapon": "Arma Especial"
+        "specialWeapon": "Arma Especial",
+        "selectCharacter": "Seleccionar Personaje",
+        "title": "Personaje"
     },
     "maps": {
         "chapter1": {
@@ -185,7 +188,8 @@
             "description": "Desafío final, camino a la iluminación"
         },
         "selectMap": "Seleccionar Capítulo",
-        "difficulty": "Dificultad"
+        "difficulty": "Dificultad",
+        "title": "Capítulo"
     },
     "unlockConditions": {
         "default": "Desbloqueado por defecto",
@@ -404,7 +408,8 @@
         },
         "upgrade": "Mejorar {name}",
         "addWeapon": "Añadir {name}",
-        "upgradeToLevel": "{name} Nvl.{level}"
+        "upgradeToLevel": "{name} Nvl.{level}",
+        "title": "Arma"
     },
     "elixirs": {
         "peach_of_immortality": {
@@ -446,7 +451,8 @@
         "resurrection_pill": {
             "name": "Pastilla de Resurrección",
             "description": "Revive una vez con toda la vida al morir"
-        }
+        },
+        "title": "Elixir"
     },
     "enemies": {
         "wolf_minion": "Lobo Demonio",
@@ -472,7 +478,8 @@
         "celestial_guard_minion": "Guardia Celestial",
         "thunder_minion": "Demonio del Trueno",
         "celestial_general_elite": "General Celestial",
-        "dragon_guardian_elite": "Guardian Dragón"
+        "dragon_guardian_elite": "Guardian Dragón",
+        "title": "Enemigo"
     },
     "rewards": {
         "title": "Seleccionar Recompensa",
@@ -491,5 +498,14 @@
         "resetSaveConfirm": "¿Estás seguro de que quieres restablecer todos los datos de guardado? Esto no se puede deshacer.",
         "yes": "Sí",
         "no": "No"
+    },
+    "settings": {
+        "chooseLanguage": "Seleccionar idioma",
+        "title": "Configuración",
+        "autoSelect": "Hosting automático del juego (selección aleatoria de arma y elixir)",
+        "unlockAll": "Desbloquear todos los personajes y capítulos"
+    },
+    "wiki": {
+        "title": "Wiki"
     }
 }

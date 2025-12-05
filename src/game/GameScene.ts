@@ -907,6 +907,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   public showLevelUpMenu(): void {
+    // Get upgrade options
+    const options = this.weaponManager?.getUpgradeOptions() || [];
+
+    if (options.length === 0) {
+      return;
+    }
+
     this.audioManager?.playSfx(SoundEffect.LEVEL_UP);
     this.pause();
     const startDepth = scaleManager.getZIndex();
@@ -949,11 +956,20 @@ export class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(textDepth);
 
-    // Get upgrade options
-    const options = this.weaponManager?.getUpgradeOptions() || [];
-
     // Create option buttons
     const buttons: ButtonElement[] = [];
+
+    const selectOption = (option: UpgradeOption) => {
+      this.selectUpgrade(option);
+      // Clear menu
+      overlay.destroy();
+      title.destroy();
+      buttons.forEach((btn) => {
+        btn.button.destroy();
+        btn.nameText.destroy();
+        btn.descText.destroy();
+      });
+    };
 
     const width = Math.min(
       scaleManager.getUIElementSize(500),
@@ -1015,19 +1031,16 @@ export class GameScene extends Phaser.Scene {
       });
 
       button.on("pointerdown", () => {
-        this.selectUpgrade(option);
-        // Clear menu
-        overlay.destroy();
-        title.destroy();
-        buttons.forEach((btn) => {
-          btn.button.destroy();
-          btn.nameText.destroy();
-          btn.descText.destroy();
-        });
+        selectOption(option);
       });
 
       buttons.push({ button, nameText, descText });
     });
+
+    if (useSaveStore.getState().enableAutoSelect) {
+      const index = Math.floor(Math.random() * options.length);
+      selectOption(options[index]);
+    }
   }
 
   public selectUpgrade(option: UpgradeOption): void {
@@ -1226,7 +1239,7 @@ export class GameScene extends Phaser.Scene {
 
     // Complete the chapter and unlock characters
     const selectedMap = useAppStore.getState().getSelectMap();
-    useSaveStore.getState().completeChapter(selectedMap.id);
+    useSaveStore.getState().completeChapter([selectedMap.id]);
 
     this.showModal({
       title: i18n.t("game.chapterComplete"),
