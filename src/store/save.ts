@@ -30,7 +30,7 @@ interface SaveStore extends GameSave {
   setMusicVolume: (volume: number) => void;
   setMusicEnabled: (enabled: boolean) => void;
   setAutoSelectEnabled: (enabled: boolean) => void;
-  setUnlockAllnabled: (enabled: boolean) => void;
+  setUnlockAllEnabled: (enabled: boolean) => void;
 }
 
 // Create Zustand Store with persist middleware
@@ -42,7 +42,7 @@ export const useSaveStore = create<SaveStore>()(
       setAutoSelectEnabled(enabled) {
         set({ enableAutoSelect: enabled });
       },
-      setUnlockAllnabled(enabled) {
+      setUnlockAllEnabled(enabled) {
         const { completeChapter } = get();
         set({ enableUnlockAll: enabled });
         if (enabled) {

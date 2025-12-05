@@ -763,7 +763,7 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.existing(coin);
 
     // Coin automatically flies towards player
-    this.time.addEvent({
+    const timer = this.time.addEvent({
       delay: 100,
       callback: () => {
         const dx = this.player.sprite.x - coin.x;
@@ -771,6 +771,7 @@ export class GameScene extends Phaser.Scene {
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < 50) {
+          timer.destroy();
           coin.destroy();
           useSaveStore.getState().addGold(1);
         } else if (distance < 300) {

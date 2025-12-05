@@ -6,6 +6,9 @@ import i18n from "../../../i18n";
 // Mock the store
 vi.mock("../../../store", () => ({
   useLanguage: vi.fn(() => "en-US"),
+  useSaveStore: {
+    getState: vi.fn().mockReturnValue({ setLanguage: vi.fn() }),
+  },
 }));
 
 // Mock i18n

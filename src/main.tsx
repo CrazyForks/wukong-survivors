@@ -7,7 +7,6 @@ import { useSaveStore } from "./store";
 
 async function init() {
   const currentLanguage = await i18n.changeLanguage();
-  console.log("currentLanguage:", currentLanguage);
   useSaveStore.getState().setLanguage(currentLanguage);
   const root = createRoot(document.getElementById("root")!);
   root.render(<App />);

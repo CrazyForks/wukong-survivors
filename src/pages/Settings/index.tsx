@@ -22,7 +22,7 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
       </button>
       <h1 data-testid="page-title">{t("settings.title")}</h1>
       <div className={styles.list}>
-        <label htmlFor="select-langauge">{t("settings.chooseLanguage")}</label>
+        <label htmlFor="select-language">{t("settings.chooseLanguage")}</label>
         <LanguageSelect />
       </div>
       <div className={styles.list}>
@@ -45,7 +45,7 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
           name="unlock-all"
           checked={enableUnlockAll}
           onChange={(e) =>
-            useSaveStore.getState().setUnlockAllnabled(e.target.checked)
+            useSaveStore.getState().setUnlockAllEnabled(e.target.checked)
           }
         />
       </div>
