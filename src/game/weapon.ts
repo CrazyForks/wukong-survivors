@@ -1,16 +1,18 @@
-import Phaser from 'phaser';
-import { Player } from './player';
-import { Enemy } from './enemy';
-import { scaleManager } from './ScaleManager';
-import type { WeaponType } from '../types';
-import i18n from '../i18n';
+import Phaser from "phaser";
+import { Player } from "./player";
+import { Enemy } from "./enemy";
+import { scaleManager } from "./ScaleManager";
+import type { WeaponType } from "../types";
+import i18n from "../i18n";
 import {
   MAX_SELECT_SIZE,
   WEAPONS,
   COLLECT_RANGE_BONUS,
   RARITY_SIZE,
-} from '../constant';
-import type { GameScene } from './GameScene';
+  RARITY_DURATION,
+  RARITY_SPEED,
+} from "../constant";
+import type { GameScene } from "./GameScene";
 
 /**
  * Configuration interface for weapon creation
@@ -53,6 +55,7 @@ export abstract class Weapon {
   public type: WeaponType;
   public orbs: OrbData[] = [];
   public projectiles: Phaser.Physics.Arcade.Group;
+  public collectRangeBonus: number = 0;
 
   /**
    * Create a new weapon
@@ -87,7 +90,9 @@ export abstract class Weapon {
    */
   public update(time: number, enemies: Enemy[], sortedEnemies: Enemy[]): void {
     if (time - this.lastFired >= this.coolDown) {
-      this.scene.playPlayerFireSound();
+      if (enemies.length > 0) {
+        this.scene.playPlayerFireSound();
+      }
       this.fire(enemies, sortedEnemies);
       this.lastFired = time;
     }
@@ -195,38 +200,62 @@ export abstract class Weapon {
 
   protected fireWeapon(
     enemies: Enemy[],
-    size: number = 1,
-    projectileSpeed: number = 250,
-    bindDuration: number = 2000,
-  ): void {
+    count: number = 1,
+    projectileSpeed?: number,
+    piercing: number = 1,
+    generateAngle?: (index: number) => number,
+  ) {
     const playerPos = this.scene.getPlayerPosition();
-    const targets = enemies.slice(0, size);
+    const weaponData = WEAPONS[this.type];
+    const duration = RARITY_DURATION[weaponData.rarity];
+    const speed = projectileSpeed ?? RARITY_SPEED[weaponData.rarity];
 
-    targets.forEach((target, index) => {
+    const list: ProjectileSprite[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const target = enemies[i];
+
+      let angle = 0;
+
+      if (generateAngle) {
+        angle = generateAngle(i);
+      } else if (target) {
+        angle = Phaser.Math.Angle.Between(
+          playerPos.x,
+          playerPos.y,
+          target.sprite.x,
+          target.sprite.y,
+        );
+      } else {
+        continue;
+      }
+
       const projectile = this.createProjectile(
         20,
-        playerPos.x + (index === 0 ? -10 : 10),
+        playerPos.x + (i === 0 ? -10 : 10),
       );
 
-      const angle = Phaser.Math.Angle.Between(
-        playerPos.x,
-        playerPos.y,
-        target.sprite.x,
-        target.sprite.y,
-      );
-
-      projectile.setVelocity(
-        Math.cos(angle) * projectileSpeed,
-        Math.sin(angle) * projectileSpeed,
-      );
+      projectile.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
       projectile.setRotation(angle);
 
-      projectile.piercing = 1;
+      projectile.piercing = piercing;
 
-      this.scene.time.delayedCall(bindDuration, () => {
+      this.scene.time.delayedCall(duration, () => {
         if (projectile.active) projectile.destroy();
       });
-    });
+
+      list.push(projectile);
+    }
+
+    return list;
+  }
+
+  protected updateCollectRange(): void {
+    this.player.collectRangeBonus -= this.collectRangeBonus;
+
+    this.collectRangeBonus = COLLECT_RANGE_BONUS * this.level;
+
+    this.player.collectRangeBonus += this.collectRangeBonus;
   }
 }
 
@@ -235,7 +264,6 @@ export abstract class Weapon {
  * Fires auto-targeting magic missiles at the closest enemy
  */
 export class GoldenStaff extends Weapon {
-  private projectileSpeed: number;
   private piercing: number;
 
   /**
@@ -245,9 +273,8 @@ export class GoldenStaff extends Weapon {
    */
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'golden_staff',
+      type: "golden_staff",
     });
-    this.projectileSpeed = 300; // Base projectile speed
     this.piercing = 1; // Base piercing value (number of enemies it can hit)
   }
 
@@ -255,39 +282,7 @@ export class GoldenStaff extends Weapon {
    * Fire magic missile at the closest enemy
    */
   protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
-    const playerPos = this.scene.getPlayerPosition();
-    const nearestEnemy = sortedEnemies[0];
-
-    // Only fire if an enemy was found
-    if (!nearestEnemy) return;
-
-    // Create projectile using helper method
-    const projectile = this.createProjectile();
-
-    // Set piercing property
-    projectile.piercing = this.piercing;
-
-    // Calculate direction towards target enemy
-    const targetEnemy: Enemy = nearestEnemy;
-    const dx = targetEnemy.sprite.x - playerPos.x;
-    const dy = targetEnemy.sprite.y - playerPos.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    // Set projectile velocity towards enemy
-    projectile.setVelocity(
-      (dx / distance) * this.projectileSpeed,
-      (dy / distance) * this.projectileSpeed,
-    );
-
-    // Set projectile rotation based on direction
-    projectile.setRotation(Math.atan2(dy, dx));
-
-    // Set lifetime for the projectile
-    this.scene.time.delayedCall(2000, () => {
-      if (projectile.active) {
-        projectile.destroy();
-      }
-    });
+    this.fireWeapon(sortedEnemies, undefined, undefined, this.piercing);
   }
 
   /**
@@ -327,7 +322,7 @@ export class FireproofCloak extends Weapon {
    */
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'fireproof_cloak',
+      type: "fireproof_cloak",
     });
     this.orbCount = 1; // Start with 1 orb
     this.radius = scaleManager.scaleValue(80); // Initial rotation radius
@@ -424,7 +419,6 @@ export class FireproofCloak extends Weapon {
  * Creates high damage projectiles with piercing capability
  */
 export class RuyiStaff extends Weapon {
-  private projectileSpeed: number;
   private piercing: number;
   private projectileCount: number;
 
@@ -435,11 +429,11 @@ export class RuyiStaff extends Weapon {
    */
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'ruyi_staff',
+      type: "ruyi_staff",
     });
 
     // Initialize weapon properties
-    this.projectileSpeed = scaleManager.scaleValue(400); // Responsive projectile speed
+
     this.piercing = 3; // Can pierce through 3 enemies initially
     this.projectileCount = 1; // Start with 1 projectile per shot
   }
@@ -449,38 +443,12 @@ export class RuyiStaff extends Weapon {
    * @param enemies Array of active enemies
    */
   protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
-    const playerPos = this.scene.getPlayerPosition();
-
-    // Use the first enemy in the sorted array as the nearest enemy
-    const nearestEnemy = sortedEnemies[0];
-
-    if (!nearestEnemy) return;
-
-    // Fire multiple projectiles based on projectileCount
-    for (let i = 0; i < this.projectileCount; i++) {
-      // Calculate angle to target enemy
-      const angle = Math.atan2(
-        nearestEnemy.sprite.y - playerPos.y,
-        nearestEnemy.sprite.x - playerPos.x,
-      );
-
-      // Use the createProjectile utility method from Weapon base class
-      const projectile = this.createProjectile();
-      projectile.piercing = this.piercing;
-      projectile.rotation = angle;
-      projectile.setVelocity(
-        Math.cos(angle) * this.projectileSpeed,
-        Math.sin(angle) * this.projectileSpeed,
-      );
-
-      // Set lifetime
-      this.scene.time.delayedCall(3000, () => {
-        if (projectile.active) projectile.destroy();
-      });
-
-      // Track projectile in the weapon's projectile group
-      this.projectiles?.add(projectile);
-    }
+    this.fireWeapon(
+      sortedEnemies,
+      this.projectileCount,
+      undefined,
+      this.piercing,
+    );
   }
 
   /**
@@ -518,11 +486,11 @@ export class FireLance extends Weapon {
    */
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'fire_lance',
+      type: "fire_lance",
     });
 
     // Initialize weapon properties
-    this.projectileSpeed = scaleManager.scaleValue(500); // Responsive projectile speed
+    this.projectileSpeed = 500; // Responsive projectile speed
     this.piercing = 2; // Can pierce through 2 enemies initially
   }
 
@@ -531,36 +499,12 @@ export class FireLance extends Weapon {
    * @param enemies Array of active enemies
    */
   protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
-    const playerPos = this.scene.getPlayerPosition();
-
-    // Find closest enemy using base class helper method
-    const nearestEnemy = sortedEnemies[0];
-    if (!nearestEnemy) return;
-
-    // Calculate angle to target enemy
-    const angle = Phaser.Math.Angle.Between(
-      playerPos.x,
-      playerPos.y,
-      nearestEnemy.sprite.x,
-      nearestEnemy.sprite.y,
+    this.fireWeapon(
+      sortedEnemies,
+      undefined,
+      this.projectileSpeed,
+      this.piercing,
     );
-
-    // Use createProjectile utility method from Weapon base class
-    const projectile = this.createProjectile();
-    projectile.piercing = this.piercing;
-    projectile.rotation = angle;
-    projectile.setVelocity(
-      Math.cos(angle) * this.projectileSpeed,
-      Math.sin(angle) * this.projectileSpeed,
-    );
-
-    // Set lifetime
-    this.scene.time.delayedCall(2500, () => {
-      if (projectile.active) projectile.destroy();
-    });
-
-    // Track projectile in the weapon's projectile group
-    this.projectiles?.add(projectile);
   }
 
   /**
@@ -578,21 +522,25 @@ export class FireLance extends Weapon {
     if (this.level >= 3) this.piercing = 3;
 
     // Increase speed at max level
-    if (this.level >= 5) this.projectileSpeed = scaleManager.scaleValue(600);
+    if (this.level >= 5) this.projectileSpeed = 600;
   }
 }
 
 // Wind Tamer - Area damage pearl
 export class WindTamer extends Weapon {
   private orbCount: number;
-  private damageRadius: number;
+  private angle: number;
+  private rotationSpeed: number;
+  private radius: number;
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'wind_tamer',
+      type: "wind_tamer",
     });
     this.orbCount = 1;
-    this.damageRadius = 100;
+    this.angle = 0; // Current rotation angle
+    this.rotationSpeed = 2;
+    this.radius = scaleManager.scaleValue(60);
     this.createOrbs();
   }
 
@@ -600,35 +548,48 @@ export class WindTamer extends Weapon {
     this.orbs.forEach((orb) => orb.sprite.destroy());
     this.orbs = [];
     for (let i = 0; i < this.orbCount; i++) {
+      // Create orb sprite
       const orb = this.createOrb();
 
+      // Calculate angular offset for evenly spaced orbs
+      const offset = ((Math.PI * 2) / this.orbCount) * i;
+
+      // Add to orb collection
       this.orbs.push({
         sprite: orb,
-        offset: ((Math.PI * 2) / this.orbCount) * i,
+        offset: offset,
       });
     }
   }
 
   public update(_time: number, _enemies: Enemy[]): void {
+    // Update rotation angle (deltaTime approximation)
+    this.angle += this.rotationSpeed * 0.016; // Assuming 60fps
+
+    // Get current player position
     const playerPos = this.scene.getPlayerPosition();
+
+    // Update each orb's position around the player
     this.orbs.forEach((orb) => {
-      orb.sprite.x = playerPos.x;
-      orb.sprite.y = playerPos.y;
+      const adjustedAngle = this.angle + orb.offset;
+      orb.sprite.x = playerPos.x + Math.cos(adjustedAngle) * this.radius;
+      orb.sprite.y = playerPos.y + Math.sin(adjustedAngle) * this.radius;
     });
   }
 
-  protected fire(enemies: Enemy[]): void {
-    this.getEnemiesInRange(enemies, this.damageRadius).forEach((enemy) =>
-      enemy.takeDamage(this.damage),
-    );
-  }
+  protected fire(_enemies: Enemy[]): void {}
 
   protected applyUpgrade(): void {
     this.damage += 8;
-    if (this.level >= 2) this.damageRadius = 120;
-    if (this.level >= 3) this.coolDown = 1500;
-    if (this.level >= 4) this.damageRadius = 150;
-    if (this.level >= 5) this.orbCount = 2;
+    if (this.level >= 2) this.rotationSpeed = 3;
+    if (this.level >= 3) {
+      this.radius = scaleManager.scaleValue(80);
+    }
+    if (this.level >= 4) this.rotationSpeed = 4;
+    if (this.level >= 5) {
+      this.orbCount = 2;
+      this.createOrbs();
+    }
   }
 }
 
@@ -638,7 +599,7 @@ export class VioletBell extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'violet_bell',
+      type: "violet_bell",
     });
     this.waveCount = 3;
   }
@@ -665,7 +626,7 @@ export class VioletBell extends Weapon {
         radius: 150,
         alpha: 0,
         duration: 1000,
-        ease: 'Power2',
+        ease: "Power2",
         onUpdate: () => {
           enemies.forEach((enemy) => {
             const dist = Phaser.Math.Distance.Between(
@@ -699,13 +660,13 @@ export class TwinBlades extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'twin_blades',
+      type: "twin_blades",
     });
     this.projectileSpeed = 450;
   }
 
-  protected fire(enemies: Enemy[]): void {
-    this.fireWeapon(enemies, 2, this.projectileSpeed, 1500);
+  protected fire(_enemies: Enemy[], sortEnemies: Enemy[]): void {
+    this.fireWeapon(sortEnemies, 2, this.projectileSpeed);
   }
 
   protected applyUpgrade(): void {
@@ -719,12 +680,12 @@ export class TwinBlades extends Weapon {
 export class Mace extends Weapon {
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'mace',
+      type: "mace",
     });
   }
 
-  protected fire(enemies: Enemy[]): void {
-    this.fireWeapon(enemies, 1, 250, 200);
+  protected fire(_enemies: Enemy[], sortEnemies: Enemy[]): void {
+    this.fireWeapon(sortEnemies);
   }
 
   protected applyUpgrade(): void {
@@ -740,7 +701,7 @@ export class BullHorns extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'bull_horns',
+      type: "bull_horns",
     });
     this.chargeRadius = 150;
   }
@@ -765,12 +726,7 @@ export class BullHorns extends Weapon {
         enemy.sprite.x,
         enemy.sprite.y,
       );
-      if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-        enemy.sprite.body?.setVelocity(
-          Math.cos(angle) * 300,
-          Math.sin(angle) * 300,
-        );
-      }
+      enemy.setVelocity(Math.cos(angle) * 300, Math.sin(angle) * 300);
     });
 
     this.scene.tweens.add({
@@ -796,7 +752,7 @@ export class ThunderDrum extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'thunder_drum',
+      type: "thunder_drum",
     });
     this.strikeCount = 3;
   }
@@ -808,14 +764,13 @@ export class ThunderDrum extends Weapon {
 
     targets.forEach((target) => {
       // Lightning strike effect
-      const lightning = this.scene.add.rectangle(
+      const lightning = this.scene.add.image(
         target.sprite.x,
-        target.sprite.y - scaleManager.UIScaleValue(100),
-        scaleManager.UIScaleValue(10),
-        scaleManager.UIScaleValue(100),
-        0xffd700,
-        0.8,
+        target.sprite.y,
+        this.type,
       );
+
+      lightning.setScale(2);
 
       this.scene.tweens.add({
         targets: lightning,
@@ -845,32 +800,24 @@ export class IceNeedle extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'ice_needle',
+      type: "ice_needle",
     });
     this.projectileSpeed = 550;
     this.projectileCount = 3;
   }
 
-  protected fire(): void {
+  protected fire(_enemies: Enemy[], sortEnemies: Enemy[]): void {
     const angleStep = (Math.PI * 2) / this.projectileCount;
 
-    for (let i = 0; i < this.projectileCount; i++) {
-      const angle = angleStep * i;
-
-      const projectile = this.createProjectile();
-
-      projectile.setVelocity(
-        Math.cos(angle) * this.projectileSpeed,
-        Math.sin(angle) * this.projectileSpeed,
-      );
-      projectile.setRotation(angle);
-
-      projectile.piercing = 1;
-
-      this.scene.time.delayedCall(2000, () => {
-        if (projectile.active) projectile.destroy();
-      });
-    }
+    this.fireWeapon(
+      sortEnemies,
+      this.projectileCount,
+      this.projectileSpeed,
+      1,
+      (index) => {
+        return angleStep * index;
+      },
+    );
   }
 
   protected applyUpgrade(): void {
@@ -891,7 +838,7 @@ export class WindFireWheels extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'wind_fire_wheels',
+      type: "wind_fire_wheels",
     });
     this.orbCount = 2;
     this.radius = scaleManager.scaleValue(70);
@@ -945,7 +892,7 @@ export class JadePurityBottle extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'jade_purity_bottle',
+      type: "jade_purity_bottle",
     });
     this.pullRadius = 200;
     this.pullStrength = 150;
@@ -979,12 +926,11 @@ export class JadePurityBottle extends Weapon {
           playerPos.x,
           playerPos.y,
         );
-        if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-          enemy.sprite.body?.setVelocity(
-            Math.cos(angle) * this.pullStrength,
-            Math.sin(angle) * this.pullStrength,
-          );
-        }
+
+        enemy.setVelocity(
+          Math.cos(angle) * this.pullStrength,
+          Math.sin(angle) * this.pullStrength,
+        );
 
         if (distance < 80) {
           enemy.takeDamage(this.damage);
@@ -1012,25 +958,22 @@ export class JadePurityBottle extends Weapon {
 
 // Golden Rope - Binding weapon
 export class GoldenRope extends Weapon {
-  private bindDuration: number;
   private maxTargets: number;
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'golden_rope',
+      type: "golden_rope",
     });
-    this.bindDuration = 2000;
     this.maxTargets = 2;
   }
 
-  protected fire(enemies: Enemy[]): void {
-    this.fireWeapon(enemies, this.maxTargets, 250, this.bindDuration);
+  protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
+    this.fireWeapon(sortedEnemies, this.maxTargets);
   }
 
   protected applyUpgrade(): void {
     this.damage += 4;
     if (this.level >= 2) this.maxTargets = 3;
-    if (this.level >= 3) this.bindDuration = 3000;
     if (this.level >= 4) this.maxTargets = 4;
     if (this.level >= 5) this.coolDown = 1000;
   }
@@ -1043,7 +986,7 @@ export class PlantainFan extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'plantain_fan',
+      type: "plantain_fan",
     });
     this.fanAngle = Math.PI / 3;
     this.fanRange = 250;
@@ -1052,18 +995,17 @@ export class PlantainFan extends Weapon {
   protected fire(enemies: Enemy[], sortedEnemies: Enemy[]): void {
     const playerPos = this.scene.getPlayerPosition();
 
-    // Find direction to nearest enemy
-    let targetAngle = 0;
-
     const nearest = sortedEnemies[0];
-    if (nearest) {
-      targetAngle = Phaser.Math.Angle.Between(
-        playerPos.x,
-        playerPos.y,
-        nearest.sprite.x,
-        nearest.sprite.y,
-      );
+    if (!nearest) {
+      return;
     }
+
+    const targetAngle = Phaser.Math.Angle.Between(
+      playerPos.x,
+      playerPos.y,
+      nearest.sprite.x,
+      nearest.sprite.y,
+    );
 
     // Create fan wind effect
     const graphics = this.scene.add.graphics();
@@ -1096,12 +1038,8 @@ export class PlantainFan extends Weapon {
 
       if (distance < this.fanRange && angleDiff < this.fanAngle / 2) {
         enemy.takeDamage(this.damage);
-        if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-          enemy.sprite.body.setVelocity(
-            Math.cos(angle) * 400,
-            Math.sin(angle) * 400,
-          );
-        }
+
+        enemy.setVelocity(Math.cos(angle) * 400, Math.sin(angle) * 400);
       }
     });
 
@@ -1129,32 +1067,24 @@ export class ThreePointedBlade extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'three_pointed_blade',
+      type: "three_pointed_blade",
     });
     this.projectileSpeed = 400;
     this.slashCount = 3;
   }
 
-  protected fire(): void {
-    // Three-pronged attack, 120 degree fan shape
-    for (let i = 0; i < this.slashCount; i++) {
-      const angleOffset = ((i - 1) * Math.PI) / 6; // -30°, 0°, 30°
-      const baseAngle = this.getPlayerAngle();
-      const targetAngle = baseAngle + angleOffset;
+  protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
+    const baseAngle = this.getPlayerAngle();
 
-      const projectile = this.createProjectile();
-
-      projectile.setRotation(targetAngle);
-
-      projectile.setVelocity(
-        Math.cos(targetAngle) * this.projectileSpeed,
-        Math.sin(targetAngle) * this.projectileSpeed,
-      );
-
-      this.scene.time.delayedCall(1500, () => {
-        if (projectile.active) projectile.destroy();
-      });
-    }
+    this.fireWeapon(
+      sortedEnemies,
+      this.slashCount,
+      this.projectileSpeed,
+      1,
+      (i) => {
+        return baseAngle + ((i - 1) * Math.PI) / 6;
+      },
+    );
   }
 
   protected applyUpgrade(): void {
@@ -1171,7 +1101,7 @@ export class NineRingStaff extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'nine_ring_staff',
+      type: "nine_ring_staff",
     });
     this.soundWaveRadius = scaleManager.scaleValue(150);
     this.stunDuration = 1000;
@@ -1188,14 +1118,12 @@ export class NineRingStaff extends Weapon {
 
     this.getEnemiesInRange(enemies, this.soundWaveRadius).forEach((enemy) => {
       enemy.takeDamage(this.damage);
-      // Stun effect: brief slowdown
-      if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-        const originalSpeed = enemy.speed;
-        enemy.speed *= 0.3;
-        this.scene.time.delayedCall(this.stunDuration, () => {
-          enemy.speed = originalSpeed;
-        });
-      }
+
+      const originalSpeed = enemy.speed;
+      enemy.speed *= 0.3;
+      this.scene.time.delayedCall(this.stunDuration, () => {
+        enemy.speed = originalSpeed;
+      });
     });
 
     // Sound wave spreading animation
@@ -1224,42 +1152,24 @@ export class CrescentBlade extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'crescent_blade',
+      type: "crescent_blade",
     });
     this.bladeCount = 2;
     this.returnSpeed = 350;
   }
 
-  protected fire(): void {
-    const playerPos = this.scene.getPlayerPosition();
+  protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
     const baseAngle = this.getPlayerAngle();
 
-    // Launch multiple crescent blades with boomerang effect
-    for (let i = 0; i < this.bladeCount; i++) {
-      const angleOffset = ((i - 0.5) * Math.PI) / 4;
-      const angle = baseAngle + angleOffset;
-
-      const blade = this.createProjectile();
-      const speed = this.returnSpeed;
-      blade.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
-
-      // Boomerang effect
-      this.scene.time.delayedCall(800, () => {
-        if (blade.active) {
-          const dx = playerPos.x - blade.x;
-          const dy = playerPos.y - blade.y;
-          const returnAngle = Math.atan2(dy, dx);
-          blade.setVelocity(
-            Math.cos(returnAngle) * speed,
-            Math.sin(returnAngle) * speed,
-          );
-        }
-      });
-
-      this.scene.time.delayedCall(1800, () => {
-        if (blade.active) blade.destroy();
-      });
-    }
+    this.fireWeapon(
+      sortedEnemies,
+      this.bladeCount,
+      this.returnSpeed,
+      1,
+      (i) => {
+        return baseAngle + ((i - 0.5) * Math.PI) / 4;
+      },
+    );
   }
 
   protected applyUpgrade(): void {
@@ -1277,7 +1187,7 @@ export class IronCudgel extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'iron_cudgel',
+      type: "iron_cudgel",
     });
     this.smashRadius = scaleManager.scaleValue(120);
     this.knockbackForce = 500;
@@ -1295,19 +1205,16 @@ export class IronCudgel extends Weapon {
     this.getEnemiesInRange(enemies, this.smashRadius).forEach((enemy) => {
       enemy.takeDamage(this.damage);
 
-      // Powerful knockback
-      if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-        const angle = Phaser.Math.Angle.Between(
-          playerPos.x,
-          playerPos.y,
-          enemy.sprite.x,
-          enemy.sprite.y,
-        );
-        enemy.sprite.body.setVelocity(
-          Math.cos(angle) * this.knockbackForce,
-          Math.sin(angle) * this.knockbackForce,
-        );
-      }
+      const angle = Phaser.Math.Angle.Between(
+        playerPos.x,
+        playerPos.y,
+        enemy.sprite.x,
+        enemy.sprite.y,
+      );
+      enemy.setVelocity(
+        Math.cos(angle) * this.knockbackForce,
+        Math.sin(angle) * this.knockbackForce,
+      );
     });
 
     this.scene.tweens.add({
@@ -1332,25 +1239,26 @@ export class IronCudgel extends Weapon {
 export class SevenStarSword extends Weapon {
   private swordCount: number;
   private orbitRadius: number;
-  private swords: ProjectileSprite[];
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'seven_star_sword',
+      type: "seven_star_sword",
     });
     this.swordCount = 3;
-    this.orbitRadius = scaleManager.scaleValue(90);
-    this.swords = [];
-    this.createSwords();
+    this.orbitRadius = 90;
+    this.orbs = [];
+    this.createOrbs();
   }
 
-  private createSwords(): void {
-    this.swords.forEach((sword) => sword.destroy());
-    this.swords = [];
+  private createOrbs(): void {
+    this.orbs.forEach((orb) => orb.sprite.destroy());
+    this.orbs = [];
 
     for (let i = 0; i < this.swordCount; i++) {
-      const sword = this.createOrb();
-      this.swords.push(sword);
+      this.orbs.push({
+        sprite: this.createOrb(),
+        offset: 0,
+      });
     }
   }
 
@@ -1359,11 +1267,11 @@ export class SevenStarSword extends Weapon {
     const angleStep = (Math.PI * 2) / this.swordCount;
     const rotation = (time / 1000) * 3; // Rotation speed
 
-    this.swords.forEach((sword, index) => {
+    this.orbs.forEach((orb, index) => {
       const angle = rotation + angleStep * index;
-      sword.x = playerPos.x + Math.cos(angle) * this.orbitRadius;
-      sword.y = playerPos.y + Math.sin(angle) * this.orbitRadius;
-      sword.setRotation(angle + Math.PI / 2);
+      orb.sprite.x = playerPos.x + Math.cos(angle) * this.orbitRadius;
+      orb.sprite.y = playerPos.y + Math.sin(angle) * this.orbitRadius;
+      orb.sprite.setRotation(angle + Math.PI / 2);
     });
   }
 
@@ -1371,14 +1279,14 @@ export class SevenStarSword extends Weapon {
 
   protected applyUpgrade(): void {
     this.damage += 5;
-    this.orbitRadius += scaleManager.scaleValue(10);
+    this.orbitRadius += 10;
     if (this.level >= 3) {
       this.swordCount = 5;
-      this.createSwords();
+      this.createOrbs();
     }
     if (this.level >= 5) {
       this.swordCount = 7;
-      this.createSwords();
+      this.createOrbs();
     }
   }
 }
@@ -1390,7 +1298,7 @@ export class GinsengFruit extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'ginseng_fruit',
+      type: "ginseng_fruit",
     });
     this.healAmount = 20;
     this.maxHealthBonus = 0;
@@ -1449,7 +1357,7 @@ export class HeavenEarthCircle extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'heaven_earth_circle',
+      type: "heaven_earth_circle",
     });
     this.circleSpeed = 450;
     this.returnDelay = 1000;
@@ -1513,57 +1421,22 @@ export class RedArmillarySash extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'red_armillary_sash',
+      type: "red_armillary_sash",
     });
     this.sashLength = scaleManager.scaleValue(200);
     this.whipCount = 3;
   }
 
-  protected fire(enemies: Enemy[]): void {
-    const playerPos = this.scene.getPlayerPosition();
+  protected fire(): void {
     const baseAngle = this.getPlayerAngle();
 
-    // Whip attack, fan-shaped swing
-    for (let i = 0; i < this.whipCount; i++) {
-      const angle = baseAngle + ((i - 1) * Math.PI) / 8;
-      const endX = playerPos.x + Math.cos(angle) * this.sashLength;
-      const endY = playerPos.y + Math.sin(angle) * this.sashLength;
-
-      // Create whip trajectory
-      const graphics = this.scene.add.graphics();
-      graphics.lineStyle(6, 0xff4444, 0.8);
-      graphics.lineBetween(playerPos.x, playerPos.y, endX, endY);
-
-      this.getEnemiesInRange(enemies, this.sashLength).forEach((enemy) => {
-        const enemyAngle = Phaser.Math.Angle.Between(
-          playerPos.x,
-          playerPos.y,
-          enemy.sprite.x,
-          enemy.sprite.y,
-        );
-        const angleDiff = Math.abs(Phaser.Math.Angle.Wrap(enemyAngle - angle));
-
-        if (angleDiff < Math.PI / 12) {
-          enemy.takeDamage(this.damage);
-          // Binding effect: slowdown
-          if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-            const originalSpeed = enemy.speed;
-            enemy.speed *= 0.5;
-            this.scene.time.delayedCall(800, () => {
-              enemy.speed = originalSpeed;
-            });
-          }
-        }
-      });
-
-      this.scene.tweens.add({
-        targets: graphics,
-        alpha: 0,
-        duration: 400,
-        delay: i * 100,
-        onComplete: () => graphics.destroy(),
-      });
-    }
+    this.fireWeapon(
+      [],
+      this.whipCount,
+      this.sashLength,
+      1,
+      (i) => baseAngle + ((i - 1) * Math.PI) / 4,
+    );
   }
 
   protected applyUpgrade(): void {
@@ -1578,16 +1451,13 @@ export class RedArmillarySash extends Weapon {
 export class PurpleGoldGourd extends Weapon {
   private absorbRadius: number;
   private absorbDuration: number;
-  private collectRangeBonus: number;
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'purple_gold_gourd',
+      type: "purple_gold_gourd",
     });
     this.absorbRadius = scaleManager.scaleValue(180);
     this.absorbDuration = 2000;
-    this.collectRangeBonus = 0;
-    this.applyCollectRangeBonus();
   }
 
   protected fire(enemies: Enemy[]): void {
@@ -1599,30 +1469,16 @@ export class PurpleGoldGourd extends Weapon {
     graphics.strokeCircle(0, 0, this.absorbRadius);
     graphics.setPosition(playerPos.x, playerPos.y);
 
-    const absorbedEnemies: Enemy[] = [];
-
     this.getEnemiesInRange(enemies, this.absorbRadius).forEach((enemy) => {
-      absorbedEnemies.push(enemy);
-      // Attraction effect
-      if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-        const angle = Phaser.Math.Angle.Between(
-          enemy.sprite.x,
-          enemy.sprite.y,
-          playerPos.x,
-          playerPos.y,
-        );
-        enemy.sprite.body.setVelocity(
-          Math.cos(angle) * 200,
-          Math.sin(angle) * 200,
-        );
-      }
-    });
+      enemy.takeDamage(this.damage);
 
-    // Delayed burst damage
-    this.scene.time.delayedCall(this.absorbDuration, () => {
-      absorbedEnemies.forEach((enemy) => {
-        enemy.takeDamage(this.damage);
-      });
+      const angle = Phaser.Math.Angle.Between(
+        enemy.sprite.x,
+        enemy.sprite.y,
+        playerPos.x,
+        playerPos.y,
+      );
+      enemy.setVelocity(Math.cos(angle) * 200, Math.sin(angle) * 200);
     });
 
     this.scene.tweens.add({
@@ -1642,21 +1498,7 @@ export class PurpleGoldGourd extends Weapon {
     if (this.level >= 5) this.coolDown = 2800;
 
     // Increase collect range bonus with each level
-    this.updateCollectRangeBonus();
-  }
-
-  private updateCollectRangeBonus(): void {
-    // Remove old bonus
-    this.player.collectRangeBonus -= this.collectRangeBonus;
-
-    this.collectRangeBonus = COLLECT_RANGE_BONUS * this.level;
-
-    // Apply new bonus
-    this.applyCollectRangeBonus();
-  }
-
-  private applyCollectRangeBonus(): void {
-    this.player.collectRangeBonus += this.collectRangeBonus;
+    this.updateCollectRange();
   }
 }
 
@@ -1667,78 +1509,19 @@ export class GoldenRopeImmortal extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'golden_rope_immortal',
+      type: "golden_rope_immortal",
     });
     this.ropeChains = 3;
-    this.chainLength = scaleManager.scaleValue(250);
+    this.chainLength = 250;
   }
 
   protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
-    const playerPos = this.scene.getPlayerPosition();
-    this.getEnemiesInRange(
-      sortedEnemies.slice(0, this.ropeChains),
-      this.chainLength,
-    ).forEach((enemy) => {
-      // Create projectile using the weapon's SVG texture
-      const projectile = this.createProjectile();
-      projectile.piercing = 0;
-
-      // Move projectile instantly to target
-      projectile.setPosition(enemy.sprite.x, enemy.sprite.y);
-      projectile.setActive(false).setVisible(false);
-
-      // Create visual rope effect between player and target
-      const graphics = this.scene.add.graphics();
-      graphics.lineStyle(3, 0xffd700, 0.9);
-      graphics.lineBetween(
-        playerPos.x,
-        playerPos.y,
-        enemy.sprite.x,
-        enemy.sprite.y,
-      );
-
-      enemy.takeDamage(this.damage);
-
-      // Powerful binding: Significantly slow down and deal continuous damage
-      if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-        const originalSpeed = enemy.speed;
-        enemy.speed *= 0.2;
-
-        const bindDuration = 1500;
-        const tickDamage = this.damage * 0.2;
-        const tickInterval = 300;
-
-        const damageInterval = this.scene.time.addEvent({
-          delay: tickInterval,
-          repeat: Math.floor(bindDuration / tickInterval),
-          callback: () => {
-            enemy.takeDamage(tickDamage);
-          },
-        });
-
-        this.scene.time.delayedCall(bindDuration, () => {
-          if (!enemy.isDead) {
-            enemy.speed = originalSpeed;
-          }
-          damageInterval.remove();
-          projectile.destroy(); // Destroy the projectile when the effect ends
-        });
-      } else {
-        projectile.destroy(); // Destroy the projectile if no effect is applied
-      }
-
-      this.scene.tweens.add({
-        targets: graphics,
-        alpha: 0,
-        duration: 1500,
-        onComplete: () => graphics.destroy(),
-      });
-    });
+    this.fireWeapon(sortedEnemies, this.ropeChains, this.chainLength);
   }
 
   protected applyUpgrade(): void {
     this.damage += 6;
-    this.chainLength += scaleManager.scaleValue(30);
+    this.chainLength += 30;
     if (this.level >= 3) this.ropeChains = 4;
     if (this.level >= 5) this.ropeChains = 5;
   }
@@ -1751,7 +1534,7 @@ export class DemonRevealingMirror extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'demon_revealing_mirror',
+      type: "demon_revealing_mirror",
     });
     this.revealRadius = scaleManager.scaleValue(200);
     this.critBonus = 1.5; // Critical hit multiplier
@@ -1813,7 +1596,7 @@ export class SeaCalmingNeedle extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'sea_calming_needle',
+      type: "sea_calming_needle",
     });
     this.sweepRange = scaleManager.scaleValue(300);
     this.sweepAngle = Math.PI; // 180 degrees
@@ -1826,12 +1609,18 @@ export class SeaCalmingNeedle extends Weapon {
     // Create huge sweeping effect
     const graphics = this.scene.add.graphics();
     graphics.fillStyle(0xffd700, 0.5);
+
+    const startAngle = targetAngle - this.sweepAngle / 2;
+    const endAngle = targetAngle + this.sweepAngle / 2;
+
+    const isLeft = Math.random() < 0.5;
+
     graphics.slice(
       0,
       0,
       this.sweepRange,
-      targetAngle - this.sweepAngle / 2,
-      targetAngle + this.sweepAngle / 2,
+      isLeft ? -startAngle : startAngle,
+      isLeft ? -endAngle : endAngle,
       false,
     );
     graphics.fillPath();
@@ -1856,13 +1645,7 @@ export class SeaCalmingNeedle extends Weapon {
       if (distance < this.sweepRange && angleDiff < this.sweepAngle / 2) {
         enemy.takeDamage(this.damage);
 
-        // Giant force knockback
-        if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-          enemy.sprite.body.setVelocity(
-            Math.cos(angle) * 600,
-            Math.sin(angle) * 600,
-          );
-        }
+        enemy.setVelocity(Math.cos(angle) * 600, Math.sin(angle) * 600);
       }
     });
 
@@ -1892,7 +1675,7 @@ export class EightTrigramsFurnace extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'eight_trigrams_furnace',
+      type: "eight_trigrams_furnace",
     });
     this.furnaceRadius = scaleManager.scaleValue(250);
     this.burnDuration = 5000; // 5 seconds burning duration
@@ -1960,13 +1743,13 @@ export class DragonStaff extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'dragon_staff',
+      type: "dragon_staff",
     });
     this.tornadoRadius = scaleManager.scaleValue(220);
     this.pullStrength = 150;
   }
 
-  protected fire(enemies: Enemy[], sortedEnemies: Enemy[]): void {
+  protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
     const closestEnemy = sortedEnemies[0];
     if (!closestEnemy) return;
 
@@ -1997,7 +1780,7 @@ export class DragonStaff extends Weapon {
       delay: damageInterval,
       repeat: damageTicks - 1,
       callback: () => {
-        enemies.forEach((enemy) => {
+        sortedEnemies.forEach((enemy) => {
           const distance = Phaser.Math.Distance.Between(
             targetX,
             targetY,
@@ -2015,12 +1798,11 @@ export class DragonStaff extends Weapon {
               targetX,
               targetY,
             );
-            if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-              enemy.sprite.body.setVelocity(
-                Math.cos(angle) * this.pullStrength,
-                Math.sin(angle) * this.pullStrength,
-              );
-            }
+
+            enemy.setVelocity(
+              Math.cos(angle) * this.pullStrength,
+              Math.sin(angle) * this.pullStrength,
+            );
           }
         });
       },
@@ -2045,179 +1827,56 @@ export class DragonStaff extends Weapon {
 
 // Seven Treasure Tree - Zhunti's magical tree
 export class SevenTreasureTree extends Weapon {
-  private sweepRange: number;
+  private count: number;
   private purifyRadius: number;
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'seven_treasure_tree',
+      type: "seven_treasure_tree",
     });
-    this.sweepRange = scaleManager.scaleValue(280);
-    this.purifyRadius = scaleManager.scaleValue(350);
+    this.count = 7;
+    this.purifyRadius = 350;
   }
 
-  protected fire(enemies: Enemy[]): void {
-    const playerPos = this.scene.getPlayerPosition();
-    const targetAngle = this.getPlayerAngle();
-
-    // Create Seven Treasure Tree refresh effect
-    const treeGraphics = this.scene.add.graphics();
-    treeGraphics.setPosition(playerPos.x, playerPos.y);
-
-    // Draw seven-colored rays
-    const colors = [
-      0xff0000, 0xff7f00, 0xffff00, 0x00ff00, 0x0000ff, 0x4b0082, 0x9400d3,
-    ];
-    colors.forEach((color, index) => {
-      const angle = targetAngle + (index - 3) * (Math.PI / 8);
-      const endX = Math.cos(angle) * this.sweepRange;
-      const endY = Math.sin(angle) * this.sweepRange;
-
-      treeGraphics.lineStyle(8, color, 0.7);
-      treeGraphics.lineBetween(0, 0, endX, endY);
-    });
-
-    // Center purification circle
-    treeGraphics.lineStyle(3, 0xffffff, 0.8);
-    treeGraphics.strokeCircle(0, 0, this.purifyRadius);
-
-    enemies.forEach((enemy) => {
-      const distance = Phaser.Math.Distance.Between(
-        playerPos.x,
-        playerPos.y,
-        enemy.sprite.x,
-        enemy.sprite.y,
-      );
-
-      // Enemies in range take damage
-      if (distance < this.purifyRadius) {
-        const damageMultiplier = distance < this.sweepRange ? 1.5 : 1.0;
-        enemy.takeDamage(this.damage * damageMultiplier);
-
-        // Purification effect - remove buffs (expandable in game)
-        // Only damage and knockback here
-        const angle = Phaser.Math.Angle.Between(
-          playerPos.x,
-          playerPos.y,
-          enemy.sprite.x,
-          enemy.sprite.y,
-        );
-        if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-          enemy.sprite.body.setVelocity(
-            Math.cos(angle) * 300,
-            Math.sin(angle) * 300,
-          );
-        }
-      }
-    });
-
-    this.scene.tweens.add({
-      targets: treeGraphics,
-      alpha: 0,
-      rotation: Math.PI / 2,
-      duration: 1200,
-      onComplete: () => treeGraphics.destroy(),
-    });
+  protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
+    this.fireWeapon(sortedEnemies, this.count, this.purifyRadius);
   }
 
   protected applyUpgrade(): void {
     this.damage += 9;
-    this.purifyRadius += scaleManager.scaleValue(40);
-    if (this.level >= 3) this.sweepRange = scaleManager.scaleValue(350);
+    this.purifyRadius += 40;
+    if (this.level >= 3) this.count = 8;
     if (this.level >= 5) this.coolDown = 2500;
   }
 }
 
 // Immortal Slaying Blade - Lu Ya's weapon
 export class ImmortalSlayingBlade extends Weapon {
-  private lockOnDuration: number;
   private bladeSpeed: number;
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'immortal_slaying_blade',
+      type: "immortal_slaying_blade",
     });
-    this.lockOnDuration = 1500; // 1.5 seconds lock-on duration
     this.bladeSpeed = 400;
   }
 
-  protected fire(enemies: Enemy[]): void {
-    // Lock onto enemy with highest HP
-    const target = enemies.reduce(
-      (highest, enemy) => {
-        if (enemy.isDead) return highest;
-        return !highest || enemy.health > highest.health ? enemy : highest;
-      },
-      null as Enemy | null,
-    );
+  protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
+    let target: Enemy = sortedEnemies[0];
+    for (const item of sortedEnemies) {
+      if (item.health > target.health) {
+        target = item;
+      }
+    }
 
     if (!target) return;
 
-    // Create "Treasure, please turn" lock-on effect
-    const lockGraphics = this.scene.add.graphics();
-    lockGraphics.lineStyle(3, 0xff0000, 1);
-    lockGraphics.strokeCircle(target.sprite.x, target.sprite.y, 50);
-    lockGraphics.lineStyle(2, 0xffff00, 1);
-    lockGraphics.strokeCircle(target.sprite.x, target.sprite.y, 60);
-
-    this.scene.tweens.add({
-      targets: lockGraphics,
-      scaleX: 1.5,
-      scaleY: 1.5,
-      alpha: 0,
-      duration: this.lockOnDuration,
-      onComplete: () => {
-        lockGraphics.destroy();
-
-        // Fire decisive blade after lock-on
-        if (target.isDead) return;
-
-        const blade = this.createProjectile();
-
-        blade.setTint(0xff0000);
-
-        // Track target
-        const trackBlade = () => {
-          if (!blade.active || target.isDead) {
-            if (blade.active) blade.destroy();
-            return;
-          }
-
-          const dx = target.sprite.x - blade.x;
-          const dy = target.sprite.y - blade.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < 20) {
-            // Decisive effect - bonus damage
-            target.takeDamage(this.damage * 2);
-            blade.destroy();
-            return;
-          }
-
-          const angle = Math.atan2(dy, dx);
-          blade.setVelocity(
-            Math.cos(angle) * this.bladeSpeed,
-            Math.sin(angle) * this.bladeSpeed,
-          );
-          blade.setRotation(angle);
-
-          this.scene.time.delayedCall(50, trackBlade);
-        };
-
-        trackBlade();
-
-        // Timeout protection
-        this.scene.time.delayedCall(5000, () => {
-          if (blade.active) blade.destroy();
-        });
-      },
-    });
+    this.fireWeapon([target], 1, this.bladeSpeed);
   }
 
   protected applyUpgrade(): void {
     this.damage += 12;
     this.bladeSpeed += 50;
-    if (this.level >= 3) this.lockOnDuration = 1000;
     if (this.level >= 5) this.coolDown = 3000;
   }
 }
@@ -2226,48 +1885,18 @@ export class ImmortalSlayingBlade extends Weapon {
 export class DiamondSnare extends Weapon {
   private snareSpeed: number;
   private armorBreak: number;
-  private collectRangeBonus: number;
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'diamond_snare',
+      type: "diamond_snare",
     });
     this.snareSpeed = 500;
     this.armorBreak = 0.5; // Ignore 50% defense
-    this.collectRangeBonus = 0;
-    this.applyCollectRangeBonus();
   }
 
   protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
-    const closestEnemy = sortedEnemies[0];
-    if (!closestEnemy) return;
-
-    const playerPos = this.scene.getPlayerPosition();
-    const angle = Phaser.Math.Angle.Between(
-      playerPos.x,
-      playerPos.y,
-      closestEnemy.sprite.x,
-      closestEnemy.sprite.y,
-    );
-
-    const snare = this.createProjectile();
-
-    snare.setVelocity(
-      Math.cos(angle) * this.snareSpeed,
-      Math.sin(angle) * this.snareSpeed,
-    );
-    snare.damage = this.damage * (1 + this.armorBreak); // Armor penetration bonus
-    snare.setTint(0xffd700);
-
-    // Rotation effect
-    this.scene.tweens.add({
-      targets: snare,
-      rotation: Math.PI * 4,
-      duration: 2000,
-    });
-
-    this.scene.time.delayedCall(2000, () => {
-      if (snare.active) snare.destroy();
+    this.fireWeapon(sortedEnemies, 1, this.snareSpeed).forEach((projectile) => {
+      projectile.damage = this.damage * (1 + this.armorBreak);
     });
   }
 
@@ -2278,120 +1907,30 @@ export class DiamondSnare extends Weapon {
     if (this.level >= 3) this.armorBreak = 0.7;
     if (this.level >= 5) this.armorBreak = 1.0; // Level 5 ignores all defense
 
-    // Increase collect range bonus with each level
-    this.updateCollectRangeBonus();
-  }
-
-  private updateCollectRangeBonus(): void {
-    // Remove old bonus
-    this.player.collectRangeBonus -= this.collectRangeBonus;
-
-    this.collectRangeBonus = COLLECT_RANGE_BONUS * this.level;
-
-    // Apply new bonus
-    this.applyCollectRangeBonus();
-  }
-
-  private applyCollectRangeBonus(): void {
-    this.player.collectRangeBonus += this.collectRangeBonus;
+    this.updateCollectRange();
   }
 }
 
 // Exquisite Pagoda - Li Jing's Pagoda
 export class ExquisitePagoda extends Weapon {
   private pagodaRadius: number;
-  private imprisonDuration: number;
-  private damageOverTime: number;
+  private count = 1;
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'exquisite_pagoda',
+      type: "exquisite_pagoda",
     });
-    this.pagodaRadius = scaleManager.scaleValue(200);
-    this.imprisonDuration = 4000;
-    this.damageOverTime = 8;
+    this.pagodaRadius = 200;
   }
 
-  protected fire(enemies: Enemy[], sortedEnemies: Enemy[]): void {
-    const closestEnemy = sortedEnemies[0];
-    if (!closestEnemy) return;
-
-    const targetX = closestEnemy.sprite.x;
-    const targetY = closestEnemy.sprite.y;
-
-    // Create pagoda suppression effect
-    const pagoda = this.scene.add.graphics();
-    pagoda.setPosition(targetX, targetY);
-
-    // Draw multi-layer pagoda
-    for (let layer = 0; layer < 5; layer++) {
-      const layerRadius = this.pagodaRadius * (1 - layer * 0.15);
-      const layerHeight = -layer * 40;
-
-      pagoda.lineStyle(4, 0xffd700, 0.8);
-      pagoda.strokeRect(-layerRadius / 2, layerHeight - 20, layerRadius, 20);
-    }
-
-    // Seal array at pagoda base
-    pagoda.lineStyle(3, 0xff6600, 0.7);
-    pagoda.strokeCircle(0, 0, this.pagodaRadius);
-    pagoda.lineStyle(2, 0xffff00, 0.7);
-    pagoda.strokeCircle(0, 0, this.pagodaRadius * 0.7);
-
-    // Suppression effect
-    const imprisonedEnemies: Enemy[] = [];
-    enemies.forEach((enemy) => {
-      const distance = Phaser.Math.Distance.Between(
-        targetX,
-        targetY,
-        enemy.sprite.x,
-        enemy.sprite.y,
-      );
-
-      if (distance < this.pagodaRadius) {
-        imprisonedEnemies.push(enemy);
-        enemy.takeDamage(this.damage);
-
-        // Imprisonment - significant slowdown
-        if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-          enemy.sprite.body.setVelocity(0, 0);
-        }
-      }
-    });
-
-    // Continuous suppression damage
-    const imprisonTicks = Math.floor(this.imprisonDuration / 500);
-    this.scene.time.addEvent({
-      delay: 500,
-      repeat: imprisonTicks - 1,
-      callback: () => {
-        imprisonedEnemies.forEach((enemy) => {
-          if (!enemy.isDead) {
-            enemy.takeDamage(this.damageOverTime);
-            // Maintain imprisonment
-            if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-              enemy.sprite.body.setVelocity(0, 0);
-            }
-          }
-        });
-      },
-    });
-
-    this.scene.tweens.add({
-      targets: pagoda,
-      alpha: 0,
-      scaleX: 0.8,
-      scaleY: 0.8,
-      duration: this.imprisonDuration,
-      onComplete: () => pagoda.destroy(),
-    });
+  protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
+    this.fireWeapon(sortedEnemies, this.count, this.pagodaRadius);
   }
 
   protected applyUpgrade(): void {
     this.damage += 9;
-    this.damageOverTime += 3;
-    if (this.level >= 3) this.pagodaRadius = scaleManager.scaleValue(250);
-    if (this.level >= 5) this.imprisonDuration = 5500;
+    if (this.level >= 3) this.pagodaRadius = 250;
+    if (this.level >= 5) this.count = 2;
   }
 }
 
@@ -2401,99 +1940,19 @@ export class NineToothRake extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'nine_tooth_rake',
+      type: "nine_tooth_rake",
     });
-    this.rakeRange = scaleManager.scaleValue(200);
+    this.rakeRange = 200;
   }
 
-  protected fire(enemies: Enemy[]): void {
-    const playerPos = this.scene.getPlayerPosition();
-    const targetAngle = this.getPlayerAngle();
-
-    // Create nine-tooth rake sweep effect - fan-shaped attack
-    const graphics = this.scene.add.graphics();
-    graphics.setPosition(playerPos.x, playerPos.y);
-
-    // Draw the nine teeth of the rake
-    const teethCount = 5 + Math.floor(this.level / 2); // 5-7 teeth
-    const spreadAngle = Math.PI / 4; // 45 degree fan shape
-
-    for (let i = 0; i < teethCount; i++) {
-      const angle =
-        targetAngle + (i - (teethCount - 1) / 2) * (spreadAngle / teethCount);
-      const startX = Math.cos(angle) * 30;
-      const startY = Math.sin(angle) * 30;
-      const endX = Math.cos(angle) * this.rakeRange;
-      const endY = Math.sin(angle) * this.rakeRange;
-
-      graphics.lineStyle(6, 0xffa500, 0.8);
-      graphics.lineBetween(startX, startY, endX, endY);
-
-      // Tooth tips
-      graphics.fillStyle(0xff8c00, 1);
-      graphics.fillCircle(endX, endY, 8);
-    }
-
-    // Fan-shaped coverage area
-    graphics.fillStyle(0xffa500, 0.3);
-    graphics.slice(
-      0,
-      0,
-      this.rakeRange,
-      targetAngle - spreadAngle / 2,
-      targetAngle + spreadAngle / 2,
-      false,
-    );
-    graphics.fillPath();
-
-    // Deal damage to enemies in range
-    enemies.forEach((enemy) => {
-      const distance = Phaser.Math.Distance.Between(
-        playerPos.x,
-        playerPos.y,
-        enemy.sprite.x,
-        enemy.sprite.y,
-      );
-      const angle = Phaser.Math.Angle.Between(
-        playerPos.x,
-        playerPos.y,
-        enemy.sprite.x,
-        enemy.sprite.y,
-      );
-
-      const angleDiff = Math.abs(Phaser.Math.Angle.Wrap(angle - targetAngle));
-
-      if (distance < this.rakeRange && angleDiff < spreadAngle / 2) {
-        enemy.takeDamage(this.damage);
-
-        // Rake effect: pull enemies backward (rake effect)
-        const pullAngle = Phaser.Math.Angle.Between(
-          enemy.sprite.x,
-          enemy.sprite.y,
-          playerPos.x,
-          playerPos.y,
-        );
-        if (enemy.sprite.body && 'setVelocity' in enemy.sprite.body) {
-          enemy.sprite.body.setVelocity(
-            Math.cos(pullAngle) * 200,
-            Math.sin(pullAngle) * 200,
-          );
-        }
-      }
-    });
-
-    this.scene.tweens.add({
-      targets: graphics,
-      alpha: 0,
-      rotation: 0.3,
-      duration: 400,
-      onComplete: () => graphics.destroy(),
-    });
+  protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
+    const teethCount = 4 + this.level;
+    this.fireWeapon(sortedEnemies, teethCount, this.rakeRange);
   }
 
   protected applyUpgrade(): void {
     this.damage += 8;
-    this.rakeRange += scaleManager.scaleValue(20);
+    this.rakeRange += 20;
     if (this.level >= 5) this.coolDown = 1200;
   }
 }
@@ -2505,72 +1964,14 @@ export class DragonScaleSword extends Weapon {
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
-      type: 'dragon_scale_sword',
+      type: "dragon_scale_sword",
     });
     this.swordSpeed = 450;
     this.swordCount = 1;
   }
 
   protected fire(_enemies: Enemy[], sortedEnemies: Enemy[]): void {
-    const playerPos = this.scene.getPlayerPosition();
-
-    // Find closest enemy
-    const closestEnemy = sortedEnemies[0];
-
-    if (!closestEnemy) return;
-
-    const baseAngle = Phaser.Math.Angle.Between(
-      playerPos.x,
-      playerPos.y,
-      closestEnemy.sprite.x,
-      closestEnemy.sprite.y,
-    );
-
-    // Launch multiple dragon scale sword qi
-    for (let i = 0; i < this.swordCount; i++) {
-      const angle = baseAngle + (i - (this.swordCount - 1) / 2) * 0.2;
-      const sword = this.createProjectile();
-
-      sword.setVelocity(
-        Math.cos(angle) * this.swordSpeed,
-        Math.sin(angle) * this.swordSpeed,
-      );
-      sword.setRotation(angle);
-      sword.setTint(0x00ffff); // Cyan dragon light
-
-      // Dragon scale sword qi effect - spiral trajectory
-      let spiralAngle = 0;
-      const spiralRadius = 15;
-      const updateSpiral = () => {
-        if (!sword.active) return;
-
-        spiralAngle += 0.3;
-        const offsetX = Math.cos(spiralAngle) * spiralRadius;
-        const offsetY = Math.sin(spiralAngle) * spiralRadius;
-
-        // Create sword qi trajectory
-        const trail = this.scene.add.graphics();
-        trail.fillStyle(0x00ffff, 0.5);
-        trail.fillCircle(sword.x + offsetX, sword.y + offsetY, 5);
-
-        this.scene.tweens.add({
-          targets: trail,
-          alpha: 0,
-          scaleX: 0.5,
-          scaleY: 0.5,
-          duration: 300,
-          onComplete: () => trail.destroy(),
-        });
-
-        this.scene.time.delayedCall(50, updateSpiral);
-      };
-      updateSpiral();
-
-      // Lifetime
-      this.scene.time.delayedCall(2000, () => {
-        if (sword.active) sword.destroy();
-      });
-    }
+    this.fireWeapon(sortedEnemies, this.swordCount, this.swordSpeed);
   }
 
   protected applyUpgrade(): void {
@@ -2623,7 +2024,7 @@ export type WeaponClass =
   | typeof NineToothRake
   | typeof DragonScaleSword;
 export interface UpgradeOption {
-  type: 'upgrade' | 'new';
+  type: "upgrade" | "new";
   weapon?: Weapon;
   weaponClass?: WeaponClass;
   name: string;
@@ -2729,13 +2130,13 @@ export class WeaponManager {
       if (weapon.level < weapon.maxLevel) {
         const name = i18n.t(`weapons.${weapon.type}.name`);
         options.push({
-          type: 'upgrade',
+          type: "upgrade",
           weapon: weapon,
-          name: i18n.t('weapons.upgradeToLevel', {
+          name: i18n.t("weapons.upgradeToLevel", {
             name,
             level: weapon.level + 1,
           }),
-          description: i18n.t('weapons.upgrade', { name }),
+          description: i18n.t("weapons.upgrade", { name }),
         });
       }
     });
@@ -2744,7 +2145,7 @@ export class WeaponManager {
     Object.entries(WEAPON_MAP).forEach(([type, weaponClass]) => {
       if (!this.hasWeapon(weaponClass)) {
         options.push({
-          type: 'new',
+          type: "new",
           weaponClass: weaponClass,
           name: i18n.t(`weapons.${type}.name`),
           description: i18n.t(`weapons.${type}.description`),

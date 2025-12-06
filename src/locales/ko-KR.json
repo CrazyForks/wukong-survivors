@@ -509,7 +509,8 @@
         "autoSelect": "게임 자동 호스팅 (무기와 엘릭서를 무작위로 선택)",
         "unlockAll": "모든 캐릭터와 챕터 잠금 해제",
         "enableMusic": "음악 활성화",
-        "musicVolume": "음악 볼륨"
+        "musicVolume": "음악 볼륨",
+        "gameTime": "챕터 시간 ({value}초)"
     },
     "wiki": {
         "title": "위키"

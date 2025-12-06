@@ -27,6 +27,10 @@ Mobile users can scan the QR Code below to play instantly.
 - 🎯 **Roguelike Progression** - Each run offers different upgrades and elixirs to create unique builds
 - 💪 **Permanent Upgrades** - Spend gold to permanently enhance attack, health, armor, luck, and speed
 - 🌍 **Multi-language Support** - Available in 10 languages: English, 中文, 日本語, 한국어, Français, Deutsch, Español, Português, Русский, 繁體中文
+- 🤖 **Auto-Play Mode** - Automatically control your character to attack enemies and collect items
+- 🔓 **One-Click Unlock** - Instantly unlock all chapters with a single click
+- 🔊 **Volume Control** - Adjust the game's music volume to your preference
+- ⏱️ **Chapter Time Setting** - Customize the duration of each chapter level
 
 ## 🚀 Installation Instructions
 

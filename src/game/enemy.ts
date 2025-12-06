@@ -1,10 +1,9 @@
 import Phaser from "phaser";
 import { scaleManager } from "./ScaleManager";
-import { ENEMIES_DATA,ENEMY_SIZE } from "../constant";
+import { ENEMIES_DATA, ENEMY_SIZE } from "../constant";
 import type { EnemyType } from "../types";
 import type { GameScene } from "./GameScene";
 import type { Position } from "./player";
-
 
 /**
  * Extended sprite interface that includes a reference to the parent Enemy object
@@ -112,6 +111,17 @@ export class Enemy {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Set enemy velocity
+   * @param x X component of velocity
+   * @param y Y component of velocity
+   */
+  public setVelocity(x: number, y: number): void {
+    if (this.sprite.body && "setVelocity" in this.sprite.body) {
+      this.sprite.body.setVelocity(x, y);
+    }
   }
 
   /**

@@ -1,16 +1,21 @@
-import Phaser from "phaser";
-import { Player } from "./player";
-import { scaleManager } from "./ScaleManager";
-import { GEM_MAP } from "../constant";
-import { useSaveStore } from "../store";
-import type { GameScene } from "./GameScene";
+import Phaser from 'phaser';
+import { Player } from './player';
+import { scaleManager } from './ScaleManager';
+import {
+  GEM_MAP,
+  DEFAULT_COLLECT_RADIUS,
+  DEFAULT_MAGNET_RADIUS,
+  DEFAULT_SPRITE_SIZE,
+} from '../constant';
+import { useSaveStore } from '../store';
+import type { GameScene } from './GameScene';
 
 interface Position {
   x: number;
   y: number;
 }
 
-export type CollectibleType = "coin" | "gem";
+export type CollectibleType = 'coin' | 'gem';
 
 interface CollectibleSprite extends Phaser.Physics.Arcade.Sprite {
   collectibleRef?: CollectibleItem;
@@ -37,12 +42,12 @@ export class CollectibleItem {
     this.type = type;
     this.value = value;
     this.magnetized = false;
-    this.collectRadius = scaleManager.scaleValue(30);
-    this.magnetRadius = scaleManager.scaleValue(150);
+    this.collectRadius = DEFAULT_COLLECT_RADIUS;
+    this.magnetRadius = DEFAULT_MAGNET_RADIUS;
 
     // Determine texture based on type and value
     let textureName: string;
-    if (type === "coin") {
+    if (type === 'coin') {
       textureName = GEM_MAP.coin;
     } else {
       // Gem texture based on value
@@ -56,7 +61,7 @@ export class CollectibleItem {
     }
 
     // Create sprite with responsive scaling
-    const itemSize = scaleManager.scaleValue(32);
+    const itemSize = scaleManager.scaleValue(DEFAULT_SPRITE_SIZE);
     this.sprite = scene.physics.add.sprite(
       x,
       y,
@@ -82,8 +87,12 @@ export class CollectibleItem {
     const magnetBonusFactor = 1 + magnetBonus;
 
     // Adjust ranges based on bonuses
-    const adjustedCollectRadius = this.collectRadius * collectBonusFactor;
-    const adjustedMagnetRadius = this.magnetRadius * magnetBonusFactor;
+    const adjustedCollectRadius = scaleManager.scaleValue(
+      this.collectRadius * collectBonusFactor,
+    );
+    const adjustedMagnetRadius = scaleManager.scaleValue(
+      this.magnetRadius * magnetBonusFactor,
+    );
 
     // Collected
     if (distance < adjustedCollectRadius) {
@@ -116,7 +125,7 @@ export class CollectibleItem {
     });
 
     // Handle coin collection immediately
-    if (this.type === "coin") {
+    if (this.type === 'coin') {
       useSaveStore.getState().addGold(1);
     }
   }
@@ -148,7 +157,7 @@ export class ExperienceManager {
       const collectible = this.collectibles[i];
       if (collectible.update(playerPos, collectRangeBonus, magnetBonus)) {
         // Item collected
-        if (collectible.type === "gem") {
+        if (collectible.type === 'gem') {
           this.player.addExperience(collectible.value);
         }
         collectible.collect();
@@ -159,13 +168,13 @@ export class ExperienceManager {
 
   // Spawn a gem at specified position with given value
   public spawnGem(x: number, y: number, value: number): void {
-    const gem = new CollectibleItem(this.scene, x, y, "gem", value);
+    const gem = new CollectibleItem(this.scene, x, y, 'gem', value);
     this.collectibles.push(gem);
   }
 
   // Spawn a gold coin at specified position
   public spawnCoin(x: number, y: number): void {
-    const coin = new CollectibleItem(this.scene, x, y, "coin");
+    const coin = new CollectibleItem(this.scene, x, y, 'coin');
     this.collectibles.push(coin);
   }
 
@@ -175,5 +184,42 @@ export class ExperienceManager {
       collectible.destroy();
     }
     this.collectibles = [];
+  }
+
+  // Collect all remaining items with animation
+  public collectAllItems(): Promise<void> {
+    if (this.collectibles.length === 0) {
+      return Promise.resolve();
+    }
+    
+    let completedCount = 0;
+    const totalCollectibles = this.collectibles.length;
+    
+    return new Promise((resolve) => {
+      for (const collectible of this.collectibles) {
+        const playerPos = this.scene.getPlayerPosition();
+        this.scene.tweens.add({
+          targets: collectible.sprite,
+          x: playerPos.x,
+          y: playerPos.y,
+          scale: 1.5,
+          duration: 1000,
+          ease: Phaser.Math.Easing.Quadratic.InOut,
+          onComplete: () => {
+            // Collect the item after animation completes
+            if (collectible.type === 'gem') {
+              this.player.addExperience(collectible.value);
+            }
+            collectible.collect();
+            
+            // Check if all animations are completed
+            completedCount++;
+            if (completedCount === totalCollectibles) {
+              resolve();
+            }
+          },
+        });
+      }
+    });
   }
 }

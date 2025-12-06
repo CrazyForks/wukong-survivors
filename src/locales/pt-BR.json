@@ -509,7 +509,8 @@
         "autoSelect": "Hospedagem automática do jogo (seleciona arma e elixir aleatoriamente)",
         "unlockAll": "Desbloquear todos os personagens e capítulos",
         "enableMusic": "Ativar música",
-        "musicVolume": "Volume da música"
+        "musicVolume": "Volume da música",
+        "gameTime": "Tempo do capítulo ({value} segundos)"
     },
     "wiki": {
         "title": "Wiki"

@@ -12,7 +12,7 @@ import Stats from "./pages/Stats";
 import Wiki from "./pages/Wiki";
 
 const App: React.FC = () => {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("game");
+  const [currentScreen, setCurrentScreen] = useState<Screen>("home");
   useEffect(() => {
     useAppStore.getState().checkUnlocks();
   }, [currentScreen]);

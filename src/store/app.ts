@@ -109,8 +109,6 @@ export const useAppStore = create<Store>((set, get) => {
       const { ownedWeapons } = get();
 
       if (!ownedWeapons.includes(weaponId)) {
-        console.log("Add weapon", weaponId);
-
         set({ ownedWeapons: [...ownedWeapons, weaponId] });
       }
     },

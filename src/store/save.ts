@@ -29,6 +29,7 @@ interface SaveStore extends GameSave {
   setMusicEnabled: (enabled: boolean) => void;
   setAutoSelectEnabled: (enabled: boolean) => void;
   setUnlockAllEnabled: (enabled: boolean) => void;
+  setGameTime: (gameTime: number) => void;
 }
 
 // Create Zustand Store with persist middleware
@@ -36,6 +37,9 @@ export const useSaveStore = create<SaveStore>()(
   persist(
     (set, get) => ({
       ...DEFAULT_SAVE,
+      setGameTime(gameTime: number) {
+        set({ gameTime });
+      },
       setAutoSelectEnabled(enabled) {
         set({ enableAutoSelect: enabled });
       },
@@ -173,6 +177,7 @@ const getEnableAutoSelect = (state: GameSave) => state.enableAutoSelect;
 const getEnableUnlockAll = (state: GameSave) => state.enableUnlockAll;
 const getMusicEnabled = (state: GameSave) => state.musicEnabled;
 const getMusicVolume = (state: GameSave) => state.musicVolume;
+const getGameTime = (state: GameSave) => state.gameTime;
 
 const getShopLevel = (state: GameSave) => ({
   attack: state.attack,
@@ -200,3 +205,4 @@ export const useEnableUnlockAll = () =>
   useSaveStore(useShallow(getEnableUnlockAll));
 export const useMusicEnabled = () => useSaveStore(useShallow(getMusicEnabled));
 export const useMusicVolume = () => useSaveStore(useShallow(getMusicVolume));
+export const useGameTime = () => useSaveStore(useShallow(getGameTime));

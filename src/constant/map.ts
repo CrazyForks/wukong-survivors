@@ -17,7 +17,6 @@ export const MAPS: GameMap[] = [
       "bear_elite",
       "snake_elite",
     ],
-    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter2",
@@ -33,7 +32,6 @@ export const MAPS: GameMap[] = [
       "tiger_elite",
       "wind_elite",
     ],
-    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter3",
@@ -49,7 +47,6 @@ export const MAPS: GameMap[] = [
       "centipede_elite",
       "scorpion_elite",
     ],
-    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter4",
@@ -65,7 +62,6 @@ export const MAPS: GameMap[] = [
       "violet_spider_elite",
       "poison_centipede_elite",
     ],
-    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter5",
@@ -81,7 +77,6 @@ export const MAPS: GameMap[] = [
       "fire_general_elite",
       "bull_captain_elite",
     ],
-    gameTime: DEFAULT_GAME_TIME,
   },
   {
     id: "chapter6",
@@ -97,7 +92,6 @@ export const MAPS: GameMap[] = [
       "celestial_general_elite",
       "dragon_guardian_elite",
     ],
-    gameTime: DEFAULT_GAME_TIME,
   },
 ];
 // Permanent upgrade configuration
@@ -156,6 +150,7 @@ export const DEFAULT_SAVE: GameSave = {
   musicEnabled: true,
   enableAutoSelect: false,
   enableUnlockAll: false,
+  gameTime: DEFAULT_GAME_TIME,
 };
 
 export const WORLD_SIZE = 4000;

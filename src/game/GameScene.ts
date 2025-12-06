@@ -15,6 +15,9 @@ import {
   WORLD_SIZE,
   CHARACTER_SIZE,
   ENEMY_SIZE,
+  DEFAULT_COLLECT_RADIUS,
+  DEFAULT_MAGNET_RADIUS,
+  DEFAULT_SPRITE_SIZE,
 } from '../constant';
 import {
   getCharacterImagePath,
@@ -71,7 +74,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   public getPlayTime() {
-    return useAppStore.getState().getSelectMap().gameTime - this.gameTime;
+    return Math.floor(useSaveStore.getState().gameTime - this.gameTime);
   }
 
   public playPlayerFireSound = () => {
@@ -89,7 +92,7 @@ export class GameScene extends Phaser.Scene {
     // Load audio assets
     AudioManager.preloadAudio(this);
 
-    const commonSize = scaleManager.scaleValue(32);
+    const commonSize = scaleManager.scaleValue(DEFAULT_SPRITE_SIZE);
 
     // Load experience gem textures - Buddhist beads and spirit essence
     Object.values(GEM_MAP).forEach((gem) => {
@@ -255,7 +258,7 @@ export class GameScene extends Phaser.Scene {
     this.createUI();
 
     // Game state
-    this.gameTime = selectedMap.gameTime;
+    this.gameTime = useSaveStore.getState().gameTime;
     this.isPaused = false;
     this.isGameOver = false;
 
@@ -371,7 +374,7 @@ export class GameScene extends Phaser.Scene {
 
     // Create collect range indicator
     this.collectRangeIndicator = this.add.graphics();
-    this.collectRangeIndicator.setDepth(scaleManager.getZIndex() - 1);
+    this.collectRangeIndicator.setDepth(scaleManager.getZIndex());
 
     // Responsive UI sizing
     const barWidth = scaleManager.UIScaleValue(200);
@@ -554,15 +557,19 @@ export class GameScene extends Phaser.Scene {
     this.collectRangeIndicator.clear();
 
     const playerPos = this.getPlayerPosition();
-    const baseCollectRadius = scaleManager.scaleValue(30);
-    const baseMagnetRadius = scaleManager.scaleValue(150);
+    const baseCollectRadius = DEFAULT_COLLECT_RADIUS;
+    const baseMagnetRadius = DEFAULT_MAGNET_RADIUS;
 
     // Calculate adjusted ranges
     const collectBonusFactor = 1 + this.player.collectRangeBonus;
     const magnetBonusFactor = 1 + this.player.magnetBonus;
 
-    const adjustedCollectRadius = baseCollectRadius * collectBonusFactor;
-    const adjustedMagnetRadius = baseMagnetRadius * magnetBonusFactor;
+    const adjustedCollectRadius = scaleManager.scaleValue(
+      baseCollectRadius * collectBonusFactor,
+    );
+    const adjustedMagnetRadius = scaleManager.scaleValue(
+      baseMagnetRadius * magnetBonusFactor,
+    );
 
     // Only draw if there's a bonus or if magnet radius is increased
     if (this.player.collectRangeBonus > 0 || this.player.magnetBonus > 0) {
@@ -687,41 +694,38 @@ export class GameScene extends Phaser.Scene {
     });
 
     // Weapon and enemy collision
-    this.weaponManager?.weapons.forEach((weapon) => {
+    for (const weapon of this.weaponManager?.weapons || []) {
       // Magic missile collision
+      weapon.projectiles?.children.entries.forEach((item) => {
+        const projectile = item as ProjectileSprite;
+        if (!projectile.active) return;
 
-      weapon.projectiles?.children.entries.forEach(
-        (item) => {
-          const projectile = item as ProjectileSprite;
-          if (!projectile.active) return;
+        enemies.forEach((enemy) => {
+          if (enemy.isDead) return;
 
-          enemies.forEach((enemy) => {
-            if (enemy.isDead) return;
+          const distance = Phaser.Math.Distance.Between(
+            projectile.x,
+            projectile.y,
+            enemy.sprite.x,
+            enemy.sprite.y,
+          );
 
-            const distance = Phaser.Math.Distance.Between(
-              projectile.x,
-              projectile.y,
-              enemy.sprite.x,
-              enemy.sprite.y,
-            );
-
-            if (distance < projectile.distance) {
-              const killed = enemy.takeDamage(projectile.damage);
-              if (killed) {
-                this.killCount++;
-                this.killsSinceLastReward++;
-                this.checkRewardTrigger();
-                this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
-              }
-
-              projectile.piercing--;
-              if (projectile.piercing <= 0) {
-                projectile.destroy();
-              }
+          if (distance < projectile.distance) {
+            const killed = enemy.takeDamage(projectile.damage);
+            if (killed) {
+              this.killCount++;
+              this.killsSinceLastReward++;
+              this.checkRewardTrigger();
+              this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
             }
-          });
-        },
-      );
+
+            projectile.piercing--;
+            if (projectile.piercing <= 0) {
+              projectile.destroy();
+            }
+          }
+        });
+      });
 
       // Holy Aura collision
 
@@ -747,7 +751,7 @@ export class GameScene extends Phaser.Scene {
           }
         });
       });
-    });
+    }
   }
 
   private spawnGoldCoin(x: number, y: number): void {
@@ -784,7 +788,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private showRewardSelection(): void {
-    if (this.rewardUI?.isVisible()) return;
+    if (this.isGameOver || this.rewardUI?.isVisible()) return;
     this.audioManager?.playSfx(SoundEffect.LEVEL_UP);
     this.pause();
 
@@ -881,6 +885,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   public showLevelUpMenu(): void {
+    if (this.isGameOver) {
+      return;
+    }
     // Get upgrade options
     const options = this.weaponManager?.getUpgradeOptions() || [];
 
@@ -1186,11 +1193,14 @@ export class GameScene extends Phaser.Scene {
     )}: ${this.killCount}\n${i18n.t('stats.level')}: ${this.player.level}\n${i18n.t('stats.gold')}: ${useSaveStore.getState().totalGold}`;
   }
 
-  public showVictory(): void {
+  public async showVictory(): Promise<void> {
     if (this.isGameOver) return;
     this.isGameOver = true;
 
     this.audioManager?.playSfx(SoundEffect.VICTORY_THEME);
+
+    // Collect all remaining items with animation
+    await this.experienceManager?.collectAllItems();
 
     // Save game data
     useSaveStore.getState().addKills(this.killCount);
@@ -1211,6 +1221,7 @@ export class GameScene extends Phaser.Scene {
       },
       okText: i18n.t('game.restart'),
       onOk: () => {
+        this.isGameOver = false;
         this.audioManager?.stopMusic();
         this.scene.restart();
       },

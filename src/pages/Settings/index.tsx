@@ -6,6 +6,7 @@ import {
   useSaveStore,
   useMusicEnabled,
   useMusicVolume,
+  useGameTime,
 } from "../../store";
 import styles from "./index.module.css";
 
@@ -15,6 +16,7 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
   const enableUnlockAll = useEnableUnlockAll();
   const musicEnabled = useMusicEnabled();
   const musicVolume = useMusicVolume();
+  const gameTime = useGameTime();
   return (
     <div className="center-container">
       <button
@@ -55,6 +57,24 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
               .getState()
               .setUnlockAllEnabled(Boolean(e.target.checked))
           }
+        />
+      </div>
+      <div className={styles.list}>
+        <label htmlFor="game-time">
+          {t("settings.gameTime", { value: gameTime })}
+        </label>
+        <input
+          type="range"
+          id="game-time"
+          name="game-time"
+          min="10"
+          max="6000"
+          value={gameTime}
+          step="1"
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            useSaveStore.getState().setGameTime(value);
+          }}
         />
       </div>
       <div className={styles.list}>

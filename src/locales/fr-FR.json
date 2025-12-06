@@ -509,7 +509,8 @@
         "autoSelect": "Hébergement automatique du jeu (sélection aléatoire d'arme et d'élixir)",
         "unlockAll": "Déverrouiller tous les personnages et chapitres",
         "enableMusic": "Activer la musique",
-        "musicVolume": "Volume de la musique"
+        "musicVolume": "Volume de la musique",
+        "gameTime": "Temps de chapitre ({value} secondes)"
     },
     "wiki": {
         "title": "Wiki"

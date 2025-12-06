@@ -513,7 +513,8 @@
     "autoSelect": "游戏自动托管（随机选择武器和仙丹）",
     "unlockAll": "解锁所有角色和章节",
     "enableMusic": "启用音乐",
-    "musicVolume": "音乐音量"
+    "musicVolume": "音乐音量",
+    "gameTime": "章节时长 ({value} 秒)"
   },
   "wiki": {
     "title": "百科"

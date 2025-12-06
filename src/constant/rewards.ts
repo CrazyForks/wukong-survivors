@@ -646,11 +646,30 @@ export const RARITY_SIZE: Record<WeaponRarity, number> = {
   legendary: 36,
 };
 
+export const RARITY_DURATION: Record<WeaponRarity, number> = {
+  common: 1400,
+  rare: 1600,
+  epic: 1800,
+  legendary: 2000,
+};
+
+export const RARITY_SPEED: Record<WeaponRarity, number> = {
+  common: 250,
+  rare: 300,
+  epic: 350,
+  legendary: 400,
+};
+
 export const GEM_MAP = {
   gemLow: "gem-low",
   gemMedium: "gem-medium",
   gemHigh: "gem-high",
   coin: "coin",
 };
+
+export const DEFAULT_COLLECT_RADIUS = 30;
+export const DEFAULT_MAGNET_RADIUS = 150;
+
+export const DEFAULT_SPRITE_SIZE = 32;
 
 export const COLLECT_RANGE_BONUS = 0.5;

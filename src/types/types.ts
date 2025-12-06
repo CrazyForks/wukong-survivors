@@ -18,7 +18,6 @@ export interface GameMap {
   };
   difficulty: number; // 1-6 corresponding to chapters
   availableEnemies: EnemyType[];
-  gameTime: number;
 }
 
 export type PermanentUpgradeType =
@@ -49,6 +48,7 @@ export type GameSave = {
   musicEnabled: boolean;
   enableAutoSelect: boolean;
   enableUnlockAll: boolean;
+  gameTime: number;
 } & Record<PermanentUpgradeType, number>;
 
 export type Screen =

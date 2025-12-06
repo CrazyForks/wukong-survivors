@@ -481,7 +481,8 @@
         "autoSelect": "Spielautomatisierung (zufällige Auswahl von Waffe und Elixiere)",
         "unlockAll": "Alle Charaktere und Kapitel freischalten",
         "enableMusic": "Musik aktivieren",
-        "musicVolume": "Musikvolume"
+        "musicVolume": "Musikvolume",
+        "gameTime": "Kapitelzeit ({value} Sekunden)"
     },
     "wiki": {
         "title": "Wiki"
