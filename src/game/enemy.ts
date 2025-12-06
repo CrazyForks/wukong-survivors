@@ -1,9 +1,10 @@
 import Phaser from "phaser";
 import { scaleManager } from "./ScaleManager";
-import { ENEMIES_DATA } from "../constant";
-import type { EnemyType, EnemyRank } from "../types";
+import { ENEMIES_DATA,ENEMY_SIZE } from "../constant";
+import type { EnemyType } from "../types";
 import type { GameScene } from "./GameScene";
 import type { Position } from "./player";
+
 
 /**
  * Extended sprite interface that includes a reference to the parent Enemy object
@@ -54,7 +55,7 @@ export class Enemy {
     this.sprite = scene.physics.add.sprite(x, y, enemyType) as EnemySprite;
 
     // Set display size based on enemy rank with responsive scaling
-    const baseSize = this.getEnemySizeByRank(enemyData.rank);
+    const baseSize = ENEMY_SIZE[enemyData.rank];
     const displaySize = scaleManager.scaleValue(baseSize);
     this.sprite.setDisplaySize(displaySize, displaySize);
 
@@ -63,22 +64,6 @@ export class Enemy {
 
     // Store reference to enemy object on sprite for collision handling
     this.sprite.enemyRef = this;
-  }
-
-  /**
-   * Determine enemy base size based on rank
-   * @param rank Enemy rank (minion, elite, etc.)
-   * @returns Base size in pixels
-   */
-  private getEnemySizeByRank(rank: EnemyRank): number {
-    switch (rank) {
-      case "minion":
-        return 32;
-      case "elite":
-        return 40;
-      default:
-        return 32;
-    }
   }
 
   /**

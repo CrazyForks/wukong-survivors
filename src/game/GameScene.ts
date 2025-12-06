@@ -1,11 +1,11 @@
-import Phaser from "phaser";
-import { Player, type WASDKeys } from "./player";
-import { EnemySpawner } from "./enemy";
-import { WeaponManager, type UpgradeOption } from "./weapon";
-import { ExperienceManager } from "./experience";
-import { AudioManager, SoundEffect } from "./AudioManager";
-import { VirtualJoystick } from "./VirtualJoystick";
-import { useSaveStore, useAppStore } from "../store";
+import Phaser from 'phaser';
+import { Player, type WASDKeys } from './player';
+import { EnemySpawner } from './enemy';
+import { WeaponManager, type UpgradeOption } from './weapon';
+import { ExperienceManager } from './experience';
+import { AudioManager, SoundEffect } from './AudioManager';
+import { VirtualJoystick } from './VirtualJoystick';
+import { useSaveStore, useAppStore } from '../store';
 import {
   ENEMIES_DATA,
   WEAPONS,
@@ -15,19 +15,20 @@ import {
   WORLD_SIZE,
   CHARACTER_SIZE,
   ENEMY_SIZE,
-} from "../constant";
+} from '../constant';
 import {
   getCharacterImagePath,
   getEnemyImagePath,
   getWeaponImagePath,
   getMapImagePath,
-} from "../util";
-import i18n from "../i18n";
-import { scaleManager } from "./ScaleManager";
-import { RewardSelectionUI } from "./RewardSelectionUI";
-import type { RewardOption, ElixirData, WeaponData } from "../types";
-import eventBus from "./eventBus";
-import { formatTime } from "../util";
+} from '../util';
+import i18n from '../i18n';
+import { scaleManager } from './ScaleManager';
+import { RewardSelectionUI } from './RewardSelectionUI';
+import type { RewardOption, ElixirData, WeaponData } from '../types';
+import eventBus from './eventBus';
+import { formatTime } from '../util';
+import type { ProjectileSprite } from './weapon';
 
 interface ButtonElement {
   button: Phaser.GameObjects.Rectangle;
@@ -66,7 +67,7 @@ export class GameScene extends Phaser.Scene {
   private isTouchDevice: boolean = false;
 
   constructor() {
-    super({ key: "GameScene" });
+    super({ key: 'GameScene' });
   }
 
   public getPlayTime() {
@@ -181,20 +182,20 @@ export class GameScene extends Phaser.Scene {
       if (level > 0) {
         const effect = upgrade.effect(level);
         switch (upgrade.id) {
-          case "attack":
+          case 'attack':
             // Weapon damage will be applied when weapon is created
             break;
-          case "health":
+          case 'health':
             this.player.maxHealth += effect;
             this.player.health += effect;
             break;
-          case "armor":
+          case 'armor':
             // Armor will be calculated when taking damage
             break;
-          case "luck":
+          case 'luck':
             // Luck will affect drops
             break;
-          case "speed":
+          case 'speed':
             this.player.speed += effect;
             break;
         }
@@ -210,10 +211,10 @@ export class GameScene extends Phaser.Scene {
       this.cursors = cursors;
     }
     this.wasd = {
-      w: this.input.keyboard?.addKey("W"),
-      a: this.input.keyboard?.addKey("A"),
-      s: this.input.keyboard?.addKey("S"),
-      d: this.input.keyboard?.addKey("D"),
+      w: this.input.keyboard?.addKey('W'),
+      a: this.input.keyboard?.addKey('A'),
+      s: this.input.keyboard?.addKey('S'),
+      d: this.input.keyboard?.addKey('D'),
     };
 
     // Initialize virtual joystick for touch devices
@@ -262,7 +263,7 @@ export class GameScene extends Phaser.Scene {
     this.playerDamageCoolDown = 0;
 
     // Handle window resize
-    this.scale.on("resize", this.handleResize, this);
+    this.scale.on('resize', this.handleResize, this);
   }
 
   private handleResize(gameSize: Phaser.Structs.Size): void {
@@ -420,13 +421,13 @@ export class GameScene extends Phaser.Scene {
     this.levelText = this.add.text(
       padding + barWidth + scaleManager.UIScaleValue(10),
       padding,
-      i18n.t("game.level", { level: 1 }),
+      i18n.t('game.level', { level: 1 }),
       {
         fontSize: scaleManager.getNameSize(),
         fontFamily: scaleManager.getDefaultFont(),
-        color: "#ffffff",
-        fontStyle: "bold",
-        stroke: "#000000",
+        color: '#ffffff',
+        fontStyle: 'bold',
+        stroke: '#000000',
         strokeThickness: 3,
       },
     );
@@ -438,13 +439,13 @@ export class GameScene extends Phaser.Scene {
     this.timeText = this.add.text(
       timeX,
       padding - scaleManager.UIScaleValue(16) / 4,
-      "00:00",
+      '00:00',
       {
         fontSize: scaleManager.getNameSize(),
         fontFamily: scaleManager.getDefaultFont(),
-        color: "#ffffff",
-        fontStyle: "bold",
-        stroke: "#000000",
+        color: '#ffffff',
+        fontStyle: 'bold',
+        stroke: '#000000',
         strokeThickness: 3,
       },
     );
@@ -456,12 +457,12 @@ export class GameScene extends Phaser.Scene {
     this.goldText = this.add.text(
       timeX,
       goldTextY,
-      `${i18n.t("stats.gold")}: ${useSaveStore.getState().totalGold}`,
+      `${i18n.t('stats.gold')}: ${useSaveStore.getState().totalGold}`,
       {
         fontSize: scaleManager.getDescSize(),
         fontFamily: scaleManager.getDefaultFont(),
-        color: "#ffffff",
-        stroke: "#000000",
+        color: '#ffffff',
+        stroke: '#000000',
         strokeThickness: 2,
       },
     );
@@ -486,25 +487,25 @@ export class GameScene extends Phaser.Scene {
       .setDepth(scaleManager.getZIndex());
 
     this.closeButtonText = this.add
-      .text(x, y, "X", {
+      .text(x, y, 'X', {
         fontSize: scaleManager.getNameSize(),
         fontFamily: scaleManager.getDefaultFont(),
-        color: "#ffffff",
-        fontStyle: "bold",
+        color: '#ffffff',
+        fontStyle: 'bold',
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(scaleManager.getZIndex());
 
-    this.closeButton.on("pointerover", () => {
+    this.closeButton.on('pointerover', () => {
       this.closeButton?.setFillStyle(0x555555);
     });
 
-    this.closeButton.on("pointerout", () => {
+    this.closeButton.on('pointerout', () => {
       this.closeButton?.setFillStyle(0x333333);
     });
 
-    this.closeButton.on("pointerdown", () => {
+    this.closeButton.on('pointerdown', () => {
       this.endGame();
     });
 
@@ -530,15 +531,15 @@ export class GameScene extends Phaser.Scene {
     useSaveStore.getState().updatePlayTime(this.getPlayTime());
 
     this.showModal({
-      title: i18n.t("game.endGameTitle"),
-      titleColor: "#ff0000",
-      description: i18n.t("game.endGameDesc"),
-      cancelText: i18n.t("shop.cancel"),
+      title: i18n.t('game.endGameTitle'),
+      titleColor: '#ff0000',
+      description: i18n.t('game.endGameDesc'),
+      cancelText: i18n.t('shop.cancel'),
       onCancel: () => {
         this.audioManager?.stopMusic();
         this.resume();
       },
-      okText: i18n.t("game.endGame"),
+      okText: i18n.t('game.endGame'),
       onOk: () => {
         this.audioManager?.stopMusic();
         eventBus.emit(EVENT_MAP.BACK_TO_HOME);
@@ -604,7 +605,7 @@ export class GameScene extends Phaser.Scene {
 
     // Update level
     this.levelText?.setText(
-      i18n.t("game.level", { level: this.player?.level }),
+      i18n.t('game.level', { level: this.player?.level }),
     );
 
     // Update time
@@ -612,16 +613,16 @@ export class GameScene extends Phaser.Scene {
 
     // Change color based on remaining time
     if (this.gameTime < 60) {
-      this.timeText?.setColor("#ff0000"); // Red when less than 1 minute
+      this.timeText?.setColor('#ff0000'); // Red when less than 1 minute
     } else if (this.gameTime < 300) {
-      this.timeText?.setColor("#ffff00"); // Yellow when less than 5 minutes
+      this.timeText?.setColor('#ffff00'); // Yellow when less than 5 minutes
     } else {
-      this.timeText?.setColor("#ffffff"); // White otherwise
+      this.timeText?.setColor('#ffffff'); // White otherwise
     }
 
     // Update kill count
     this.goldText?.setText(
-      `${i18n.t("stats.gold")}: ${useSaveStore.getState().totalGold}`,
+      `${i18n.t('stats.gold')}: ${useSaveStore.getState().totalGold}`,
     );
   }
 
@@ -689,35 +690,38 @@ export class GameScene extends Phaser.Scene {
     this.weaponManager?.weapons.forEach((weapon) => {
       // Magic missile collision
 
-      weapon.projectiles?.children.entries.forEach((projectile: any) => {
-        if (!projectile.active) return;
+      weapon.projectiles?.children.entries.forEach(
+        (item) => {
+          const projectile = item as ProjectileSprite;
+          if (!projectile.active) return;
 
-        enemies.forEach((enemy) => {
-          if (enemy.isDead) return;
+          enemies.forEach((enemy) => {
+            if (enemy.isDead) return;
 
-          const distance = Phaser.Math.Distance.Between(
-            projectile.x,
-            projectile.y,
-            enemy.sprite.x,
-            enemy.sprite.y,
-          );
+            const distance = Phaser.Math.Distance.Between(
+              projectile.x,
+              projectile.y,
+              enemy.sprite.x,
+              enemy.sprite.y,
+            );
 
-          if (distance < 20) {
-            const killed = enemy.takeDamage(projectile.damage);
-            if (killed) {
-              this.killCount++;
-              this.killsSinceLastReward++;
-              this.checkRewardTrigger();
-              this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
+            if (distance < projectile.distance) {
+              const killed = enemy.takeDamage(projectile.damage);
+              if (killed) {
+                this.killCount++;
+                this.killsSinceLastReward++;
+                this.checkRewardTrigger();
+                this.spawnGoldCoin(enemy.sprite.x, enemy.sprite.y);
+              }
+
+              projectile.piercing--;
+              if (projectile.piercing <= 0) {
+                projectile.destroy();
+              }
             }
-
-            projectile.piercing--;
-            if (projectile.piercing <= 0) {
-              projectile.destroy();
-            }
-          }
-        });
-      });
+          });
+        },
+      );
 
       // Holy Aura collision
 
@@ -732,7 +736,7 @@ export class GameScene extends Phaser.Scene {
             enemy.sprite.y,
           );
 
-          if (distance < 25 && typeof orb.damage === "number") {
+          if (distance < orb.distance) {
             const killed = enemy.takeDamage(orb.damage);
             if (killed) {
               this.killCount++;
@@ -791,7 +795,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleRewardSelection(option: RewardOption): void {
-    if (option.type === "weapon") {
+    if (option.type === 'weapon') {
       const weaponData = option.data as WeaponData;
 
       const WeaponClass = this.weaponManager?.getWeaponById(weaponData.id);
@@ -815,13 +819,13 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    if (option.type === "elixir") {
+    if (option.type === 'elixir') {
       // Apply elixir effects
       const elixir = option.data as ElixirData;
 
       switch (elixir.effect.type) {
-        case "health":
-          if (elixir.id === "jade_dew") {
+        case 'health':
+          if (elixir.id === 'jade_dew') {
             // Jade Dew: Restore health
             this.player.health = Math.min(
               this.player.maxHealth,
@@ -833,29 +837,29 @@ export class GameScene extends Phaser.Scene {
             this.player.health += elixir.effect.value;
           }
           break;
-        case "damage":
+        case 'damage':
           // Golden Elixir: Increase attack power
           this.weaponManager?.weapons.forEach((weapon) => {
             weapon.damage *= 1 + elixir.effect.value;
           });
           break;
-        case "armor":
+        case 'armor':
           // Tiger Bone Wine/Dragon Scale: Increase armor
           this.player.armor += elixir.effect.value;
           break;
-        case "speed":
+        case 'speed':
           // Phoenix Feather: Increase movement speed
           this.player.speed += elixir.effect.value;
           break;
-        case "exp":
+        case 'exp':
           // Spirit Mushroom: Increase experience gain
           this.player.expBonus += elixir.effect.value;
           break;
-        case "crit":
+        case 'crit':
           // Soul Bead: Increase critical rate
           this.player.critRate += elixir.effect.value;
           break;
-        case "all":
+        case 'all':
           // Inner Elixir: Increase all stats
           this.player.maxHealth += this.player.maxHealth * elixir.effect.value;
           this.player.health += this.player.maxHealth * elixir.effect.value;
@@ -864,11 +868,11 @@ export class GameScene extends Phaser.Scene {
             weapon.damage *= 1 + elixir.effect.value;
           });
           break;
-        case "revive":
+        case 'revive':
           // Resurrection Pill: Revive upon death
           this.player.reviveCount += 1;
           break;
-        case "magnet":
+        case 'magnet':
           // Universe Bag: Increase magnet range
           this.player.magnetBonus += elixir.effect.value;
           break;
@@ -912,13 +916,13 @@ export class GameScene extends Phaser.Scene {
       .text(
         centerX,
         centerY - scaleManager.UIScaleValue(150),
-        i18n.t("game.levelUp"),
+        i18n.t('game.levelUp'),
         {
           fontSize: scaleManager.getTitleSize(),
           fontFamily: scaleManager.getDefaultFont(),
-          color: "#ffff00",
-          fontStyle: "bold",
-          stroke: "#000000",
+          color: '#ffff00',
+          fontStyle: 'bold',
+          stroke: '#000000',
           strokeThickness: 4,
         },
       )
@@ -963,8 +967,8 @@ export class GameScene extends Phaser.Scene {
         .text(centerX, y - scaleManager.UIScaleValue(15), option.name, {
           fontSize: scaleManager.getNameSize(),
           fontFamily: scaleManager.getDefaultFont(),
-          color: "#ffffff",
-          fontStyle: "bold",
+          color: '#ffffff',
+          fontStyle: 'bold',
         })
         .setOrigin(0.5)
         .setScrollFactor(0)
@@ -974,22 +978,22 @@ export class GameScene extends Phaser.Scene {
         .text(centerX, y + scaleManager.UIScaleValue(15), option.description, {
           fontSize: scaleManager.getDescSize(),
           fontFamily: scaleManager.getDefaultFont(),
-          color: "#cccccc",
+          color: '#cccccc',
           wordWrap: { width: width - 20 },
         })
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(endDepth);
 
-      button.on("pointerover", () => {
+      button.on('pointerover', () => {
         button.setFillStyle(0x555555);
       });
 
-      button.on("pointerout", () => {
+      button.on('pointerout', () => {
         button.setFillStyle(0x333333);
       });
 
-      button.on("pointerdown", () => {
+      button.on('pointerdown', () => {
         selectOption(option);
       });
 
@@ -1003,9 +1007,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   public selectUpgrade(option: UpgradeOption): void {
-    if (option.type === "upgrade" && option.weapon) {
+    if (option.type === 'upgrade' && option.weapon) {
       option.weapon.upgrade();
-    } else if (option.type === "new" && option.weaponClass) {
+    } else if (option.type === 'new' && option.weaponClass) {
       this.weaponManager?.addWeapon(option.weaponClass);
     }
 
@@ -1059,8 +1063,8 @@ export class GameScene extends Phaser.Scene {
       .text(centerX, centerY - scaleManager.UIScaleValue(100), title, {
         fontSize: scaleManager.getTitleSize(),
         color: titleColor,
-        fontStyle: "bold",
-        stroke: "#000000",
+        fontStyle: 'bold',
+        stroke: '#000000',
         strokeThickness: 6,
         fontFamily: scaleManager.getDefaultFont(),
       })
@@ -1074,9 +1078,9 @@ export class GameScene extends Phaser.Scene {
       const descText = this.add
         .text(centerX, centerY, description, {
           fontSize: scaleManager.getNameSize(),
-          color: "#ffffff",
-          align: "center",
-          stroke: "#000000",
+          color: '#ffffff',
+          align: 'center',
+          stroke: '#000000',
           strokeThickness: 3,
           fontFamily: scaleManager.getDefaultFont(),
         })
@@ -1108,8 +1112,8 @@ export class GameScene extends Phaser.Scene {
     const okObj = this.add
       .text(centerX - paddingX, centerY + paddingY, okText, {
         fontSize: scaleManager.getNameSize(),
-        color: "#ffffff",
-        fontStyle: "bold",
+        color: '#ffffff',
+        fontStyle: 'bold',
         fontFamily: scaleManager.getDefaultFont(),
       })
       .setOrigin(0.5)
@@ -1118,15 +1122,15 @@ export class GameScene extends Phaser.Scene {
 
     result.push(okObj);
 
-    okButton.on("pointerover", () => {
+    okButton.on('pointerover', () => {
       okButton.setFillStyle(0x555555);
     });
 
-    okButton.on("pointerout", () => {
+    okButton.on('pointerout', () => {
       okButton.setFillStyle(0x333333);
     });
 
-    okButton.on("pointerdown", () => {
+    okButton.on('pointerdown', () => {
       onOk();
     });
 
@@ -1148,8 +1152,8 @@ export class GameScene extends Phaser.Scene {
     const cancelTextObj = this.add
       .text(centerX + paddingX, centerY + paddingY, cancelText, {
         fontSize: scaleManager.getNameSize(),
-        color: "#ffffff",
-        fontStyle: "bold",
+        color: '#ffffff',
+        fontStyle: 'bold',
         fontFamily: scaleManager.getDefaultFont(),
       })
       .setOrigin(0.5)
@@ -1158,15 +1162,15 @@ export class GameScene extends Phaser.Scene {
 
     result.push(cancelTextObj);
 
-    cancelButton.on("pointerover", () => {
+    cancelButton.on('pointerover', () => {
       cancelButton.setFillStyle(0x555555);
     });
 
-    cancelButton.on("pointerout", () => {
+    cancelButton.on('pointerout', () => {
       cancelButton.setFillStyle(0x333333);
     });
 
-    cancelButton.on("pointerdown", () => {
+    cancelButton.on('pointerdown', () => {
       result.forEach((item) => {
         item.destroy();
       });
@@ -1177,9 +1181,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getEndGameDesc() {
-    return `${i18n.t("stats.survivalTime")}: ${this.getPlayTime()}\n${i18n.t(
-      "stats.kills",
-    )}: ${this.killCount}\n${i18n.t("stats.level")}: ${this.player.level}\n${i18n.t("stats.gold")}: ${useSaveStore.getState().totalGold}`;
+    return `${i18n.t('stats.survivalTime')}: ${this.getPlayTime()}\n${i18n.t(
+      'stats.kills',
+    )}: ${this.killCount}\n${i18n.t('stats.level')}: ${this.player.level}\n${i18n.t('stats.gold')}: ${useSaveStore.getState().totalGold}`;
   }
 
   public showVictory(): void {
@@ -1197,15 +1201,15 @@ export class GameScene extends Phaser.Scene {
     useSaveStore.getState().completeChapter([selectedMap.id]);
 
     this.showModal({
-      title: i18n.t("game.chapterComplete"),
-      titleColor: "#00ff00",
+      title: i18n.t('game.chapterComplete'),
+      titleColor: '#00ff00',
       description: this.getEndGameDesc(),
-      cancelText: i18n.t("game.backToHome"),
+      cancelText: i18n.t('game.backToHome'),
       onCancel: () => {
         this.audioManager?.stopMusic();
         eventBus.emit(EVENT_MAP.BACK_TO_HOME);
       },
-      okText: i18n.t("game.restart"),
+      okText: i18n.t('game.restart'),
       onOk: () => {
         this.audioManager?.stopMusic();
         this.scene.restart();
@@ -1224,15 +1228,15 @@ export class GameScene extends Phaser.Scene {
     useSaveStore.getState().updatePlayTime(this.getPlayTime());
 
     this.showModal({
-      title: i18n.t("game.gameOver"),
-      titleColor: "#ff0000",
+      title: i18n.t('game.gameOver'),
+      titleColor: '#ff0000',
       description: this.getEndGameDesc(),
-      cancelText: i18n.t("game.backToHome"),
+      cancelText: i18n.t('game.backToHome'),
       onCancel: () => {
         this.audioManager?.stopMusic();
         eventBus.emit(EVENT_MAP.BACK_TO_HOME);
       },
-      okText: i18n.t("game.restart"),
+      okText: i18n.t('game.restart'),
       onOk: () => {
         this.audioManager?.stopMusic();
 

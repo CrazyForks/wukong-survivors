@@ -178,7 +178,6 @@ export class Player {
 
   /**
    * Add experience to player, applying any experience bonuses
-   * @param amount Base experience amount to add
    */
   public addExperience(amount: number): void {
     // Apply experience bonus multiplier

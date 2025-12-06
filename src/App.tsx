@@ -6,21 +6,18 @@ import Shop from "./pages/Shop";
 import Game from "./pages/Game";
 import "./App.css";
 import { type Screen } from "./types";
-import _ from "lodash";
 import Home from "./pages/Home";
 import Settings from "./pages/Settings";
 import Stats from "./pages/Stats";
 import Wiki from "./pages/Wiki";
 
 const App: React.FC = () => {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("home");
-  const [gameKey, setGameKey] = useState("");
+  const [currentScreen, setCurrentScreen] = useState<Screen>("game");
   useEffect(() => {
     useAppStore.getState().checkUnlocks();
   }, [currentScreen]);
 
   const onGoToGame = useCallback(() => {
-    setGameKey(_.uniqueId());
     setCurrentScreen("game");
   }, []);
 
@@ -39,7 +36,7 @@ const App: React.FC = () => {
   const screenComponents = {
     mapSelect: <MapSelect onConfirm={onGoToGame} onBack={onGoToCharacter} />,
     shop: <Shop onBack={onGoToHome} />,
-    game: <Game key={gameKey} onBack={onGoToHome} />,
+    game: <Game onBack={onGoToHome} />,
     characterSelect: (
       <CharacterSelect onConfirm={onGoToMap} onBack={onGoToHome} />
     ),
