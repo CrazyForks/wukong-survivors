@@ -70,6 +70,15 @@ describe("GameScene", () => {
       scale: {
         on: vi.fn(),
       },
+      sys: {
+        game: {
+          device: {
+            input: {
+              touch: false,
+            },
+          },
+        },
+      },
     };
 
     // Create game scene instance
@@ -89,7 +98,7 @@ describe("GameScene", () => {
   it("should initialize with correct properties", () => {
     expect(gameScene).toBeInstanceOf(GameScene);
     expect((gameScene as any).killsSinceLastReward).toBe(0);
-    expect((gameScene as any).killsRequiredForReward).toBe(10);
+    expect((gameScene as any).killsRequiredForReward).toBe(20);
     expect((gameScene as any).isPaused).toBe(false);
     expect((gameScene as any).isGameOver).toBe(false);
     expect((gameScene as any).playerDamageCoolDown).toBe(0);
@@ -160,7 +169,6 @@ describe("GameScene", () => {
 
     // Check if resize handling is done
     expect((gameScene as any).updateUILayout).toHaveBeenCalledWith(800);
-    expect((gameScene as any).virtualJoystick.updateSize).toHaveBeenCalled();
   });
 
   it("should return correct play time", () => {

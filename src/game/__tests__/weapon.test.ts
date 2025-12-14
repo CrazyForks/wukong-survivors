@@ -130,7 +130,7 @@ describe("Weapon Base Class", () => {
     expect(goldenStaff.damage).toBe(WEAPONS["golden_staff"].baseDamage);
     expect(goldenStaff.coolDown).toBe(WEAPONS["golden_staff"].attackSpeed);
     expect(goldenStaff.type).toBe("golden_staff");
-    expect(goldenStaff.projectiles).toBeDefined();
+    expect(goldenStaff.projectiles).toEqual([]);
     expect(goldenStaff.isOrb).toBe(false);
   });
 

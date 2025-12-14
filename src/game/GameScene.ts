@@ -29,15 +29,14 @@ import { RewardSelectionUI } from "./RewardSelectionUI";
 import type { RewardOption, ElixirData, WeaponData } from "../types";
 import eventBus from "./eventBus";
 import { formatTime } from "../util";
-import type { ProjectileSprite } from "./weapon";
-
-const GOLD_DROP_PERCENTAGE = 0.1;
 
 interface ButtonElement {
   button: Phaser.GameObjects.Rectangle;
   nameText: Phaser.GameObjects.Text;
   descText: Phaser.GameObjects.Text;
 }
+
+const REQUIRED_KILLS_FOR_REWARD = 20;
 
 // Game scene
 export class GameScene extends Phaser.Scene {
@@ -49,7 +48,6 @@ export class GameScene extends Phaser.Scene {
   private experienceManager?: ExperienceManager;
   private rewardUI?: RewardSelectionUI;
   private audioManager?: AudioManager;
-  private uiContainer?: Phaser.GameObjects.Container;
   private healthBarBg?: Phaser.GameObjects.Rectangle;
   private healthBar?: Phaser.GameObjects.Rectangle;
   private expBarBg?: Phaser.GameObjects.Rectangle;
@@ -60,14 +58,13 @@ export class GameScene extends Phaser.Scene {
   private closeButton?: Phaser.GameObjects.Rectangle;
   private closeButtonText?: Phaser.GameObjects.Text;
   private killsSinceLastReward: number = 0;
-  private killsRequiredForReward: number = 10; // Pop reward every 10 kills
+  private killsRequiredForReward: number = REQUIRED_KILLS_FOR_REWARD; // Pop reward every 10 kills
   private isPaused: boolean = false;
   private isGameOver: boolean = false;
   private playerDamageCoolDown: number = 0;
   private killCount = 0;
   private gameTime = 0;
   private virtualJoystick?: VirtualJoystick;
-  private isTouchDevice: boolean = false;
 
   constructor() {
     super({ key: "GameScene" });
@@ -192,7 +189,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     // Detect touch device
-    this.isTouchDevice = this.sys.game.device.input.touch;
+    const isTouchDevice = this.sys.game.device.input.touch;
 
     // Input controls
     const cursors = this.input.keyboard?.createCursorKeys();
@@ -207,7 +204,7 @@ export class GameScene extends Phaser.Scene {
     };
 
     // Initialize virtual joystick for touch devices
-    if (this.isTouchDevice) {
+    if (isTouchDevice) {
       const padding = scaleManager.UIScaleValue(20);
       const joystickRadius = scaleManager.UIScaleValue(60);
       this.virtualJoystick = new VirtualJoystick(
@@ -271,8 +268,10 @@ export class GameScene extends Phaser.Scene {
     // Update UI positions and sizes
     this.updateUILayout(width);
 
+    const isTouchDevice = this.sys.game.device.input.touch;
+
     // Update virtual joystick position and size
-    if (this.virtualJoystick && this.isTouchDevice) {
+    if (this.virtualJoystick && isTouchDevice) {
       this.virtualJoystick.updateSize();
       const padding = scaleManager.UIScaleValue(20);
       const joystickRadius = scaleManager.UIScaleValue(60);
@@ -351,7 +350,7 @@ export class GameScene extends Phaser.Scene {
 
   private createUI(): void {
     // UI container (fixed on screen)
-    this.uiContainer = this.add
+    const uiContainer = this.add
       .container(0, 0)
       .setScrollFactor(0)
       .setDepth(scaleManager.getZIndex());
@@ -371,6 +370,7 @@ export class GameScene extends Phaser.Scene {
       0x000000,
       0.7,
     );
+
     this.healthBarBg.setOrigin(0, 0);
     this.healthBar = this.add.rectangle(
       padding,
@@ -492,7 +492,7 @@ export class GameScene extends Phaser.Scene {
       this.endGame();
     });
 
-    this.uiContainer.add([
+    uiContainer.add([
       this.healthBarBg,
       this.healthBar,
       this.expBarBg,
@@ -632,8 +632,7 @@ export class GameScene extends Phaser.Scene {
     // Weapon and enemy collision
     for (const weapon of this.weaponManager?.getWeapons() || []) {
       // Magic missile collision
-      weapon.projectiles.children.entries.forEach((item) => {
-        const projectile = item as ProjectileSprite;
+      weapon.projectiles.forEach((projectile) => {
         if (!projectile.active) return;
 
         enemies.forEach((enemy) => {
@@ -699,7 +698,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnGoldCoin(x: number, y: number, value: number): void {
-    const dropRate = GOLD_DROP_PERCENTAGE + this.player.luck * 0.01;
+    const dropRate = 0.1 + this.player.luck * 0.02;
     if (Math.random() < dropRate) {
       this.experienceManager?.spawnCoin(x, y, value);
     }
@@ -715,7 +714,7 @@ export class GameScene extends Phaser.Scene {
       // Increase required kills for next reward to make game more challenging
       this.killsRequiredForReward = Math.min(
         30,
-        this.killsRequiredForReward + 2,
+        this.killsRequiredForReward + REQUIRED_KILLS_FOR_REWARD,
       );
       this.showRewardSelection();
     }

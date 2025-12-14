@@ -42,8 +42,6 @@ export interface OrbData {
   offset: number;
 }
 
-// TODO: fix weapon fire logic
-
 /**
  * Abstract base class for all weapons in the game
  * Provides common functionality and defines the interface for weapon implementations
@@ -58,7 +56,7 @@ export abstract class Weapon {
   private lastFired: number;
   public type: WeaponType;
   public orbs: OrbData[] = [];
-  public projectiles: Phaser.Physics.Arcade.Group;
+  protected projectileGroup: Phaser.Physics.Arcade.Group;
   private collectRangeBonus: number = 0;
   public projectileCount: number = 1;
   public projectileSpeed: number;
@@ -67,6 +65,7 @@ export abstract class Weapon {
   public rotationSpeed = 0;
   public rotationAngle = 0;
   public rotationRadius = 0;
+  public armorBreak = 0;
 
   /**
    * Create a new weapon
@@ -75,25 +74,30 @@ export abstract class Weapon {
    * @param config Weapon configuration
    */
   constructor(scene: GameScene, player: Player, config: WeaponConfig) {
-    // Validate that the weapon texture exists
-    if (!scene.textures.exists(config.type)) {
+    const weaponData = WEAPONS[config.type];
+    if (!scene.textures.exists(config.type) || weaponData) {
       console.error(
         `Weapon texture '${config.type}' not found. Please ensure the SVG file is preloaded correctly.`,
       );
     }
 
-    const weaponData = WEAPONS[config.type];
     this.scene = scene;
     this.player = player;
     this.level = 1;
-    this.maxLevel = RARITY_MAX_LEVEL[weaponData.rarity] ?? 5;
+    this.maxLevel =
+      RARITY_MAX_LEVEL[weaponData.rarity] ?? RARITY_MAX_LEVEL.common;
     this._damage = weaponData.baseDamage ?? 0;
     this.coolDown = weaponData.attackSpeed ?? 0;
     this.lastFired = 0;
     this.type = config.type;
-    this.projectiles = scene.physics.add.group();
+    this.projectileGroup = scene.physics.add.group();
     this.projectileSpeed = RARITY_SPEED[weaponData.rarity] ?? 0;
     this.isOrb = config.isOrb ?? false;
+  }
+
+  public get projectiles(): ProjectileSprite[] {
+    return (this.projectileGroup?.children?.entries ||
+      []) as ProjectileSprite[];
   }
 
   public get damage(): number {
@@ -102,7 +106,9 @@ export abstract class Weapon {
 
     const damage = this._damage + this.player.attack;
 
-    return isCrit ? damage * 1.5 : damage;
+    const finalDamage = isCrit ? damage * 1.5 : damage;
+
+    return finalDamage * (1 + this.armorBreak);
   }
 
   public set damage(value: number) {
@@ -131,9 +137,7 @@ export abstract class Weapon {
     }
 
     if (time - this.lastFired >= this.coolDown) {
-      if (enemies.length > 0) {
-        this.scene.playPlayerFireSound();
-      }
+      this.scene.playPlayerFireSound();
       this.fire(enemies);
       this.lastFired = time;
     }
@@ -147,6 +151,14 @@ export abstract class Weapon {
       this.level++;
       this._damage += RARITY_DAMAGE[WEAPONS[this.type].rarity];
       this.applyUpgrade();
+
+      this.orbs.forEach((orb) => {
+        orb.sprite.damage = this.damage;
+      });
+      this.projectiles.forEach((item) => {
+        const projectile = item as ProjectileSprite;
+        projectile.damage = this.damage;
+      });
     }
   }
 
@@ -208,7 +220,7 @@ export abstract class Weapon {
         this.type,
       ) as ProjectileSprite;
     } else {
-      projectile = this.projectiles.create(
+      projectile = this.projectileGroup.create(
         x ?? playerPos.x,
         playerPos.y,
         this.type,
@@ -228,6 +240,8 @@ export abstract class Weapon {
     if (this.orbs.length === this.projectileCount) {
       return;
     }
+
+    this.scene.playPlayerFireSound();
 
     this.orbs.forEach((orb) => orb.sprite.destroy());
     this.orbs = [];
@@ -256,10 +270,6 @@ export abstract class Weapon {
 
   // Fire the weapon
   protected fire(enemies: Enemy[]): void {
-    if (this.projectileCount === 0 || this.isOrb) {
-      return;
-    }
-
     const playerPos = this.scene.getPlayerPosition();
     const weaponData = WEAPONS[this.type];
     const duration = RARITY_DURATION[weaponData.rarity];
@@ -288,6 +298,11 @@ export abstract class Weapon {
     this.collectRangeBonus = COLLECT_RANGE_BONUS * this.level;
 
     this.player.collectRange += this.collectRangeBonus;
+  }
+
+  public destroy(): void {
+    this.projectileGroup.clear(true, true);
+    this.orbs.forEach((orb: OrbData) => orb.sprite.destroy());
   }
 }
 
@@ -336,17 +351,10 @@ export class FireproofCloak extends Weapon {
     this.createOrbs();
   }
 
-  protected fire() {}
-
   /**
    * Apply upgrades when weapon levels up
    */
   protected applyUpgrade(): void {
-    // Update orbs with new damage value
-    this.orbs.forEach((orb) => {
-      orb.sprite.damage = this.damage;
-    });
-
     // Level-based upgrades
     if (this.level === 2) {
       // Add second orb at level 2
@@ -435,8 +443,6 @@ export class WindTamer extends Weapon {
     this.rotationRadius = 60;
     this.createOrbs();
   }
-
-  protected fire() {}
 
   protected applyUpgrade(): void {
     if (this.level >= 2) this.rotationSpeed = 3;
@@ -665,8 +671,6 @@ export class WindFireWheels extends Weapon {
     this.rotationSpeed = 4;
     this.createOrbs();
   }
-
-  protected fire() {}
 
   protected applyUpgrade(): void {
     if (this.level >= 2) this.rotationSpeed = 5;
@@ -997,8 +1001,6 @@ export class SevenStarSword extends Weapon {
     this.createOrbs();
   }
 
-  protected fire() {}
-
   public update(time: number): void {
     const playerPos = this.scene.getPlayerPosition();
     const rotation = (time / 1000) * 3;
@@ -1239,14 +1241,13 @@ export class GoldenRopeImmortal extends Weapon {
 // Demon Revealing Mirror - Monster Revealing Mirror
 export class DemonRevealingMirror extends Weapon {
   private revealRadius: number;
-  private critBonus: number;
 
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
       type: "demon_revealing_mirror",
     });
     this.revealRadius = scaleManager.scaleValue(200);
-    this.critBonus = 1.1;
+    this.armorBreak = 0.5;
   }
 
   protected fire(enemies: Enemy[]): void {
@@ -1259,7 +1260,7 @@ export class DemonRevealingMirror extends Weapon {
     graphics.setPosition(playerPos.x, playerPos.y);
 
     this.getEnemiesInRange(enemies, this.revealRadius).forEach((enemy) => {
-      enemy.takeDamage(this.damage * this.critBonus);
+      enemy.takeDamage(this.damage);
 
       // Weakness marking effect
       const marker = this.scene.add.graphics();
@@ -1288,9 +1289,9 @@ export class DemonRevealingMirror extends Weapon {
 
   protected applyUpgrade(): void {
     this.revealRadius += scaleManager.scaleValue(25);
-    if (this.level >= 2) this.critBonus = 1.2;
-    if (this.level >= 3) this.critBonus = 1.3;
-    if (this.level >= 5) this.critBonus = 1.4;
+    if (this.level >= 2) this.armorBreak = 0.6;
+    if (this.level >= 3) this.armorBreak = 0.7;
+    if (this.level >= 5) this.armorBreak = 0.8;
   }
 }
 
@@ -1572,20 +1573,11 @@ export class ImmortalSlayingBlade extends Weapon {
 
 // Diamond Snare - Supreme Elder's weapon
 export class DiamondSnare extends Weapon {
-  private armorBreak: number;
-
   constructor(scene: GameScene, player: Player) {
     super(scene, player, {
       type: "diamond_snare",
     });
     this.armorBreak = 0.5; // Ignore 50% defense
-  }
-
-  protected fire(enemies: Enemy[]): void {
-    super.fire(enemies);
-    this.projectiles.children.entries.forEach((item) => {
-      (item as ProjectileSprite).damage = this.damage * (1 + this.armorBreak);
-    });
   }
 
   protected applyUpgrade(): void {
@@ -1833,9 +1825,7 @@ export class WeaponManager {
 
   public clear(): void {
     this.weapons.forEach((weapon) => {
-      weapon.projectiles?.clear(true, true);
-
-      weapon.orbs.forEach((orb: OrbData) => orb.sprite.destroy());
+      weapon.destroy();
     });
     this.weapons = [];
   }

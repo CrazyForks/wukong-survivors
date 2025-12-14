@@ -661,10 +661,10 @@ export const RARITY_SPEED: Record<WeaponRarity, number> = {
 };
 
 export const RARITY_DAMAGE: Record<WeaponRarity, number> = {
-  common: 5,
-  rare: 8,
-  epic: 11,
-  legendary: 14,
+  common: 4,
+  rare: 9,
+  epic: 15,
+  legendary: 22,
 };
 
 export const RARITY_MAX_LEVEL: Record<WeaponRarity, number> = {

@@ -5,6 +5,7 @@ const venderConfig = {
   "react-vendor": ["react", "react-dom"],
   "i18next-vendor": ["i18next", "react-i18next"],
   "phaser-vendor": ["phaser"],
+  "util-vendor": ["lodash", "zustand"],
 };
 
 // https://vitejs.dev/config/
@@ -18,6 +19,7 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: true,
+    manifest: true,
     rollupOptions: {
       output: {
         manualChunks(id) {

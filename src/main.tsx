@@ -4,6 +4,7 @@ import App from "./App";
 import "./App.css";
 import i18n from "./i18n";
 import { useSaveStore } from "./store";
+import "vite/modulepreload-polyfill";
 
 async function init() {
   const currentLanguage = await i18n.changeLanguage();
