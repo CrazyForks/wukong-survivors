@@ -526,7 +526,9 @@
         "unlockAll": "Desbloquear todos los personajes y capítulos",
         "enableMusic": "Activar música",
         "musicVolume": "Volumen de música",
-        "gameTime": "Tiempo del capítulo ({value} segundos)"
+        "gameTime": "Tiempo del capítulo ({value} minutos)",
+        "resetSetting": "Restablecer configuración",
+        "resetConfirm": "¿Estás seguro de que quieres restablecer todas las configuraciones?"
     },
     "wiki": {
         "title": "Wiki"

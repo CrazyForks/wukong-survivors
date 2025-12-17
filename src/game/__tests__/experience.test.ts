@@ -1,62 +1,16 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ExperienceManager, CollectibleItem } from "../experience";
-
-// Mock functions
-const mockAddGold = vi.fn();
-const mockGetState = vi.fn(() => ({
-  musicEnabled: true,
-  musicVolume: 0.5,
-  addGold: (value: number) => mockAddGold(value),
-}));
-
-// Mock external dependencies
-vi.mock("../../store", () => {
-  return {
-    useSaveStore: {
-      addGold: () => mockAddGold(),
-      getState: () => mockGetState(),
-    },
-  };
-});
+import { useSaveStore } from "../../store";
+import { MOCK_SCENE } from "./util";
 
 describe("CollectibleItem", () => {
-  let mockScene: any;
   let collectible: CollectibleItem;
 
   beforeEach(() => {
-    // Reset mocks
-    mockAddGold.mockClear();
-
-    // Create mock scene with physics
-    mockScene = {
-      physics: {
-        add: {
-          sprite: vi.fn().mockReturnValue({
-            setDisplaySize: vi.fn().mockReturnThis(),
-            body: { setSize: vi.fn() },
-            setVelocity: vi.fn(),
-            setTint: vi.fn().mockReturnThis(),
-            alpha: 1,
-            scale: 1,
-            x: 100,
-            y: 100,
-            destroy: vi.fn(),
-            scene: mockScene, // Add scene reference
-          }),
-        },
-      },
-      tweens: {
-        add: vi.fn().mockImplementation((config) => {
-          if (config.onComplete) {
-            config.onComplete();
-          }
-          return { play: vi.fn() };
-        }),
-      },
-    };
+    useSaveStore.getState().resetAll();
 
     // Create collectible
-    collectible = new CollectibleItem(mockScene, 100, 100, "gem", 10);
+    collectible = new CollectibleItem(MOCK_SCENE, 100, 100, "gem", 10);
   });
 
   it("should create collectible with correct properties", () => {
@@ -67,7 +21,7 @@ describe("CollectibleItem", () => {
 
   it("should create coin with correct texture", () => {
     // Create a coin collectible
-    const coin = new CollectibleItem(mockScene, 100, 100, "coin");
+    const coin = new CollectibleItem(MOCK_SCENE, 100, 100, "coin");
 
     expect(coin.type).toBe("coin");
     expect(coin.value).toBe(0);
@@ -75,9 +29,9 @@ describe("CollectibleItem", () => {
 
   it("should create gem with correct texture based on value", () => {
     // Create gems with different values
-    const lowGem = new CollectibleItem(mockScene, 100, 100, "gem", 2);
-    const mediumGem = new CollectibleItem(mockScene, 100, 100, "gem", 3);
-    const highGem = new CollectibleItem(mockScene, 100, 100, "gem", 5);
+    const lowGem = new CollectibleItem(MOCK_SCENE, 100, 100, "gem", 2);
+    const mediumGem = new CollectibleItem(MOCK_SCENE, 100, 100, "gem", 3);
+    const highGem = new CollectibleItem(MOCK_SCENE, 100, 100, "gem", 5);
 
     expect(lowGem.type).toBe("gem");
     expect(mediumGem.type).toBe("gem");
@@ -98,13 +52,13 @@ describe("CollectibleItem", () => {
 
   it("should handle coin collection and add gold", () => {
     // Create coin
-    const coin = new CollectibleItem(mockScene, 100, 100, "coin", 10);
+    const coin = new CollectibleItem(MOCK_SCENE, 100, 100, "coin", 10);
 
     // Call collect method
     coin.collect();
 
     // Verify gold was added
-    expect(mockAddGold).toHaveBeenCalledWith(10);
+    expect(useSaveStore.getState().totalGold).toBe(10);
 
     // Verify sprite.destroy was called via onComplete callback
     expect(coin.sprite.destroy).toHaveBeenCalled();
@@ -114,7 +68,7 @@ describe("CollectibleItem", () => {
     // Create mock destroy function
     const mockDestroy = vi.fn();
     collectible.sprite.destroy = mockDestroy;
-    collectible.sprite.scene = mockScene; // Ensure scene exists for the condition check
+    collectible.sprite.scene = MOCK_SCENE; // Ensure scene exists for the condition check
 
     // Call destroy method
     collectible.destroy();
@@ -145,12 +99,11 @@ describe("CollectibleItem", () => {
 
 describe("ExperienceManager", () => {
   let experienceManager: ExperienceManager;
-  let mockScene: any;
+
   let mockPlayer: any;
 
   beforeEach(() => {
-    // Reset mocks
-    mockAddGold.mockClear();
+    useSaveStore.getState().resetAll();
 
     // Create mock player
     mockPlayer = {
@@ -159,37 +112,8 @@ describe("ExperienceManager", () => {
       magnetBonus: 0,
     };
 
-    // Create mock scene
-    mockScene = {
-      getPlayerPosition: vi.fn().mockReturnValue({ x: 500, y: 300 }),
-      physics: {
-        add: {
-          sprite: vi.fn().mockReturnValue({
-            setDisplaySize: vi.fn().mockReturnThis(),
-            body: { setSize: vi.fn() },
-            setVelocity: vi.fn(),
-            setTint: vi.fn().mockReturnThis(),
-            alpha: 1,
-            scale: 1,
-            x: 0,
-            y: 0,
-            destroy: vi.fn(),
-            scene: mockScene, // Add scene reference
-          }),
-        },
-      },
-      tweens: {
-        add: vi.fn().mockImplementation((config) => {
-          if (config.onComplete) {
-            config.onComplete();
-          }
-          return { play: vi.fn() };
-        }),
-      },
-    };
-
     // Create experience manager with both scene and player
-    experienceManager = new ExperienceManager(mockScene, mockPlayer);
+    experienceManager = new ExperienceManager(MOCK_SCENE, mockPlayer);
   });
 
   it("should initialize with empty collectibles array", () => {
@@ -315,7 +239,7 @@ describe("ExperienceManager", () => {
     collectibles[2].collect = vi.fn();
 
     // Mock tweens with onComplete
-    mockScene.tweens.add.mockImplementation((config: any) => {
+    MOCK_SCENE.tweens.add.mockImplementation((config: any) => {
       if (config.onComplete) {
         config.onComplete();
       }
@@ -336,13 +260,13 @@ describe("ExperienceManager", () => {
     expect(collectibles[2].collect).toHaveBeenCalled();
 
     // Verify tweens were created for all items
-    expect(mockScene.tweens.add).toHaveBeenCalledTimes(3);
+    expect(MOCK_SCENE.tweens.add).toHaveBeenCalledTimes(3);
   });
 
   it("should return immediately when no collectibles to collect", async () => {
     // Mock tweens
     const mockTweensAdd = vi.fn();
-    mockScene.tweens.add = mockTweensAdd;
+    MOCK_SCENE.tweens.add = mockTweensAdd;
 
     // Collect all items (none should exist)
     await experienceManager.collectAllItems();

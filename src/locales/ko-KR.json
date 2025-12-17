@@ -526,7 +526,9 @@
         "unlockAll": "모든 캐릭터와 챕터 잠금 해제",
         "enableMusic": "음악 활성화",
         "musicVolume": "음악 볼륨",
-        "gameTime": "챕터 시간 ({value}초)"
+        "gameTime": "챕터 시간 ({value}분)",
+        "resetSetting": "설정 초기화",
+        "resetConfirm": "모든 설정을 초기화하시겠습니까?"
     },
     "wiki": {
         "title": "위키"

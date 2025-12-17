@@ -1,16 +1,20 @@
 .list {
-    display: flex;
-    gap: var(--content-padding);
-    color: var(--white-color);
-    align-items: center;
-    justify-content: flex-start;
+  display: flex;
+  gap: var(--content-padding);
+  color: var(--white-color);
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .list label {
-    flex: 1;
+  flex: 1;
 }
 
 .closeButton {
-    width: unset;
-    min-width: unset;
+  width: unset;
+  min-width: unset;
+}
+
+.resetButton {
+  margin-top: var(--container-padding);
 }

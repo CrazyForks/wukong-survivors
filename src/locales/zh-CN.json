@@ -530,7 +530,9 @@
     "unlockAll": "解锁所有角色和章节",
     "enableMusic": "启用音乐",
     "musicVolume": "音乐音量",
-    "gameTime": "章节时长 ({value} 秒)"
+    "gameTime": "章节时长 ({value} 分钟)",
+    "resetSetting": "重置设置",
+    "resetConfirm": "确定要重置所有设置吗？"
   },
   "wiki": {
     "title": "百科"

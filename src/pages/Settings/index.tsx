@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import {
   useEnableAutoSelect,
   useEnableUnlockAll,
-  useSaveStore,
   useMusicEnabled,
   useMusicVolume,
   useGameTime,
+  useSettingStore,
 } from "../../store";
 import styles from "./index.module.css";
 
@@ -16,7 +16,7 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
   const enableUnlockAll = useEnableUnlockAll();
   const musicEnabled = useMusicEnabled();
   const musicVolume = useMusicVolume();
-  const gameTime = useGameTime();
+  const gameTime = Math.floor(useGameTime() / 60);
   return (
     <div className="center-container">
       <button
@@ -39,7 +39,7 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
           name="auto-select"
           checked={enableAutoSelect}
           onChange={(e) =>
-            useSaveStore
+            useSettingStore
               .getState()
               .setAutoSelectEnabled(Boolean(e.target.checked))
           }
@@ -53,7 +53,7 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
           name="unlock-all"
           checked={enableUnlockAll}
           onChange={(e) =>
-            useSaveStore
+            useSettingStore
               .getState()
               .setUnlockAllEnabled(Boolean(e.target.checked))
           }
@@ -67,13 +67,13 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
           type="range"
           id="game-time"
           name="game-time"
-          min="60"
-          max="6000"
+          min="1"
+          max="120"
           value={gameTime}
-          step="60"
+          step="1"
           onChange={(e) => {
-            const value = Number(e.target.value);
-            useSaveStore.getState().setGameTime(value);
+            const value = Number(e.target.value) * 60;
+            useSettingStore.getState().setGameTime(value);
           }}
         />
       </div>
@@ -85,7 +85,9 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
           name="enable-music"
           checked={musicEnabled}
           onChange={(e) =>
-            useSaveStore.getState().setMusicEnabled(Boolean(e.target.checked))
+            useSettingStore
+              .getState()
+              .setMusicEnabled(Boolean(e.target.checked))
           }
         />
       </div>
@@ -101,10 +103,21 @@ export const Settings = ({ onBack }: { onBack: () => void }) => {
           step="0.01"
           onChange={(e) => {
             const value = Number(e.target.value);
-            useSaveStore.getState().setMusicVolume(value);
+            useSettingStore.getState().setMusicVolume(value);
           }}
         />
       </div>
+      <button
+        className={`resetButton ${styles.resetButton}`}
+        onClick={() => {
+          if (window.confirm(t("settings.resetConfirm"))) {
+            useSettingStore.getState().resetAll();
+          }
+        }}
+        data-testid="reset-setting-button"
+      >
+        {t("settings.resetSetting")}
+      </button>
     </div>
   );
 };

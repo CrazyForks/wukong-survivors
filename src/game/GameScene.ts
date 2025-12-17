@@ -5,7 +5,7 @@ import { WeaponManager, type UpgradeOption } from "./weapon";
 import { ExperienceManager } from "./experience";
 import { AudioManager, SoundEffect } from "./AudioManager";
 import { VirtualJoystick } from "./VirtualJoystick";
-import { useSaveStore, useAppStore } from "../store";
+import { useSaveStore, useAppStore, useSettingStore } from "../store";
 import {
   ENEMIES_DATA,
   WEAPONS,
@@ -71,7 +71,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   public getPlayTime() {
-    return Math.floor(useSaveStore.getState().gameTime - this.gameTime);
+    return Math.floor(useSettingStore.getState().gameTime - this.gameTime);
   }
 
   public playPlayerFireSound = () => {
@@ -241,7 +241,7 @@ export class GameScene extends Phaser.Scene {
     this.createUI();
 
     // Game state
-    this.gameTime = useSaveStore.getState().gameTime;
+    this.gameTime = useSettingStore.getState().gameTime;
     this.isPaused = false;
     this.isGameOver = false;
 
@@ -903,7 +903,7 @@ export class GameScene extends Phaser.Scene {
       buttons.push({ button, nameText, descText });
     });
 
-    if (useSaveStore.getState().enableAutoSelect) {
+    if (useSettingStore.getState().enableAutoSelect) {
       const index = Math.floor(Math.random() * options.length);
       selectOption(options[index]);
     }

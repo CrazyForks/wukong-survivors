@@ -2,35 +2,19 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import CharacterSelect from "../index";
 import { CHARACTERS_DATA } from "../../../constant/characters";
-
-const selectCharacterMock = vi.fn();
-
-const mockGetState = vi.fn(() => ({
-  selectedCharacterId: "destined_one",
-  selectedMapId: "chapter1",
-  unlockedCharacterIds: ["destined_one", "erlang_shen"],
-  unlockedMapIds: ["chapter1"],
-  ownedWeapons: [],
-  getSelectCharacter: vi.fn(() => CHARACTERS_DATA["destined_one"]),
-  selectCharacter: selectCharacterMock,
-  selectMap: vi.fn(),
-  getSelectMap: vi.fn(),
-  checkUnlocks: vi.fn(),
-  addWeapon: vi.fn(),
-}));
-
-// Mock the store hooks
-vi.mock("../../../store", () => ({
-  useUnlockedCharacters: vi.fn(() => ["destined_one", "erlang_shen"]),
-  useSelectedCharacter: vi.fn(() => "destined_one"),
-  useAppStore: {
-    getState: () => mockGetState(),
-  },
-}));
+import { useSaveStore, useAppStore } from "../../../store";
 
 describe("CharacterSelect Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useAppStore.getState().resetAll();
+    useSaveStore.getState().resetAll();
+    useAppStore.setState({
+      unlockedCharacterIds: ["destined_one", "erlang_shen"],
+      unlockedMapIds: ["chapter1"],
+      selectedCharacterId: "destined_one",
+      selectedMapId: "chapter1",
+    });
   });
 
   it("should render the character select title", () => {
@@ -68,7 +52,7 @@ describe("CharacterSelect Component", () => {
     const characterCard = screen.getByTestId("character-card-erlang_shen");
     fireEvent.click(characterCard);
 
-    expect(selectCharacterMock).toHaveBeenCalledWith("erlang_shen");
+    expect(useAppStore.getState().selectedCharacterId).toBe("erlang_shen");
   });
 
   it("should not call selectCharacter when a locked character is clicked", async () => {
@@ -77,7 +61,7 @@ describe("CharacterSelect Component", () => {
     const characterCard = screen.getByTestId("character-card-lingxuzi");
     fireEvent.click(characterCard);
 
-    expect(selectCharacterMock).not.toHaveBeenCalled();
+    expect(useAppStore.getState().selectedCharacterId).toBe("destined_one");
   });
 
   it("should call onConfirm when confirm button is clicked", async () => {
@@ -87,7 +71,7 @@ describe("CharacterSelect Component", () => {
     const confirmButton = screen.getByTestId("start-button");
     fireEvent.click(confirmButton);
 
-    expect(selectCharacterMock).toHaveBeenCalledWith("destined_one");
+    expect(useAppStore.getState().selectedCharacterId).toBe("destined_one");
     expect(onConfirmMock).toHaveBeenCalled();
   });
 

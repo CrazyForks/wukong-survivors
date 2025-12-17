@@ -2,22 +2,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import MapSelect from "../index";
 import { MAPS } from "../../../constant/map";
-
-// Mock the store hooks
-vi.mock("../../../store", () => ({
-  useUnlockedMaps: vi.fn(() => ["chapter1", "chapter2"]),
-  useSelectedMap: vi.fn(() => "chapter1"),
-  useAppStore: {
-    getState: vi.fn(() => ({
-      getSelectMap: vi.fn(() => MAPS[0]), // chapter1
-      selectMap: vi.fn(),
-    })),
-  },
-}));
+import { useSaveStore, useAppStore } from "../../../store";
 
 describe("MapSelect Component", () => {
   beforeEach(() => {
+    useAppStore.getState().resetAll();
+    useSaveStore.getState().resetAll();
     vi.clearAllMocks();
+    useAppStore.setState({
+      unlockedMapIds: ["chapter1", "chapter2"],
+      selectedMapId: "chapter1",
+    });
   });
 
   it("should render the map select title", () => {
@@ -50,21 +45,11 @@ describe("MapSelect Component", () => {
   });
 
   it("should call selectMap when a map card is clicked", async () => {
-    const { useAppStore } = await import("../../../store");
-    const selectMapMock = vi.fn();
-
-    vi.mocked(useAppStore.getState).mockReturnValue({
+    useAppStore.setState({
       selectedCharacterId: "destined_one",
       selectedMapId: "chapter1",
       unlockedCharacterIds: ["destined_one"],
       unlockedMapIds: ["chapter1", "chapter2"],
-      ownedWeapons: [],
-      getSelectMap: vi.fn(() => MAPS[0]),
-      selectCharacter: vi.fn(),
-      selectMap: selectMapMock,
-      getSelectCharacter: vi.fn(),
-      checkUnlocks: vi.fn(),
-      addWeapon: vi.fn(),
     });
 
     render(<MapSelect onConfirm={() => {}} onBack={() => {}} />);
@@ -72,25 +57,15 @@ describe("MapSelect Component", () => {
     const mapCard = screen.getByTestId("map-card-chapter2");
     fireEvent.click(mapCard);
 
-    expect(selectMapMock).toHaveBeenCalledWith("chapter2");
+    expect(useAppStore.getState().selectedMapId).toBe("chapter2");
   });
 
   it("should not call selectMap when a locked map card is clicked", async () => {
-    const { useAppStore } = await import("../../../store");
-    const selectMapMock = vi.fn();
-
-    vi.mocked(useAppStore.getState).mockReturnValue({
+    useAppStore.setState({
       selectedCharacterId: "destined_one",
       selectedMapId: "chapter1",
       unlockedCharacterIds: ["destined_one"],
       unlockedMapIds: ["chapter1"],
-      ownedWeapons: [],
-      getSelectMap: vi.fn(() => MAPS[0]),
-      selectCharacter: vi.fn(),
-      selectMap: selectMapMock,
-      getSelectCharacter: vi.fn(),
-      checkUnlocks: vi.fn(),
-      addWeapon: vi.fn(),
     });
 
     render(<MapSelect onConfirm={() => {}} onBack={() => {}} />);
@@ -98,25 +73,17 @@ describe("MapSelect Component", () => {
     const lockedMapCard = screen.getByTestId("map-card-chapter3");
     fireEvent.click(lockedMapCard);
 
-    expect(selectMapMock).not.toHaveBeenCalled();
+    expect(useAppStore.getState().selectedMapId).toBe("chapter1");
   });
 
   it("should call onConfirm when confirm button is clicked", async () => {
-    const { useAppStore } = await import("../../../store");
     const onConfirmMock = vi.fn();
 
-    vi.mocked(useAppStore.getState).mockReturnValue({
+    useAppStore.setState({
       selectedCharacterId: "destined_one",
       selectedMapId: "chapter1",
       unlockedCharacterIds: ["destined_one"],
       unlockedMapIds: ["chapter1"],
-      ownedWeapons: [],
-      getSelectMap: vi.fn(() => MAPS[0]),
-      selectCharacter: vi.fn(),
-      selectMap: vi.fn(),
-      getSelectCharacter: vi.fn(),
-      checkUnlocks: vi.fn(),
-      addWeapon: vi.fn(),
     });
 
     render(<MapSelect onConfirm={onConfirmMock} onBack={() => {}} />);

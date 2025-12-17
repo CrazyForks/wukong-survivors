@@ -522,7 +522,9 @@
     "unlockAll": "すべてのキャラクターと章を解放",
     "enableMusic": "音楽を有効にする",
     "musicVolume": "音楽の音量",
-    "gameTime": "チャプター時間 ({value}秒)"
+    "gameTime": "チャプター時間 ({value}分)",
+    "resetSetting": "設定をリセット",
+    "resetConfirm": "すべての設定をリセットしますか？"
   },
   "wiki": {
     "title": "ウィキ"

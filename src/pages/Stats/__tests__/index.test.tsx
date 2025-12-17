@@ -1,20 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import Stats from "../index";
-
-// Mock the store hooks
-vi.mock("../../../store", () => ({
-  useUnlockedCharacters: vi.fn(() => ["destined_one", "erlang_shen"]),
-  useTotalGold: vi.fn(() => 1000),
-  useTotalKills: vi.fn(() => 500),
-  useBestSurvivalTime: vi.fn(() => 125),
-  useTotalPlayTime: vi.fn(() => 3665),
-  useCompletedChapters: vi.fn(() => ["chapter1"]),
-}));
+import { useSaveStore, useAppStore } from "../../../store";
 
 describe("Stats Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useSaveStore.getState().resetAll();
+    useAppStore.getState().resetAll();
+
+    useSaveStore.setState({
+      totalGold: 1000,
+      totalKills: 500,
+      bestSurvivalTime: 125,
+      totalPlayTime: 3665,
+      completedChapters: ["chapter1"],
+    });
+    useAppStore.setState({
+      unlockedCharacterIds: ["destined_one", "erlang_shen"],
+    });
   });
 
   it("should display correct gold amount", () => {

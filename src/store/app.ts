@@ -26,6 +26,7 @@ type Actions = {
   getSelectMap: () => GameMap;
   checkUnlocks: () => void;
   addWeapon: (weaponId: WeaponType) => void;
+  resetAll: () => void;
 };
 
 type Store = States & Actions;
@@ -105,6 +106,15 @@ export const useAppStore = create<Store>((set, get) => {
     unlockedCharacterIds: [],
     unlockedMapIds: [],
     ownedWeapons: [],
+    resetAll() {
+      set({
+        selectedCharacterId: "destined_one",
+        selectedMapId: "chapter1",
+        unlockedCharacterIds: [],
+        unlockedMapIds: [],
+        ownedWeapons: [],
+      });
+    },
     addWeapon: (weaponId) => {
       const { ownedWeapons } = get();
 

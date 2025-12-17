@@ -186,20 +186,6 @@ describe("SaveStore", () => {
     });
   });
 
-  describe("Language", () => {
-    it("should set language", () => {
-      useSaveStore.getState().setLanguage("zh-CN");
-      expect(useSaveStore.getState().language).toBe("zh-CN");
-    });
-
-    it("should change language", () => {
-      useSaveStore.getState().setLanguage("en-US");
-      useSaveStore.getState().setLanguage("ja-JP");
-
-      expect(useSaveStore.getState().language).toBe("ja-JP");
-    });
-  });
-
   describe("Chapters", () => {
     it("should complete chapter", () => {
       const mapId = "map1" as any;
@@ -225,7 +211,6 @@ describe("SaveStore", () => {
       useSaveStore.getState().addGold(1000);
       useSaveStore.getState().addKills(100);
       useSaveStore.getState().updatePlayTime(500);
-      useSaveStore.getState().setLanguage("zh-CN");
 
       // Reset
       useSaveStore.getState().resetAll();

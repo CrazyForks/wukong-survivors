@@ -173,11 +173,6 @@ export const DEFAULT_SAVE: GameSave = {
   critRate: 0,
   magnetBonus: 0,
   collectRange: 0,
-  musicVolume: 0.5,
-  musicEnabled: true,
-  enableAutoSelect: false,
-  enableUnlockAll: false,
-  gameTime: DEFAULT_GAME_TIME,
 };
 
 export const WORLD_SIZE = 4000;

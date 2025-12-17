@@ -498,7 +498,9 @@
         "unlockAll": "Unlock all characters and chapters",
         "enableMusic": "Enable music",
         "musicVolume": "Music volume",
-        "gameTime": "Chapter time ({value} seconds)"
+        "gameTime": "Chapter time ({value} minutes)",
+        "resetSetting": "Reset Settings",
+        "resetConfirm": "Are you sure you want to reset all settings?"
     },
     "wiki": {
         "title": "Wiki"

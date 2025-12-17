@@ -191,7 +191,7 @@ export class ExperienceManager {
           x: playerPos.x,
           y: playerPos.y,
           scale: 1.5,
-          duration: 1000,
+          duration: 2000,
           ease: Phaser.Math.Easing.Quadratic.InOut,
           onComplete: () => {
             // Collect the item after animation completes

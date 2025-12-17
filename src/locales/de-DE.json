@@ -498,7 +498,9 @@
         "unlockAll": "Alle Charaktere und Kapitel freischalten",
         "enableMusic": "Musik aktivieren",
         "musicVolume": "Musikvolume",
-        "gameTime": "Kapitelzeit ({value} Sekunden)"
+        "gameTime": "Kapitelzeit ({value} Minuten)",
+        "resetSetting": "Einstellungen zurücksetzen",
+        "resetConfirm": "Möchten Sie alle Einstellungen zurücksetzen?"
     },
     "wiki": {
         "title": "Wiki"

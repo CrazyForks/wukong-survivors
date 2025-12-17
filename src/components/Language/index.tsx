@@ -2,7 +2,7 @@ import styles from "./index.module.css";
 import { SupportLanguageCodes } from "../../i18n";
 import { useTranslation } from "react-i18next";
 import i18n from "../../i18n";
-import { useLanguage, useSaveStore } from "../../store";
+import { useLanguage, useSettingStore } from "../../store";
 import type { Language } from "../../types";
 
 const LanguageSelect = () => {
@@ -15,7 +15,7 @@ const LanguageSelect = () => {
       className={styles.languageSelector}
       onChange={async (e) => {
         const lang = await i18n.changeLanguage(e.target.value as Language);
-        useSaveStore.getState().setLanguage(lang);
+        useSettingStore.getState().setLanguage(lang);
       }}
       id="select-language"
     >

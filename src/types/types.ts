@@ -46,12 +46,6 @@ export type GameSave = {
   totalPlayTime: number;
   bestSurvivalTime: number;
   completedChapters: MapType[];
-  language?: Language;
-  musicVolume: number;
-  musicEnabled: boolean;
-  enableAutoSelect: boolean;
-  enableUnlockAll: boolean;
-  gameTime: number;
 } & Record<PermanentUpgradeType, number>;
 
 export type Screen =

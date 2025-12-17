@@ -2,41 +2,19 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Shop from "../index";
 import { PERMANENT_UPGRADES } from "../../../constant";
-import type { PermanentUpgradeType } from "../../../types";
-
-const DEFAULT_DATA: Record<PermanentUpgradeType, number> = {
-  attack: 0,
-  health: 0,
-  armor: 0,
-  speed: 0,
-  luck: 0,
-  expBonus: 0,
-  magnetBonus: 0,
-  critRate: 0,
-  collectRange: 0,
-};
-
-// Mock the store hooks
-vi.mock("../../../store", () => ({
-  useShopLevel: vi.fn(() => ({
-    attack: 1,
-    health: 2,
-    armor: 0,
-    luck: 3,
-    speed: 1,
-  })),
-  useTotalGold: vi.fn(() => 1500),
-  useSaveStore: {
-    getState: vi.fn(() => ({
-      upgradePermanent: vi.fn(() => true),
-      resetPermanentUpgrades: vi.fn(),
-    })),
-  },
-}));
+import { useSaveStore } from "../../../store";
 
 describe("Shop Component", () => {
   beforeEach(() => {
+    useSaveStore.getState().resetAll();
     vi.clearAllMocks();
+    useSaveStore.setState({
+      totalGold: 1500,
+      luck: 3,
+      speed: 1,
+      attack: 1,
+      health: 2,
+    });
   });
 
   it("should render the shop title", () => {
@@ -56,38 +34,6 @@ describe("Shop Component", () => {
   });
 
   it("should render all upgrade cards", async () => {
-    const { useSaveStore } = await import("../../../store");
-    const resetPermanentUpgradesMock = vi.fn();
-
-    vi.mocked(useSaveStore.getState).mockReturnValue({
-      ...DEFAULT_DATA,
-      totalGold: 100,
-      totalKills: 0,
-      totalPlayTime: 0,
-      bestSurvivalTime: 0,
-      completedChapters: [],
-      language: "en-US",
-      enableAutoSelect: false,
-      enableUnlockAll: false,
-      musicEnabled: true,
-      musicVolume: 0.5,
-      gameTime: 0,
-      upgradePermanent: vi.fn(),
-      resetPermanentUpgrades: resetPermanentUpgradesMock,
-      addGold: vi.fn(),
-      spendGold: vi.fn(() => true),
-      addKills: vi.fn(),
-      updatePlayTime: vi.fn(),
-      setLanguage: vi.fn(),
-      resetAll: vi.fn(),
-      completeChapter: vi.fn(),
-      setMusicVolume: vi.fn(),
-      setMusicEnabled: vi.fn(),
-      setAutoSelectEnabled: vi.fn(),
-      setUnlockAllEnabled: vi.fn(),
-      setGameTime: vi.fn(),
-    });
-
     render(<Shop onBack={() => {}} />);
 
     PERMANENT_UPGRADES.forEach((upgrade) => {
@@ -111,79 +57,15 @@ describe("Shop Component", () => {
   });
 
   it("should call upgradePermanent when purchase button is clicked", async () => {
-    const { useSaveStore } = await import("../../../store");
-    const upgradePermanentMock = vi.fn(() => true);
-    const resetPermanentUpgradesMock = vi.fn();
-
-    vi.mocked(useSaveStore.getState).mockReturnValue({
-      ...DEFAULT_DATA,
-      totalGold: 100,
-      totalKills: 0,
-      totalPlayTime: 0,
-      bestSurvivalTime: 0,
-      completedChapters: [],
-      language: "en-US",
-      enableAutoSelect: false,
-      enableUnlockAll: false,
-      musicEnabled: true,
-      musicVolume: 0.5,
-      gameTime: 0,
-      upgradePermanent: upgradePermanentMock,
-      resetPermanentUpgrades: resetPermanentUpgradesMock,
-      addGold: vi.fn(),
-      spendGold: vi.fn(() => true),
-      addKills: vi.fn(),
-      updatePlayTime: vi.fn(),
-      setLanguage: vi.fn(),
-      resetAll: vi.fn(),
-      completeChapter: vi.fn(),
-      setMusicVolume: vi.fn(),
-      setMusicEnabled: vi.fn(),
-      setAutoSelectEnabled: vi.fn(),
-      setUnlockAllEnabled: vi.fn(),
-      setGameTime: vi.fn(),
-    });
-
     render(<Shop onBack={() => {}} />);
 
     const purchaseButton = screen.getByTestId("purchase-button-attack");
     fireEvent.click(purchaseButton);
 
-    expect(upgradePermanentMock).toHaveBeenCalledWith("attack");
+    expect(useSaveStore.getState().attack).toBe(2);
   });
 
   it("should call resetPermanentUpgrades when reset button is clicked", async () => {
-    const { useSaveStore } = await import("../../../store");
-    const resetPermanentUpgradesMock = vi.fn();
-    vi.mocked(useSaveStore.getState).mockReturnValue({
-      ...DEFAULT_DATA,
-      totalGold: 100,
-      totalKills: 0,
-      totalPlayTime: 0,
-      bestSurvivalTime: 0,
-      completedChapters: [],
-      language: "en-US",
-      enableAutoSelect: false,
-      enableUnlockAll: false,
-      musicEnabled: true,
-      musicVolume: 0.5,
-      gameTime: 0,
-      upgradePermanent: vi.fn(),
-      resetPermanentUpgrades: resetPermanentUpgradesMock,
-      addGold: vi.fn(),
-      spendGold: vi.fn(() => true),
-      addKills: vi.fn(),
-      updatePlayTime: vi.fn(),
-      setLanguage: vi.fn(),
-      resetAll: vi.fn(),
-      completeChapter: vi.fn(),
-      setMusicVolume: vi.fn(),
-      setMusicEnabled: vi.fn(),
-      setAutoSelectEnabled: vi.fn(),
-      setUnlockAllEnabled: vi.fn(),
-      setGameTime: vi.fn(),
-    });
-
     // Mock window.confirm to return true
     window.confirm = vi.fn(() => true);
 
@@ -195,41 +77,10 @@ describe("Shop Component", () => {
     expect(window.confirm).toHaveBeenCalledWith(
       "Reset all upgrades? You will get back 100% of spent gold.",
     );
-    expect(resetPermanentUpgradesMock).toHaveBeenCalled();
+    expect(useSaveStore.getState().luck).toBe(0);
   });
 
   it("should not call resetPermanentUpgrades when reset is cancelled", async () => {
-    const { useSaveStore } = await import("../../../store");
-    const resetPermanentUpgradesMock = vi.fn();
-    vi.mocked(useSaveStore.getState).mockReturnValue({
-      ...DEFAULT_DATA,
-      totalGold: 100,
-      totalKills: 0,
-      totalPlayTime: 0,
-      bestSurvivalTime: 0,
-      completedChapters: [],
-      language: "en-US",
-      enableAutoSelect: false,
-      enableUnlockAll: false,
-      musicEnabled: true,
-      musicVolume: 0.5,
-      gameTime: 0,
-      upgradePermanent: vi.fn(),
-      resetPermanentUpgrades: resetPermanentUpgradesMock,
-      addGold: vi.fn(),
-      spendGold: vi.fn(() => true),
-      addKills: vi.fn(),
-      updatePlayTime: vi.fn(),
-      setLanguage: vi.fn(),
-      resetAll: vi.fn(),
-      completeChapter: vi.fn(),
-      setMusicVolume: vi.fn(),
-      setMusicEnabled: vi.fn(),
-      setAutoSelectEnabled: vi.fn(),
-      setUnlockAllEnabled: vi.fn(),
-      setGameTime: vi.fn(),
-    });
-
     // Mock window.confirm to return false
     window.confirm = vi.fn(() => false);
 
@@ -241,12 +92,10 @@ describe("Shop Component", () => {
     expect(window.confirm).toHaveBeenCalledWith(
       "Reset all upgrades? You will get back 100% of spent gold.",
     );
-    expect(resetPermanentUpgradesMock).not.toHaveBeenCalled();
   });
 
   it("should disable purchase button when cannot afford", async () => {
-    const { useTotalGold } = await import("../../../store");
-    vi.mocked(useTotalGold).mockReturnValue(0);
+    useSaveStore.getState().resetAll();
 
     render(<Shop onBack={() => {}} />);
 

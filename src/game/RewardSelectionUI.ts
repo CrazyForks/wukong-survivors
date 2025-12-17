@@ -6,7 +6,7 @@ import {
   getAvailableCrafts,
 } from "../util";
 import type { RewardOption } from "../types";
-import { useAppStore, useSaveStore } from "../store";
+import { useAppStore, useSaveStore, useSettingStore } from "../store";
 import i18n from "../i18n";
 import { scaleManager } from "./ScaleManager";
 
@@ -144,7 +144,7 @@ export class RewardSelectionUI {
       this.createOptionButton(option, x, y, buttonWidth, buttonHeight, depth);
     });
 
-    if (useSaveStore.getState().enableAutoSelect) {
+    if (useSettingStore.getState().enableAutoSelect) {
       const index = Math.floor(Math.random() * options.length);
       this.selectOption(options[index]);
     }

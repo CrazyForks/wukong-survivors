@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { useSaveStore } from "../store";
+import { useSettingStore } from "../store";
 import type { GameScene } from "./GameScene";
 
 // Audio types following Vampire Survivors style
@@ -37,7 +37,7 @@ export class AudioManager {
    * Play a sound effect
    */
   public playSfx(effect: SoundEffect): void {
-    const { musicEnabled, musicVolume } = useSaveStore.getState();
+    const { musicEnabled, musicVolume } = useSettingStore.getState();
 
     if (!musicEnabled || this.isPlayerSoundEnabled || musicVolume === 0) return;
     this.isPlayerSoundEnabled = true;

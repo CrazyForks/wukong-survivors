@@ -1,6 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import { useSaveStore } from "./store";
+import { useSettingStore } from "./store";
 import type { Language } from "./types";
 
 // Import translation files
@@ -39,7 +39,7 @@ function I18nConfig() {
   const getSelectedLang = (lang = "") => {
     const selectedLang: any =
       lang ||
-      useSaveStore.getState().language ||
+      useSettingStore.getState().language ||
       navigator.language ||
       defaultLang;
 

@@ -1,17 +1,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { DEFAULT_SAVE, PERMANENT_UPGRADES, MAPS } from "../constant";
-import type {
-  GameSave,
-  PermanentUpgradeType,
-  MapType,
-  Language,
-} from "../types";
+import { DEFAULT_SAVE, PERMANENT_UPGRADES } from "../constant";
+import type { GameSave, PermanentUpgradeType, MapType } from "../types";
 import { useShallow } from "zustand/react/shallow";
 import { useAppStore } from "./app";
-import Phaser from "phaser";
 
-const SAVE_KEY = "wu_kong_survivors_save_1";
+const SAVE_KEY = "wu_kong_survivors_save";
 
 // Zustand Store interface
 interface SaveStore extends GameSave {
@@ -22,14 +16,8 @@ interface SaveStore extends GameSave {
   updatePlayTime: (seconds: number) => void;
   upgradePermanent: (upgradeId: PermanentUpgradeType) => boolean;
   resetPermanentUpgrades: () => void;
-  setLanguage: (language: Language) => void;
   resetAll: () => void;
   completeChapter: (map: MapType[]) => void;
-  setMusicVolume: (volume: number) => void;
-  setMusicEnabled: (enabled: boolean) => void;
-  setAutoSelectEnabled: (enabled: boolean) => void;
-  setUnlockAllEnabled: (enabled: boolean) => void;
-  setGameTime: (gameTime: number) => void;
 }
 
 // Create Zustand Store with persist middleware
@@ -37,26 +25,6 @@ export const useSaveStore = create<SaveStore>()(
   persist(
     (set, get) => ({
       ...DEFAULT_SAVE,
-      setGameTime(gameTime: number) {
-        set({ gameTime });
-      },
-      setAutoSelectEnabled(enabled) {
-        set({ enableAutoSelect: enabled });
-      },
-      setUnlockAllEnabled(enabled) {
-        const { completeChapter } = get();
-        set({ enableUnlockAll: enabled });
-        if (enabled) {
-          completeChapter(MAPS.map((m) => m.id));
-        }
-      },
-      setMusicVolume(volume) {
-        const t = Phaser.Math.Clamp(volume, 0, 1);
-        set({ musicVolume: t });
-      },
-      setMusicEnabled(enabled) {
-        set({ musicEnabled: enabled });
-      },
 
       // Actions
       addGold: (amount: number) => {
@@ -139,8 +107,6 @@ export const useSaveStore = create<SaveStore>()(
         });
       },
 
-      setLanguage: (language) => set({ language }),
-
       resetAll: () => set({ ...DEFAULT_SAVE }),
 
       // Complete chapter and unlock corresponding characters
@@ -172,12 +138,6 @@ const getBestSurvivalTime = (state: GameSave) => state.bestSurvivalTime;
 const getTotalPlayTime = (state: GameSave) => state.totalPlayTime;
 
 const getCompletedChapters = (state: GameSave) => state.completedChapters;
-const getLanguage = (state: GameSave) => state.language;
-const getEnableAutoSelect = (state: GameSave) => state.enableAutoSelect;
-const getEnableUnlockAll = (state: GameSave) => state.enableUnlockAll;
-const getMusicEnabled = (state: GameSave) => state.musicEnabled;
-const getMusicVolume = (state: GameSave) => state.musicVolume;
-const getGameTime = (state: GameSave) => state.gameTime;
 
 const getShopLevel = (
   state: GameSave,
@@ -202,13 +162,5 @@ export const useTotalPlayTime = () =>
 
 export const useCompletedChapters = () =>
   useSaveStore(useShallow(getCompletedChapters));
-export const useLanguage = () => useSaveStore(useShallow(getLanguage));
 
 export const useShopLevel = () => useSaveStore(useShallow(getShopLevel));
-export const useEnableAutoSelect = () =>
-  useSaveStore(useShallow(getEnableAutoSelect));
-export const useEnableUnlockAll = () =>
-  useSaveStore(useShallow(getEnableUnlockAll));
-export const useMusicEnabled = () => useSaveStore(useShallow(getMusicEnabled));
-export const useMusicVolume = () => useSaveStore(useShallow(getMusicVolume));
-export const useGameTime = () => useSaveStore(useShallow(getGameTime));

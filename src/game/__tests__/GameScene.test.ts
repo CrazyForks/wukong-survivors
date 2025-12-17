@@ -5,87 +5,27 @@ import { WeaponManager } from "../weapon";
 import { ExperienceManager } from "../experience";
 import { AudioManager } from "../AudioManager";
 import { VirtualJoystick } from "../VirtualJoystick";
+import { MOCK_SCENE } from "./util";
 
 // Mock dependencies
-vi.mock("../player");
 vi.mock("../enemy");
 vi.mock("../weapon");
 vi.mock("../experience");
 vi.mock("../AudioManager");
 vi.mock("../VirtualJoystick");
-vi.mock("../RewardSelectionUI");
 
 describe("GameScene", () => {
-  let mockScene: any;
   let gameScene: GameScene;
 
   beforeEach(() => {
     // Clear all mocks
     vi.clearAllMocks();
 
-    // Mock the scene and its properties
-    mockScene = {
-      physics: {
-        world: {
-          setBounds: vi.fn(),
-        },
-      },
-      add: {
-        image: vi.fn().mockReturnValue({
-          setOrigin: vi.fn().mockReturnThis(),
-          setDepth: vi.fn().mockReturnThis(),
-        }),
-        rectangle: vi.fn().mockReturnValue({
-          setScrollFactor: vi.fn().mockReturnThis(),
-          setDepth: vi.fn().mockReturnThis(),
-          setStrokeStyle: vi.fn().mockReturnThis(),
-          setFillStyle: vi.fn().mockReturnThis(),
-        }),
-        text: vi.fn().mockReturnValue({
-          setScrollFactor: vi.fn().mockReturnThis(),
-          setDepth: vi.fn().mockReturnThis(),
-          setOrigin: vi.fn().mockReturnThis(),
-        }),
-      },
-      cameras: {
-        main: {
-          setBounds: vi.fn(),
-          setZoom: vi.fn(),
-          height: 800,
-          width: 600,
-        },
-      },
-      input: {
-        keyboard: {
-          createCursorKeys: vi.fn().mockReturnValue({}),
-          addKey: vi.fn().mockReturnThis(),
-        },
-      },
-      load: {
-        svg: vi.fn(),
-      },
-      time: {
-        delayedCall: vi.fn((_delay, callback) => callback()),
-      },
-      scale: {
-        on: vi.fn(),
-      },
-      sys: {
-        game: {
-          device: {
-            input: {
-              touch: false,
-            },
-          },
-        },
-      },
-    };
-
     // Create game scene instance
     gameScene = new GameScene();
 
     // Assign mock scene properties
-    Object.assign(gameScene, mockScene);
+    Object.assign(gameScene, MOCK_SCENE);
 
     // @ts-expect-error just for test
     gameScene.addWeapon = vi.fn();
@@ -111,7 +51,7 @@ describe("GameScene", () => {
     gameScene.preload();
 
     // Check if assets are loaded
-    expect(mockScene.load.svg).toHaveBeenCalled();
+    expect(MOCK_SCENE.load.svg).toHaveBeenCalled();
   });
 
   it("should create game objects correctly", () => {

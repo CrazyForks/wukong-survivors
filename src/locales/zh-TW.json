@@ -526,7 +526,9 @@
         "unlockAll": "解鎖所有角色和章節",
         "enableMusic": "啟用音樂",
         "musicVolume": "音樂音量",
-        "gameTime": "章節時長 ({value} 秒)"
+        "gameTime": "章節時長 ({value} 分鐘)",
+        "resetSetting": "重置設定",
+        "resetConfirm": "確定要重置所有設定嗎？"
     },
     "wiki": {
         "title": "百科"

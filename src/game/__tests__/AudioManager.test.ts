@@ -1,18 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { AudioManager, SoundEffect } from "../AudioManager";
-
-const mockGetState = vi.fn(() => ({
-  musicEnabled: true,
-  musicVolume: 0.5,
-}));
-
-vi.mock("../../store", () => {
-  return {
-    useSaveStore: {
-      getState: () => mockGetState(),
-    },
-  };
-});
+import { useSettingStore } from "../../store";
 
 // Mock Phaser
 const currentMockSound = {
@@ -43,35 +31,15 @@ const mockScene = {
 
 describe("AudioManager", () => {
   let audioManager: AudioManager;
-  let localStorageMock: { [key: string]: string };
 
   beforeEach(() => {
-    // Mock localStorage
-    localStorageMock = {};
-    global.localStorage = {
-      getItem: vi.fn((key: string) => localStorageMock[key] || null),
-      setItem: vi.fn((key: string, value: string) => {
-        localStorageMock[key] = value;
-      }),
-      removeItem: vi.fn((key: string) => {
-        delete localStorageMock[key];
-      }),
-      clear: vi.fn(() => {
-        localStorageMock = {};
-      }),
-      length: 0,
-      key: vi.fn(),
-    } as any;
+    useSettingStore.getState().resetAll();
 
-    // Reset mocks
     vi.clearAllMocks();
     mockScene.sound.add.mockReturnValue(currentMockSound);
 
-    // Ensure musicEnabled is true for most tests
-    mockGetState.mockReturnValue({
-      musicEnabled: true,
-      musicVolume: 0.5,
-    });
+    useSettingStore.getState().setMusicEnabled(true);
+    useSettingStore.getState().setMusicVolume(0.5);
 
     audioManager = new AudioManager(mockScene);
   });
@@ -107,11 +75,7 @@ describe("AudioManager", () => {
     });
 
     it("should not play sound effect when music is disabled", () => {
-      // Update the mock directly
-      mockGetState.mockReturnValue({
-        musicEnabled: false,
-        musicVolume: 0.5,
-      });
+      useSettingStore.getState().setMusicEnabled(false);
 
       audioManager.playSfx(SoundEffect.PLAYER_HIT);
 
@@ -119,11 +83,7 @@ describe("AudioManager", () => {
     });
 
     it("should not play sound effect when volume is 0", () => {
-      // Update the mock directly
-      mockGetState.mockReturnValue({
-        musicEnabled: true,
-        musicVolume: 0,
-      });
+      useSettingStore.getState().setMusicVolume(0);
 
       audioManager.playSfx(SoundEffect.PLAYER_HIT);
 
